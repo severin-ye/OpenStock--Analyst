@@ -96,7 +96,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo"><div class="ticker">BTC</div><div class="name">比特币 · Bitcoin</div></div>
-  <div class="sidebar-score"><div class="score-pill"><span class="num">7.0</span>/ 10 &nbsp;综合评分</div></div>
+  <div class="sidebar-score"><div class="score-pill"><span class="num">8.3</span>/ 10 &nbsp;综合评分</div></div>
   <nav>
     <div class="nav-gl">分析章节</div>
     <a class="nav-link neut" href="#s1"><span class="dot"></span>S1. 涨跌比例总览</a>
@@ -123,6 +123,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="k"><label>MVRV</label><span>1.08</span><small>近熊市阈值</small></div>
     <div class="k"><label>通胀</label><span>0.85%</span><small>年化</small></div>
     <div class="k"><label>算力</label><span>~970</span><small>EH/s</small></div>
+    <div class="k"><label>VM Score</label><span>8.3/10</span><small>价格40·质量40·安全20</small></div>
   </div>
 </div>
 
@@ -238,6 +239,11 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <p class="note">风险结论：BTC长期右偏，但短期仍是高波动资产，仓位需能承受 -20% ~ -57% 的尾部回撤。</p>
 </div>
 
+<div class="card" id="score-method">
+  <div class="card-header"><div class="card-num">VM</div><div class="card-title">🧮 评分方法论：价格40% + 质量40% + 安全20%</div><div class="card-sub">BTC Adaptation</div></div>
+  <div class="t-wrap"><table><thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>依据</th></tr></thead><tbody><tr><td>💰 价格</td><td>MVRV折价</td><td>12</td><td>15</td><td>MVRV 1.08，距熊市阈值1.00仅高8%</td></tr><tr><td>💰 价格</td><td>黄金市值占比</td><td>8</td><td>10</td><td>BTC约为黄金市值6.9%，若升至15%隐含约$150K/BTC</td></tr><tr><td>💰 价格</td><td>ETF资金流折价</td><td>5</td><td>8</td><td>黄金ETF analog为$90K-$130K，但资金流仍有波动</td></tr><tr><td>💰 价格</td><td>S2F模型缺口</td><td>5</td><td>7</td><td>S2F模型$100K-$200K vs 当前$70K，正向缺口但不确定性高</td></tr><tr class="hi"><td>💰 价格小计</td><td></td><td><strong>30</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🏭 质量</td><td>Hash rate security</td><td>12</td><td>12</td><td>全网算力约970 EH/s、接近1 ZH/s</td></tr><tr><td>🏭 质量</td><td>Adoption/network effect</td><td>10</td><td>10</td><td>全球持有者约3.65亿、BTC占加密总市值约59%</td></tr><tr><td>🏭 质量</td><td>Inflation rate</td><td>8</td><td>8</td><td>年通胀率0.85%，低于黄金1.5%</td></tr><tr><td>🏭 质量</td><td>Lindy effect</td><td>10</td><td>10</td><td>运行超17年，经历多轮加密寒冬和监管压力</td></tr><tr class="hi"><td>🏭 质量小计</td><td></td><td><strong>40</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🛡️ 安全</td><td>Decentralization</td><td>8</td><td>10</td><td>34国贡献>0.1%算力、12国>1%</td></tr><tr><td>🛡️ 安全</td><td>Regulatory clarity</td><td>4</td><td>5</td><td>BTC监管定位相对清晰为商品，但政策风险仍在</td></tr><tr><td>🛡️ 安全</td><td>Derivative risk</td><td>1</td><td>5</td><td>衍生品与杠杆清算风险高，历史可深度回撤</td></tr><tr class="hi"><td>🛡️ 安全小计</td><td></td><td><strong>13</strong></td><td><strong>20</strong></td><td></td></tr><tr class="hi"><td><strong>综合评分</strong></td><td></td><td><strong>8.3</strong></td><td><strong>/10</strong></td><td></td></tr></tbody></table></div>
+</div>
+
 <div class="card" id="s8">
   <div class="card-header"><div class="card-num">8</div><div class="card-title">🎯 投资信号</div><div class="card-sub">Investment Signal Block</div></div>
   <div class="signal">
@@ -245,7 +251,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="signal-rows">
       <div class="sr"><label>Short-term</label><span class="nu">CAUTIOUSLY BULLISH</span></div>
       <div class="sr"><label>Long-term</label><span class="up">BULLISH</span></div>
-      <div class="sr"><label>Score</label><span>8.5 / 10</span></div>
+      <div class="sr"><label>Score</label><span>8.3 / 10</span></div>
       <div class="sr"><label>Horizon</label><span>3-5 years</span></div>
       <div class="sr"><label>12M weighted</label><span class="up">+2% ~ +8%</span></div>
       <div class="sr"><label>Action</label><span>DCA / 逢低积累</span></div>
@@ -267,7 +273,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
           <li>主要风险来自高波动、ETF依赖与$85.7万亿衍生品杠杆结构。</li>
         </ul>
       </div>
-      <div class="verdict-score"><div class="big">7.0</div><div class="lbl">综合评分</div><div class="rec">长期偏多 / 短期谨慎</div></div>
+      <div class="verdict-score"><div class="big">8.3</div><div class="lbl">综合评分</div><div class="rec">长期偏多 / 短期谨慎</div></div>
     </div>
   </div>
 </div>

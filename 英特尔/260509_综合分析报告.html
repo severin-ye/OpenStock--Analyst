@@ -96,7 +96,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo"><div class="ticker">INTC</div><div class="name">英特尔 · Intel Corporation</div></div>
-  <div class="sidebar-score"><div class="score-pill"><span class="num">6.5</span>/ 10 &nbsp;综合评分</div></div>
+  <div class="sidebar-score"><div class="score-pill"><span class="num">3.8</span>/ 10 &nbsp;综合评分</div></div>
   <nav>
     <div class="nav-gl">分析章节</div>
     <a class="nav-link bull" href="#s1"><span class="dot"></span>S1. 涨跌比例总览</a>
@@ -124,6 +124,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="k"><label>From Low</label><span class="up">+594%</span><small>$18 → $125</small></div>
     <div class="k"><label>P/S</label><span>~10x</span><small>估值已高</small></div>
     <div class="k"><label>毛利率</label><span>41%</span><small>Q1 2026</small></div>
+    <div class="k"><label>VM Score</label><span>3.8/10</span><small>价格40·质量40·安全20</small></div>
   </div>
 </div>
 
@@ -172,15 +173,21 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="t-wrap"><table><thead><tr><th>风险</th><th>等级/概率</th><th>估计影响</th><th>触发条件</th></tr></thead><tbody><tr><td>执行风险</td><td class="dn">HIGH · 40%</td><td class="dn">-30% ~ -60%</td><td>18A 良率、14A、外部客户获取任一失误</td></tr><tr><td>估值风险</td><td class="dn">HIGH · 50%</td><td class="dn">-20% ~ -40%</td><td>~150x FWD P/E、~10x P/S 难以消化</td></tr><tr><td>竞争风险</td><td class="nu">MEDIUM · 35%</td><td class="dn">-15% ~ -30%</td><td>AMD 抢份额、ARM 侵蚀、TSMC 领先</td></tr><tr><td>财务/Foundry</td><td class="nu">MEDIUM · 30%</td><td class="dn">-10% ~ -30%</td><td>Foundry 亏损扩大、资本开支压力</td></tr></tbody></table></div><div class="note">核心风险组合：执行 + 估值均为 HIGH。高位股价对任何低于预期的财报或客户进展都极敏感。</div>
 </div>
 
+<!-- ═══════════ VM SCORE: 评分方法论 ═══════════ -->
+<div class="card" id="score-method">
+  <div class="card-header"><div class="card-num">VM</div><div class="card-title">🧮 评分方法论：价格40% + 质量40% + 安全20%</div><div class="card-sub">VM Score</div></div>
+  <div class="t-wrap"><table><thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>依据</th></tr></thead><tbody><tr><td>💰 价格</td><td>DCF安全边际</td><td>5</td><td>15</td><td>基础DCF $100-$130 vs 当前$125，当前接近区间上沿</td></tr><tr><td>💰 价格</td><td>P/E vs 均值</td><td>2</td><td>10</td><td>Non-GAAP FWD P/E约150x，远高于半导体行业PE约32x</td></tr><tr><td>💰 价格</td><td>EV/EBITDA vs 行业</td><td>2</td><td>8</td><td>EV/EBITDA约40x，对未来利润率改善要求高</td></tr><tr><td>💰 价格</td><td>PEG</td><td>3</td><td>7</td><td>EPS低基数反弹+123%，但150x P/E仍需保守</td></tr><tr class="hi"><td>💰 价格小计</td><td></td><td><strong>12</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🏭 质量</td><td>ROIC vs WACC</td><td>3</td><td>12</td><td>Foundry仍每季亏损约$2.4B，资本回报处转型验证期</td></tr><tr><td>🏭 质量</td><td>利润率</td><td>7</td><td>10</td><td>Q1 Non-GAAP毛利率41.0%</td></tr><tr><td>🏭 质量</td><td>FCF质量</td><td>2</td><td>8</td><td>高资本开支与Foundry亏损压制FCF质量</td></tr><tr><td>🏭 质量</td><td>护城河</td><td>6</td><td>10</td><td>x86生态和18A构成建设中护城河，但竞争压力大</td></tr><tr class="hi"><td>🏭 质量小计</td><td></td><td><strong>18</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🛡️ 安全</td><td>F-Score/财务健康</td><td>4</td><td>10</td><td>Q1盈利反弹，但转型和估值风险仍高</td></tr><tr><td>🛡️ 安全</td><td>资产负债</td><td>1</td><td>5</td><td>年资本开支$200-250亿、Foundry持续亏损</td></tr><tr><td>🛡️ 安全</td><td>盈利稳定性</td><td>3</td><td>5</td><td>EPS低基数强反弹，但Q2毛利率指引环比下滑</td></tr><tr class="hi"><td>🛡️ 安全小计</td><td></td><td><strong>8</strong></td><td><strong>20</strong></td><td></td></tr><tr class="hi"><td><strong>综合评分</strong></td><td></td><td><strong>3.8</strong></td><td><strong>/10</strong></td><td></td></tr></tbody></table></div>
+</div>
+
 <!-- ═══════════ S8: 投资信号 ═══════════ -->
 <div class="card" id="s8">
   <div class="card-header"><div class="card-num">8</div><div class="card-title">🎯 投资信号</div><div class="card-sub">Investment Signal Block</div></div>
-  <div class="signal"><div class="signal-head">Investment Signal</div><div class="signal-rows"><div class="sr"><label>Signal</label><span class="up">MODERATELY BULLISH</span></div><div class="sr"><label>Confidence</label><span>MEDIUM</span></div><div class="sr"><label>Action</label><span>BUY-ON-DIPS</span></div><div class="sr"><label>Score</label><span>6.5 / 10</span></div><div class="sr"><label>Upside</label><span class="up">+36% ~ +60%</span></div><div class="sr"><label>Downside</label><span class="dn">-52% ~ -68%</span></div></div><div class="signal-foot">适合长期跟踪，但不建议在 $125 高位无确认追高。</div></div>
+  <div class="signal"><div class="signal-head">Investment Signal</div><div class="signal-rows"><div class="sr"><label>Signal</label><span class="up">MODERATELY BULLISH</span></div><div class="sr"><label>Confidence</label><span>MEDIUM</span></div><div class="sr"><label>Action</label><span>BUY-ON-DIPS</span></div><div class="sr"><label>Score</label><span>3.8 / 10</span></div><div class="sr"><label>Upside</label><span class="up">+36% ~ +60%</span></div><div class="sr"><label>Downside</label><span class="dn">-52% ~ -68%</span></div></div><div class="signal-foot">适合长期跟踪，但不建议在 $125 高位无确认追高。</div></div>
 </div>
 
 <!-- ═══════════ VERDICT ═══════════ -->
 <div id="verdict" style="scroll-margin-top:24px">
-  <div class="verdict"><h2>最终裁决：High beta transformation</h2><div class="verdict-grid"><div><ul><li>英特尔是高贝塔转型资产，不再是低估值价值股。</li><li>看多关键：DCAI +22%、NVIDIA $50B 背书、18A 可能重建代工护城河。</li><li>看空关键：$125 已定价大量乐观预期，概率加权目标约 $117.5。</li><li>策略：不追高，等待 -15%~-25% 回调或 Q3 催化剂确认。</li></ul></div><div class="verdict-score"><div class="big">6.5</div><div class="lbl">综合评分 / 10</div><div class="rec">MODERATELY BULLISH · BUY-ON-DIPS</div></div></div></div>
+  <div class="verdict"><h2>最终裁决：High beta transformation</h2><div class="verdict-grid"><div><ul><li>英特尔是高贝塔转型资产，不再是低估值价值股。</li><li>看多关键：DCAI +22%、NVIDIA $50B 背书、18A 可能重建代工护城河。</li><li>看空关键：$125 已定价大量乐观预期，概率加权目标约 $117.5。</li><li>策略：不追高，等待 -15%~-25% 回调或 Q3 催化剂确认。</li></ul></div><div class="verdict-score"><div class="big">3.8</div><div class="lbl">综合评分 / 10</div><div class="rec">MODERATELY BULLISH · BUY-ON-DIPS</div></div></div></div>
 </div>
 
 <footer>InvestSkill v1.6.0 · 教育性分析，不构成投资建议 · 数据截至 2026/05/08-09</footer>

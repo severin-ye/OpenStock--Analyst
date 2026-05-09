@@ -96,7 +96,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo"><div class="ticker">TSLA</div><div class="name">特斯拉 · Tesla, Inc.</div></div>
-  <div class="sidebar-score"><div class="score-pill"><span class="num">4.3</span>/ 10 &nbsp;综合评分</div></div>
+  <div class="sidebar-score"><div class="score-pill"><span class="num">3.3</span>/ 10 &nbsp;综合评分</div></div>
   <nav>
     <div class="nav-gl">分析章节</div>
     <a class="nav-link neut" href="#s1"><span class="dot"></span>S1. 涨跌比例总览</a>
@@ -124,6 +124,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="k"><label>P/E</label><span>340x</span><small>TTM</small></div>
     <div class="k"><label>现金</label><span>$44.1B</span><small>战略缓冲</small></div>
     <div class="k"><label>能源</label><span class="up">+27%</span><small>YoY</small></div>
+    <div class="k"><label>VM Score</label><span>3.3/10</span><small>价格40·质量40·安全20</small></div>
   </div>
 </div>
 
@@ -263,6 +264,12 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="note">Valuation HIGH risk：最大风险不是破产或流动性，而是AI期权折现率与兑现概率下修。</div>
 </div>
 
+<!-- ═══════════ VM SCORE: 评分方法论 ═══════════ -->
+<div class="card" id="score-method">
+  <div class="card-header"><div class="card-num">VM</div><div class="card-title">🧮 评分方法论：价格40% + 质量40% + 安全20%</div><div class="card-sub">VM Score</div></div>
+  <div class="t-wrap"><table><thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>依据</th></tr></thead><tbody><tr><td>💰 价格</td><td>DCF安全边际</td><td>2</td><td>15</td><td>DCF基准 $280-$380 低于当前$428，当前高于上限约13%</td></tr><tr><td>💰 价格</td><td>P/E vs 均值</td><td>2</td><td>10</td><td>TTM P/E约340x，显著高于5年均值和传统车企区间</td></tr><tr><td>💰 价格</td><td>EV/EBITDA vs 行业</td><td>2</td><td>8</td><td>EV/EBITDA约78x，高于自身1年前和传统车企水平</td></tr><tr><td>💰 价格</td><td>PEG</td><td>1</td><td>7</td><td>EPS约-40%，盈利增长不能支撑高倍数</td></tr><tr class="hi"><td>💰 价格小计</td><td></td><td><strong>7</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🏭 质量</td><td>ROIC vs WACC</td><td>3</td><td>12</td><td>净利率4.0%、运营利润率4.6%，盈利端同比恶化</td></tr><tr><td>🏭 质量</td><td>利润率</td><td>2</td><td>10</td><td>净利率4.0%、运营利润率4.6%，低于15%档</td></tr><tr><td>🏭 质量</td><td>FCF质量</td><td>2</td><td>8</td><td>01文件未给出强FCF指标，EPS与主业收入均下滑</td></tr><tr><td>🏭 质量</td><td>护城河</td><td>6</td><td>10</td><td>充电网络和制造优势仍在，但汽车护城河被价格战侵蚀</td></tr><tr class="hi"><td>🏭 质量小计</td><td></td><td><strong>13</strong></td><td><strong>40</strong></td><td></td></tr><tr><td>🛡️ 安全</td><td>F-Score/财务健康</td><td>7</td><td>10</td><td>$44.1B现金储备强，财务风险低，但经营指标走弱</td></tr><tr><td>🛡️ 安全</td><td>资产负债</td><td>5</td><td>5</td><td>现金储备提供强战略缓冲</td></tr><tr><td>🛡️ 安全</td><td>盈利稳定性</td><td>1</td><td>5</td><td>营收-2.9%、汽车收入-10%、EPS约-40%</td></tr><tr class="hi"><td>🛡️ 安全小计</td><td></td><td><strong>13</strong></td><td><strong>20</strong></td><td></td></tr><tr class="hi"><td><strong>综合评分</strong></td><td></td><td><strong>3.3</strong></td><td><strong>/10</strong></td><td></td></tr></tbody></table></div>
+</div>
+
 <!-- ═══════════ S8: 投资信号 ═══════════ -->
 <div class="card" id="s8">
   <div class="card-header"><div class="card-num">8</div><div class="card-title">🎯 投资信号</div><div class="card-sub">Investment Signal Block</div></div>
@@ -272,7 +279,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <div class="sr"><label>Signal</label><span class="nu">NEUTRAL / HOLD</span></div>
       <div class="sr"><label>Confidence</label><span>MEDIUM</span></div>
       <div class="sr"><label>Horizon</label><span>MEDIUM-TERM (1 Year)</span></div>
-      <div class="sr"><label>Score</label><span>4.3 / 10</span></div>
+      <div class="sr"><label>Score</label><span>3.3 / 10</span></div>
       <div class="sr"><label>Action</label><span>轻仓观望</span></div>
       <div class="sr"><label>Conviction</label><span>MODERATE</span></div>
       <div class="sr"><label>Upside</label><span class="up">Bull +40%~+87%</span></div>
@@ -297,7 +304,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         </ul>
       </div>
       <div class="verdict-score">
-        <div class="big">4.3</div>
+        <div class="big">3.3</div>
         <div class="lbl">综合评分 / 10</div>
         <div class="rec">NEUTRAL / HOLD</div>
       </div>
