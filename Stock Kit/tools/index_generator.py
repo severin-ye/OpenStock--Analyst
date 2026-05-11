@@ -121,11 +121,14 @@ def _card_html(name: str, ticker: str, exchange: str, rank_pos: int, total: int,
                composite_rank: str, score_10: float, score_color: str,
                metrics: list[tuple[str, str, str]],
                is_crypto: bool = False) -> str:
+    report_rel = REPORT_NAMES.get(name)
+    if not report_rel or not (BASE_DIR / report_rel).exists():
+        return ''
     rc = RANK_COLORS.get(rank_pos, '')
     extra_class = ' crypto-card' if is_crypto else ''
     rank_display = composite_rank if composite_rank and composite_rank.startswith('#') else f'#{rank_pos}/{total}'
     lines = [
-        f'<a class="rank-link" href="{REPORT_NAMES.get(name, "#")}">',
+        f'<a class="rank-link" href="{report_rel}">',
         f'  <div class="rank-card {rc}{extra_class}">',
         f'    <div class="rank-top">',
     ]
@@ -162,7 +165,9 @@ def _build_stock_cards(sorted_stocks: list[tuple], total: int) -> list[str]:
             ('F-Score', l3.value, l3.rank),
             (l4.metric, l4.value, l4.rank),
         ]
-        cards.append(_card_html(name, ticker, exchange, i, total, rank, s10, color, metrics))
+        card = _card_html(name, ticker, exchange, i, total, rank, s10, color, metrics)
+        if card:
+            cards.append(card)
     return cards
 
 
@@ -215,7 +220,10 @@ def _build_market_section(label: str, tickers: list[str], all_rankings: list[tup
                 ('F-Score', l3.value, l3.rank),
                 (l4.metric, l4.value, l4.rank),
             ]
-        cards_html.append(_card_html(name, ticker, exchange, i, len(market_items), rank, s10, color, metrics, is_crypto))
+        card = _card_html(name, ticker, exchange, i, len(market_items), rank, s10, color, metrics, is_crypto)
+        if not card:
+            continue
+        cards_html.append(card)
         chart_labels.append(name)
         chart_data.append(s10)
         chart_colors_local.append(color)
