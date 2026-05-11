@@ -10,6 +10,7 @@
 
 import json
 import logging
+import re
 import sys
 import time
 from datetime import datetime
@@ -19,7 +20,10 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent / 'InvestSkill'))
 
-from report_engine.schema import StockReport, ModuleStatus, AssetCategory, ChartType, ChartDef, ChartDataset
+from report_engine.schema import (
+    StockReport, ModuleStatus, AssetCategory, ChartType, ChartDef, ChartDataset,
+    KPIItem, RankingRow, ValuationMethod, ScenarioRow,
+)
 from report_engine.stages.scaffold import scaffold
 from report_engine.stages.render import render_to_file
 
@@ -237,6 +241,123 @@ def apply_real_price_history(report: StockReport, price_info: PriceSnapshot | No
             break
     else:
         report.charts.insert(0, price_chart)
+    return report
+
+
+def parse_number(value: str | float | int | None) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if not value:
+        return None
+    match = re.search(r'-?[\d,.]+', str(value))
+    if not match:
+        return None
+    return float(match.group(0).replace(',', ''))
+
+
+def parse_rank(rank: str) -> tuple[int, int] | None:
+    match = re.search(r'#(\d+)/(\d+)', rank or '')
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def replace_chart(report: StockReport, chart: ChartDef) -> None:
+    for idx, existing in enumerate(report.charts):
+        if existing.chart_id == chart.chart_id:
+            report.charts[idx] = chart
+            return
+    report.charts.append(chart)
+
+
+def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapshot | None,
+                                    rank: RankingResult | None,
+                                    prices: dict[str, PriceSnapshot],
+                                    logger: logging.Logger) -> StockReport:
+    if not price_info:
+        logger.warning("  缺少缓存数据，无法覆盖权威数值")
+        return report
+
+    currency = price_info.currency or '$'
+    report.cover_price = f"{currency}{price_info.price:,.2f}" if price_info.price else "—"
+    report.cover_market_cap = price_info.market_cap or "—"
+    report.cover_kpi = [
+        KPIItem(label='当前股价', value=report.cover_price, css_class='up' if price_info.price else 'neut'),
+        KPIItem(label='YTD', value=price_info.ytd_change_pct or '—', css_class='up' if not str(price_info.ytd_change_pct).startswith('-') else 'dn'),
+        KPIItem(label='52周范围', value=f"{price_info.week52_low} - {price_info.week52_high}", sub='来自缓存'),
+        KPIItem(label='Forward P/E', value=price_info.forward_pe or '—'),
+        KPIItem(label='EBIT/EV', value=price_info.ebit_ev or '—'),
+        KPIItem(label='ROIC', value=price_info.roic or '—'),
+    ]
+
+    if rank:
+        report.greenblatt_ranking = [
+            RankingRow(layer=r.layer, dimension=r.dimension, metric=r.metric, value=r.value,
+                       rank=r.rank, weight=r.weight, verdict=r.verdict)
+            for r in rank.rows
+        ]
+        report.ranking_summary = rank.summary
+        report.composite_score = rank.composite_score
+        report.composite_rank_8 = rank.composite_rank
+        report.layer_weights = {'L1': '40%', 'L2': '25%', 'L3': '25%', 'L4': '10%'}
+
+        radar_labels = [r.metric for r in rank.rows]
+        radar_data = []
+        for r in rank.rows:
+            parsed = parse_rank(r.rank)
+            radar_data.append(round((parsed[1] - parsed[0] + 1) / parsed[1] * 100, 1) if parsed else 0.0)
+        replace_chart(report, ChartDef(
+            chart_id='valuationRadar', chart_type=ChartType.RADAR, section_id='s5',
+            labels=radar_labels,
+            datasets=[ChartDataset(label='排名映射分', data=radar_data, color='#2563eb')],
+            y_axis_label='', y_axis_format='', tooltip_prefix='', tooltip_suffix='',
+        ))
+
+    report.f_score_total = int(price_info.f_score or 0)
+    report.s5_valuation_methods = [
+        ValuationMethod(name='当前价格', value=report.cover_price, probability='事实'),
+        ValuationMethod(name='分析师目标价', value=price_info.price_target or '—', probability='外部来源'),
+        ValuationMethod(name='DCF估值', value='未计算', probability='不展示估算'),
+    ]
+
+    target = parse_number(price_info.price_target)
+    if target and price_info.price:
+        ret = (target / price_info.price - 1) * 100
+        report.s6_scenarios = [ScenarioRow(
+            scenario='分析师目标价', probability='—', price_target=f"{currency}{target:,.2f}",
+            return_pct=f"{ret:+.1f}%", description='来自缓存目标价，非 LLM 情景估算'
+        )]
+        replace_chart(report, ChartDef(
+            chart_id='dcfChart', chart_type=ChartType.BAR, section_id='s5',
+            labels=['当前价', '分析师目标价'],
+            datasets=[ChartDataset(label='价格', data=[round(price_info.price, 2), round(target, 2)],
+                                   color='#2563eb', point_background_colors=['#d97706', '#059669'])],
+            y_axis_label='$', y_axis_format='$', tooltip_prefix='$', tooltip_suffix='',
+        ))
+        replace_chart(report, ChartDef(
+            chart_id='scenarioChart', chart_type=ChartType.BAR, section_id='s6',
+            labels=['分析师目标价'],
+            datasets=[ChartDataset(label='预期回报%', data=[round(ret, 1)], color='#2563eb',
+                                   point_background_colors=['#059669' if ret >= 0 else '#dc2626'])],
+            y_axis_label='%', y_axis_format='%', tooltip_prefix='', tooltip_suffix='%',
+        ))
+
+    peer_labels = []
+    peer_data = []
+    for t, p in prices.items():
+        val = parse_number(p.forward_pe)
+        if val is not None and val > 0:
+            peer_labels.append(t)
+            peer_data.append(round(val, 2))
+    if peer_labels and peer_data:
+        replace_chart(report, ChartDef(
+            chart_id='peerCompareChart', chart_type=ChartType.BAR, section_id='s5',
+            labels=peer_labels,
+            datasets=[ChartDataset(label='Forward P/E', data=peer_data, color='#2563eb')],
+            y_axis_label='x', y_axis_format='', tooltip_prefix='', tooltip_suffix='x',
+        ))
+
+    logger.info("  已用 prices.json/ranker/yfinance 覆盖关键数值与图表")
     return report
 
 
@@ -531,6 +652,7 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
     logger.info("[Stage 3: LLM] 注入真实数据生成报告")
     real_data_prompt = build_real_data_prompt(company_name, report.ticker, prices, rankings)
     report = run_llm_with_real_data(report, real_data_prompt, logger)
+    report = apply_authoritative_report_data(report, my_data, rankings.get(ticker), prices, logger)
     report = apply_real_price_history(report, my_data, logger)
 
     # Stage 4: Render
@@ -544,7 +666,7 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
     # Stage 5: Validate
     logger.info("[Stage 5: validate] HTML 完整性检查")
     from InvestSkill.report_engine.stages.validate import validate
-    passed, issues = validate(None, html_path)
+    passed, issues = validate(report, html_path)
     logger.info(f"  通过: {'是' if passed else '否'}")
     for i in issues:
         logger.info(f"  [{i}]")
