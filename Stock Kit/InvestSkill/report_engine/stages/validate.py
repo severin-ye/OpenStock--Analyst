@@ -59,8 +59,6 @@ def validate_html_file(filepath: str) -> list[str]:
 
     if missing:
         issues.append(f'缺失 sections: S{", S".join(map(str, missing))}')
-    else:
-        issues.append('8 个 section 齐全')
 
     if '</body>' not in html or '</html>' not in html:
         issues.append('HTML 结构不完整')
@@ -94,7 +92,8 @@ def validate(report: StockReport | None = None, html_path: str | None = None) ->
 
     passed = not any(
         i.startswith('[Schema] 缺失')
-        or (i.startswith('[Data] ') and '校验通过' not in i and '跳过' not in i)
+        or i.startswith('[HTML] ')
+        or (i.startswith('[Data] ') and '校验通过' not in i)
         for i in all_issues
     )
     return passed, all_issues
@@ -114,16 +113,16 @@ def validate_data_sanity(html_path: str) -> list[str]:
     if not prices_path.exists():
         prices_path = Path(__file__).parent.parent.parent.parent / 'data' / 'prices.json'
     if not prices_path.exists():
-        return ['[跳过] prices.json 未找到, 无法交叉验证数据']
+        return ['prices.json 未找到，无法交叉验证数据']
 
     try:
         prices_data = json.loads(prices_path.read_text(encoding='utf-8'))
     except (json.JSONDecodeError, OSError):
-        return ['[跳过] prices.json 读取失败']
+        return ['prices.json 读取失败']
 
     # 尝试 JSON 格式 (report_engine pipeline)
     price_match = re.search(r'cover_price["\s:]+(\$?[\d,.]+)', content, re.IGNORECASE)
-    ticker_match = re.search(r'"ticker"\s*:\s*"(\w+)"', content)
+    ticker_match = re.search(r'"ticker"\s*:\s*"([\w.]+)"', content)
 
     # 回退: HTML 内联格式 (tools/pipeline Jinja2 渲染)
     if not price_match:
@@ -131,9 +130,9 @@ def validate_data_sanity(html_path: str) -> list[str]:
     if not price_match:
         price_match = re.search(r'class="(?:up|dn|neut)">\$?([\d,.]+)</span>', content)
     if not ticker_match:
-        ticker_match = re.search(r'<div class="ticker">(\w+)</div>', content)
+        ticker_match = re.search(r'<div class="ticker">([\w.]+)</div>', content)
     if not ticker_match:
-        ticker_match = re.search(r'<title>(\w+)\s*[—–-]', content)
+        ticker_match = re.search(r'<title>([\w.]+)\s*[—–-]', content)
 
     if not price_match:
         issues.append('HTML 中找不到 cover_price 价格')
@@ -143,6 +142,7 @@ def validate_data_sanity(html_path: str) -> list[str]:
     if price_match and ticker_match:
         html_price_str = price_match.group(1).replace('$', '').replace(',', '')
         ticker = ticker_match.group(1).upper()
+        cache_record = _find_record_in_cache(prices_data, ticker)
 
         try:
             html_price = float(html_price_str)
@@ -161,6 +161,24 @@ def validate_data_sanity(html_path: str) -> list[str]:
                     )
                 else:
                     issues.append(f'价格校验通过: HTML={html_price:.2f} vs prices.json={actual:.2f} ({diff_pct:.1f}%)')
+            else:
+                issues.append(f'prices.json 找不到 ticker={ticker}，数据校验失败')
+
+        if cache_record:
+            expected_values = [
+                ('Forward P/E', cache_record.get('forward_pe')),
+                ('PEG', cache_record.get('peg_ratio')),
+                ('EBIT/EV', cache_record.get('ebit_ev')),
+                ('ROIC', cache_record.get('roic')),
+                ('市值', cache_record.get('market_cap')),
+            ]
+            for label, expected in expected_values:
+                if expected not in (None, '', 0) and str(expected) not in content:
+                    issues.append(f'{label} 与 prices.json 不一致或未渲染: expected={expected}')
+
+            expected_f_score = cache_record.get('f_score')
+            if expected_f_score not in (None, '') and f'{expected_f_score}/9' not in content:
+                issues.append(f'F-Score 与 prices.json 不一致或未渲染: expected={expected_f_score}/9')
 
     pe_match = re.search(r'Forward P/E["\s:]+([\d.]+)', content)
     if pe_match and pe_match.group(1) in ('0', '0.0', '-0'):
@@ -196,4 +214,21 @@ def _find_price_in_cache(prices_data: dict, ticker: str) -> float | None:
                         val = r.get(key)
                         if isinstance(val, (int, float)) and val > 0:
                             return float(val)
+    return None
+
+
+def _find_record_in_cache(prices_data: dict, ticker: str) -> dict | None:
+    if isinstance(prices_data, dict):
+        for k, v in prices_data.items():
+            if k.upper() == ticker.upper() and isinstance(v, dict):
+                return v
+        records = prices_data.get('records')
+        if isinstance(records, list):
+            for r in records:
+                if isinstance(r, dict) and r.get('ticker', '').upper() == ticker.upper():
+                    return r
+    if isinstance(prices_data, list):
+        for r in prices_data:
+            if isinstance(r, dict) and r.get('ticker', '').upper() == ticker.upper():
+                return r
     return None
