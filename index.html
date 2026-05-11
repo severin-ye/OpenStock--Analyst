@@ -17,6 +17,7 @@ h1{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:4px}
 .leaderboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-bottom:40px}
 .rank-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
 .rank-card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+a.rank-link{text-decoration:none;color:inherit;display:block;cursor:pointer}
 .rank-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px}
 .rank-card.r1::before{background:linear-gradient(180deg,#fbbf24,#d97706)}
 .rank-card.r2::before{background:linear-gradient(180deg,#94a3b8,#64748b)}
@@ -67,6 +68,7 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
 <p class="sub">Greenblatt 四层加权排名体系 v3.0 · 基于实时市场数据 · 分析日期 2026-05-11</p>
 
 <div class="leaderboard">
+<a class="rank-link" href="苹果/260511_综合分析报告.html">
   <div class="rank-card r1">
     <div class="rank-top">
       <div class="rank-pos">#1<sup>/7</sup></div>
@@ -82,8 +84,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>8/9</span><span class="pos">#1</span></div>
       <div class="m"><label>PEG</label><span>2.88x</span><span class="pos">#6</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="美光/260511_综合分析报告.html">
   <div class="rank-card r2">
     <div class="rank-top">
       <div class="rank-pos">#2<sup>/7</sup></div>
@@ -99,8 +102,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>7/9</span><span class="pos">#2</span></div>
       <div class="m"><label>PEG</label><span>0.06x</span><span class="pos">#1</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="小米/260511_综合分析报告.html">
   <div class="rank-card r3">
     <div class="rank-top">
       <div class="rank-pos">#3<sup>/7</sup></div>
@@ -116,8 +120,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>6/9</span><span class="pos">#5</span></div>
       <div class="m"><label>PEG</label><span>1.38x</span><span class="pos">#4</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="英伟达/260511_综合分析报告.html">
   <div class="rank-card">
     <div class="rank-top">
       <div class="rank-pos">#4<sup>/7</sup></div>
@@ -133,8 +138,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>4/9</span><span class="pos">#8</span></div>
       <div class="m"><label>PEG</label><span>0.66x</span><span class="pos">#2</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="AMD/260511_综合分析报告.html">
   <div class="rank-card">
     <div class="rank-top">
       <div class="rank-pos">#5<sup>/7</sup></div>
@@ -150,8 +156,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>6/9</span><span class="pos">#4</span></div>
       <div class="m"><label>PEG</label><span>1.01x</span><span class="pos">#3</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="特斯拉/260511_综合分析报告.html">
   <div class="rank-card">
     <div class="rank-top">
       <div class="rank-pos">#6<sup>/7</sup></div>
@@ -167,8 +174,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>6/9</span><span class="pos">#3</span></div>
       <div class="m"><label>PEG</label><span>4.35x</span><span class="pos">#7</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="英特尔/260511_综合分析报告.html">
   <div class="rank-card">
     <div class="rank-top">
       <div class="rank-pos">#7<sup>/7</sup></div>
@@ -184,8 +192,9 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>5/9</span><span class="pos">#6</span></div>
       <div class="m"><label>PEG</label><span>1.69x</span><span class="pos">#5</span></div>
     </div>
-  </div>
+  </div></a>
 
+<a class="rank-link" href="比特币/260511_综合分析报告.html">
   <div class="rank-card" style="border-color:var(--amber);background:linear-gradient(135deg,#fff 0%,#fffbeb 100%)">
     <div class="rank-top">
       <div class="rank-pos" style="font-size:20px">₿</div>
@@ -201,7 +210,7 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
       <div class="m"><label>F-Score</label><span>5/9</span><span class="pos">链上</span></div>
       <div class="m"><label>减半周期</label><span>752天</span><span class="pos">中性</span></div>
     </div>
-  </div>
+  </div></a>
 </div>
 
 <!-- ── 四层排名明细表 ── -->
