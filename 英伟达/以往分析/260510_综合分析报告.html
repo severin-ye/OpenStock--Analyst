@@ -96,7 +96,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo"><div class="ticker">NVDA</div><div class="name">NVIDIA Corporation · 英伟达</div></div>
-  <div class="sidebar-score"><div class="score-pill"><span class="num">8.3</span>/ 10 &nbsp;综合评分</div></div>
+  <div class="sidebar-score"><div class="score-pill"><span class="num">EBIT/EV 2.52%</span> · ROIC 50%+</div></div>
   <nav>
     <div class="nav-gl">分析章节</div>
     <a class="nav-link bull" href="#s1"><span class="dot"></span>S1. 涨跌比例总览</a>
@@ -209,8 +209,8 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
 <!-- ═══════════ S5: 估值分析 ═══════════ -->
 <div class="card" id="s5">
-  <div class="card-header"><div class="card-num">5</div><div class="card-title">💰 估值分析</div><div class="card-sub">DCF · 倍数 · PEG · VM Score</div></div>
-  <h3>🧮 VM Score 评分明细</h3>
+  <div class="card-header"><div class="card-num">5</div><div class="card-title">💰 估值分析</div><div class="card-sub">DCF · 倍数 · PEG · Greenblatt</div></div>
+  <h3>📊 三层排名（Greenblatt · 便宜+赚钱+安全）</h3>
   <div class="t-wrap">
     <table>
       <thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>判断依据</th></tr></thead>
@@ -229,7 +229,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         <tr><td>🛡️ 安全</td><td>资产负债</td><td>4</td><td>5</td><td>净现金状态，$58.5B 回购授权</td></tr>
         <tr><td>🛡️ 安全</td><td>盈利稳定性</td><td>4</td><td>5</td><td>强劲但半导体周期属性不可忽视</td></tr>
         <tr style="font-weight:700;background:#f0fdf4"><td>🛡️ 安全小计</td><td></td><td><strong>18</strong></td><td><strong>20</strong></td><td>财务极其稳健</td></tr>
-        <tr style="font-weight:700;font-size:14px;background:#f0fdf4"><td>🎯 综合评分</td><td></td><td><strong>8.3</strong></td><td><strong>/10</strong></td><td>🟢 强力推荐</td></tr>
+        <tr style="font-weight:700;font-size:14px;background:#f0fdf4"><td>🎯 Greenblatt</td><td>L1(EBIT/EV)#3 + L2(ROIC)#1</td><td><strong>#2</strong></td><td><strong>/6</strong></td><td>F-Score 8-9/9 · 推荐买入</td></tr>
       </tbody>
     </table>
   </div>
@@ -290,7 +290,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <div class="sr"><label>Signal</label><span style="color:var(--green)">BULLISH</span></div>
       <div class="sr"><label>Confidence</label><span style="color:var(--green)">HIGH</span></div>
       <div class="sr"><label>Horizon</label><span>LONG-TERM (12-18月)</span></div>
-      <div class="sr"><label>Score</label><span style="color:var(--blue)">8.3 / 10</span></div>
+      <div class="sr"><label>Score</label><span style="color:var(--blue)">EBIT/EV 2.52% · ROIC 50%+</span></div>
       <div class="sr"><label>Action</label><span style="color:var(--green)">BUY</span></div>
       <div class="sr"><label>Conviction</label><span style="color:var(--green)">STRONG</span></div>
       <div class="sr"><label>Key Risk</label><span style="color:var(--red)">AI capex 周期见顶</span></div>
@@ -303,7 +303,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <!-- ═══════════ VERDICT ═══════════ -->
 <div id="verdict" style="scroll-margin-top:24px">
 <div class="verdict">
-  <h2>📋 最终裁决: 强力推荐 · BUY</h2>
+  <h2>📋 最终裁决: 强力推荐买入</h2>
   <div class="verdict-grid">
     <div>
       <h3 style="color:#6ee7b7;font-size:13px;margin-bottom:12px">✅ 看多理由</h3>
@@ -323,9 +323,9 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       </ul>
     </div>
     <div class="verdict-score">
-      <div class="big">8.3</div>
-      <div class="lbl">综合评分 / 10</div>
-      <div class="rec">🟢 强力推荐</div>
+      <div class="big">2.52%</div>
+      <div class="lbl">EBIT/EV · ROIC 50%+ · F-Score 8-9/9</div>
+      <div class="rec">BUY · 强力推荐</div>
       <div style="margin-top:18px;font-size:11px;color:#94a3b8">
         价格 27/40 · 质量 38/40 · 安全 18/20
       </div>
@@ -346,7 +346,7 @@ const G='#059669',A='#d97706',R='#dc2626',B='#2563eb',N='#0f172a';
 // Chart 1: Price History (S3)
 new Chart(document.getElementById('priceChart'),{type:'line',data:{labels:['5月','6月','7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月'],datasets:[{label:'NVDA 股价',data:[101,115,132,148,165,180,188,192,186,195,199,213,215],borderColor:B,backgroundColor:'rgba(37,99,235,.1)',fill:true,tension:.4,pointRadius:3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{min:80,max:240,ticks:{callback:v=>'$'+v}}}}});
 
-// Chart 2: VM Score Radar (S5)
+// Chart 2: Greenblatt Ranking (S5)
 new Chart(document.getElementById('vmRadar'),{type:'radar',data:{labels:['DCF安全边际','P/E vs 行业','EV/EBITDA','PEG Ratio','ROIC vs WACC','利润率','FCF质量','护城河','F-Score','资产负债','盈利稳定性'],datasets:[{label:'NVDA 得分率',data:[67,80,38,86,100,100,75,100,100,80,80],borderColor:B,backgroundColor:'rgba(37,99,235,.15)',pointBackgroundColor:B}]},options:{responsive:true,scales:{r:{min:0,max:100,ticks:{stepSize:20,display:false}},plugins:{legend:{display:false}}}}});
 
 // Chart 3: PE Comparison (S5)

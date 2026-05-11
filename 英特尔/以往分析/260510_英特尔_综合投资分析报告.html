@@ -96,7 +96,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div class="layout">
 <aside class="sidebar">
   <div class="sidebar-logo"><div class="ticker">INTC</div><div class="name">Intel Corporation</div></div>
-  <div class="sidebar-score"><div class="score-pill"><span class="num">6.5</span>/ 10 &nbsp;综合评分</div></div>
+  <div class="sidebar-score"><div class="score-pill"><span class="num">EBIT/EV 1.64%</span> · ROIC 6.0%</div></div>
   <nav>
     <div class="nav-gl">分析章节</div>
     <a class="nav-link neut" href="#s1"><span class="dot"></span>S1. 涨跌比例总览</a>
@@ -174,31 +174,30 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="kpi-card"><label>Q2 营收指引</label><div class="v">$13.8-14.8B</div><div class="c">Non-GAAP EPS $0.20</div></div>
   </div>
 
-  <h3>🧮 VM Score 评分明细（价格40 + 质量40 + 安全20）</h3>
+  <h3>📊 三层排名（Greenblatt · Forward Estimate）</h3>
   <div class="t-wrap">
     <table>
-      <thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>判断依据</th></tr></thead>
+      <thead><tr><th>维度</th><th>子项</th><th>得分</th><th>满分</th><th>判断依据（FY2027E Forward）</th></tr></thead>
       <tbody>
-        <tr><td rowspan="4">💰 价格</td><td>DCF/内在价值安全边际</td><td>2</td><td>15</td><td>公允价值$75，当前溢价+65%</td></tr>
-        <tr><td>P/E vs 行业均值</td><td>2</td><td>10</td><td>Forward P/E 119x vs 行业~20x</td></tr>
-        <tr><td>EV/EBITDA vs 行业</td><td>2</td><td>8</td><td>~70x vs 行业~17x，严重溢价</td></tr>
-        <tr><td>PEG Ratio</td><td>3</td><td>7</td><td>PEG 1.69，在1-2之间</td></tr>
-        <tr class="hi"><td colspan="2">💰 价格小计</td><td><strong>9</strong></td><td><strong>40</strong></td><td>估值严重透支未来盈利</td></tr>
-        <tr><td rowspan="4">🏭 质量</td><td>ROIC vs WACC 利差</td><td>0</td><td>12</td><td>ROIC~1.3% vs WACC~10%，利差-8.7pp</td></tr>
-        <tr><td>毛利率/净利率</td><td>4</td><td>10</td><td>毛利率41%低于AMD 49.5%/NVDA 70%+</td></tr>
-        <tr><td>FCF 质量</td><td>2</td><td>8</td><td>OCF仅$1.1B，CapEx需求高，FCF为负</td></tr>
-        <tr><td>护城河深度</td><td>8</td><td>10</td><td>x86生态+IDM+先进封装+政府背书</td></tr>
-        <tr class="hi"><td colspan="2">🏭 质量小计</td><td><strong>14</strong></td><td><strong>40</strong></td><td>盈利能力谷底，护城河深厚</td></tr>
-        <tr><td rowspan="3">🛡️ 安全</td><td>F-Score / 财务健康</td><td>4</td><td>10</td><td>营收恢复增长，但GAAP亏损扩大</td></tr>
-        <tr><td>资产负债强度</td><td>3</td><td>5</td><td>净债务$25.8B，D/E 0.34</td></tr>
-        <tr><td>盈利稳定性</td><td>3</td><td>5</td><td>趋势改善但波动大</td></tr>
-        <tr class="hi"><td colspan="2">🛡️ 安全小计</td><td><strong>10</strong></td><td><strong>20</strong></td><td>安全垫在改善，未稳固</td></tr>
-        <tr style="font-weight:700;background:#eff6ff"><td colspan="2">📊 综合评分（传统）</td><td><strong>3.3</strong></td><td><strong>/10</strong></td><td>⚠️ 谨慎区间</td></tr>
-        <tr style="font-weight:700;background:#f0fdf4"><td colspan="2">📊 调整评分（困境反转）</td><td><strong>6.5</strong></td><td><strong>/10</strong></td><td>纳入前瞻性因素</td></tr>
+        <tr><td rowspan="4">💰 价格</td><td>DCF/内在价值安全边际</td><td>5</td><td>15</td><td>Morningstar $90 + bull DCF $140-180，概率加权~$101</td></tr>
+        <tr><td>P/E vs 行业均值</td><td>2</td><td>10</td><td>Forward P/E(FY2027E) ~125x vs 行业~20x</td></tr>
+        <tr><td>EV/EBITDA vs 行业</td><td>3</td><td>8</td><td>Forward EBITDA $15-20B → 32-44x vs 行业~17x</td></tr>
+        <tr><td>PEG Ratio</td><td>3</td><td>7</td><td>PEG ~1.5-2.0，1-2区间</td></tr>
+        <tr class="hi"><td colspan="2">💰 价格小计</td><td><strong>13</strong></td><td><strong>40</strong></td><td>增长调整后略有改善，绝对估值仍偏高</td></tr>
+        <tr><td rowspan="4">🏭 质量</td><td>ROIC vs WACC 利差</td><td>3</td><td>12</td><td>Forward ROIC~6.0% vs WACC~10%，利差-4pp（收窄中）</td></tr>
+        <tr><td>毛利率/净利率</td><td>5</td><td>10</td><td>Non-GAAP GM 41-45% + 净利率8-12%，中档水平</td></tr>
+        <tr><td>FCF 质量</td><td>3</td><td>8</td><td>FY2027E FCF接近盈亏平衡，趋势转正</td></tr>
+        <tr><td>护城河深度</td><td>8</td><td>10</td><td>x86生态+IDM+先进封装+CHIPS法案国家战略资产</td></tr>
+        <tr class="hi"><td colspan="2">🏭 质量小计</td><td><strong>19</strong></td><td><strong>40</strong></td><td>盈利能力修复中，护城河深厚</td></tr>
+        <tr><td rowspan="3">🛡️ 安全</td><td>F-Score / 财务健康</td><td>7</td><td>10</td><td>Forward：营收恢复+利润率扩张+OCF改善趋势确立</td></tr>
+        <tr><td>资产负债强度</td><td>3</td><td>5</td><td>净债务$25.8B可控；CHIPS法案$8.9B提供额外安全垫</td></tr>
+        <tr><td>盈利稳定性</td><td>4</td><td>5</td><td>EPS $0.42→$1.00→$1.35 清晰上行趋势</td></tr>
+        <tr class="hi"><td colspan="2">🛡️ 安全小计</td><td><strong>14</strong></td><td><strong>20</strong></td><td>趋势全面改善，安全垫增厚</td></tr>
+        <tr style="font-weight:700;background:#eff6ff"><td colspan="2">🎯 Greenblatt</td><td>EBIT/EV 1.64%</td><td>ROIC 6.0%</td><td>Forward Estimate</td></tr>
       </tbody>
     </table>
   </div>
-  <div class="note">⚠️ 传统 VM Score 对困境反转股天然偏低。调整评分纳入了政府背书、AI CPU 需求爆发、Foundry 战略资产溢价等前瞻性因素。</div>
+  <div class="note">📐 方法论：英特尔处于困境反转阶段，trailing GAAP 严重影响 EBIT 和 ROIC。本排名使用 Non-GAAP Forward Estimate（分析师共识 FY2027E）作为输入，与所有其他公司采用同一 Greenblatt 公式（EBIT/EV + ROIC）。Forward 口径下 EBIT/EV 1.64%、ROIC 6.0%、F-Score 5-6/9。不引入任何 ad-hoc "调整系数"——只替换输入数据，不修改方法论。</div>
 </div>
 
 <!-- ═══════════ S3: 过去一年走势 ═══════════ -->
@@ -408,8 +407,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <div class="sr"><label>Signal</label><span style="color:var(--amber)">🟡 NEUTRAL</span></div>
       <div class="sr"><label>Confidence</label><span>MEDIUM</span></div>
       <div class="sr"><label>Horizon</label><span>LONG-TERM (12-24月)</span></div>
-      <div class="sr"><label>Score (传统)</label><span style="color:var(--red)">3.3 / 10</span></div>
-      <div class="sr"><label>Score (调整)</label><span style="color:var(--green)">6.5 / 10</span></div>
+      <div class="sr"><label>Score (Forward)</label><span style="color:var(--amber)">EBIT/EV 1.64% · ROIC 6.0% · F-Score 5-6/9</span></div>
       <div class="sr"><label>Action</label><span style="color:var(--amber)">HOLD / 回调后买入</span></div>
       <div class="sr"><label>Conviction</label><span>MODERATE</span></div>
       <div class="sr"><label>Key Catalyst</label><span style="font-size:11px">18A客户签约 + Foundry盈亏平衡</span></div>
@@ -461,19 +459,18 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         </ul>
       </div>
       <div class="verdict-score">
-        <div class="big">6.5</div>
-        <div class="lbl">综合评分 / 10</div>
-        <div class="rec">🟡 NEUTRAL — HOLD</div>
+<div class="big">1.64%</div>
+      <div class="lbl">EBIT/EV · ROIC 6.0%</div>
+        <div class="rec">HOLD · F-Score 5-6/9</div>
         <div style="font-size:11px;color:#94a3b8;margin-top:10px;line-height:1.6">
-          传统评分 3.3/10<br>
-          调整评分 6.5/10<br>
+          Forward Estimate 口径<br>
           概率加权目标 $129<br>
           <span style="color:#6ee7b7">vs 当前 $124.93 (+3%)</span>
         </div>
       </div>
     </div>
     <div class="note" style="background:rgba(255,255,255,.08);border-left-color:#60a5fa;color:#93c5fd;margin-top:18px">
-      <strong>核心判断</strong>：英特尔正在经历真实且令人印象深刻的反转，但股价已大幅提前兑现了这一叙事。当前价位不适合追高。最佳策略是等待回调至 $80-100 区间建仓，或通过定投分散估值风险。对于已持仓者，继续持有——公司基本面在正确的轨道上，但需要有心理准备应对估值消化期的波动。
+      <strong>核心判断</strong>：英特尔正在经历真实且令人印象深刻的反转，但 Greenblatt 估值偏高 说明当前 $124.93 的股价已将大部分复苏定价——Forward P/E(FY2027E) 仍高达 ~125x，远超行业 20x。当前价位不适合追高。最佳策略是等待回调至 $80-100 区间建仓，或通过定投分散估值风险。对于已持仓者，继续持有——公司基本面在正确的轨道上，但需要有心理准备应对估值消化期的波动。
     </div>
   </div>
 </div>
