@@ -35,7 +35,6 @@ def build_env():
 
 
 def render(report: StockReport) -> str:
-    """将 StockReport 渲染为 HTML 字符串"""
     env = build_env()
     template = env.get_template('report.jinja2')
 
@@ -43,8 +42,7 @@ def render(report: StockReport) -> str:
         if chart.horizontal:
             chart.chart_type = ChartType.BAR
 
-    ctx = report.model_dump()
-    ctx['SECTION_LABELS'] = {
+    section_labels = {
         's1': '涨跌比例总览',
         's2': report.s2.title if report.s2 else '公司概览',
         's3': '过去一年走势',
@@ -54,6 +52,9 @@ def render(report: StockReport) -> str:
         's7': '风险矩阵',
         's8': '投资信号',
     }
+
+    ctx = report.model_dump(mode='json')
+    ctx['SECTION_LABELS'] = section_labels
 
     return template.render(**ctx)
 

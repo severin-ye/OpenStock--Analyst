@@ -290,14 +290,14 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="signal">
     <div class="signal-head">INVESTMENT SIGNAL</div>
     <div class="signal-rows">
-      <div class="sr"><label>Signal</label><span class="{% if s8_signal.signal.value == 'BULLISH' %}up{% elif s8_signal.signal.value == 'BEARISH' %}dn{% endif %}">{{ s8_signal.signal.value }}</span></div>
-      <div class="sr"><label>Confidence</label><span>{{ s8_signal.confidence.value }}</span></div>
-      <div class="sr"><label>Horizon</label><span>{{ s8_signal.horizon.value }}</span></div>
+      <div class="sr"><label>Signal</label><span class="{% if s8_signal.signal == 'BULLISH' %}up{% elif s8_signal.signal == 'BEARISH' %}dn{% endif %}">{{ s8_signal.signal }}</span></div>
+      <div class="sr"><label>Confidence</label><span>{{ s8_signal.confidence }}</span></div>
+      <div class="sr"><label>Horizon</label><span>{{ s8_signal.horizon }}</span></div>
       <div class="sr"><label>Score</label><span>{{ f_score_total }} / 9</span></div>
     </div>
     <div class="signal-rows">
-      <div class="sr"><label>Action</label><span>{{ s8_signal.action.value }}</span></div>
-      <div class="sr"><label>Conviction</label><span>{{ s8_signal.conviction.value }}</span></div>
+      <div class="sr"><label>Action</label><span>{{ s8_signal.action }}</span></div>
+      <div class="sr"><label>Conviction</label><span>{{ s8_signal.conviction }}</span></div>
       {% if s8_signal.rank_summary %}
       <div class="sr"><label>Rank</label><span>{{ s8_signal.rank_summary }}</span></div>
       {% endif %}
@@ -343,7 +343,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <script>
 const G='#059669',A='#d97706',R='#dc2626',B='#2563eb',S='#94a3b8';
 {% for chart in charts %}
-{% if chart.chart_type.value == 'line' %}
+{% if chart.chart_type == 'line' %}
 {# LINE CHART #}
 new Chart(document.getElementById('{{ chart.chart_id }}'),{
   type:'line',
@@ -385,7 +385,7 @@ new Chart(document.getElementById('{{ chart.chart_id }}'),{
     }
   }
 });
-{% elif chart.chart_type.value == 'bar' %}
+{% elif chart.chart_type == 'bar' %}
 {# BAR CHART #}
 new Chart(document.getElementById('{{ chart.chart_id }}'),{
   type:'bar',
@@ -426,7 +426,7 @@ new Chart(document.getElementById('{{ chart.chart_id }}'),{
     }
   }
 });
-{% elif chart.chart_type.value == 'radar' %}
+{% elif chart.chart_type == 'radar' %}
 {# RADAR CHART #}
 new Chart(document.getElementById('{{ chart.chart_id }}'),{
   type:'radar',
