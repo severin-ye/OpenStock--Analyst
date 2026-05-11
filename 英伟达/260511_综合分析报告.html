@@ -545,14 +545,14 @@ const G='#059669',A='#d97706',R='#dc2626',B='#2563eb',S='#94a3b8';
 new Chart(document.getElementById('priceChart'),{
   type:'line',
   data:{
-    labels:[&#34;25.03&#34;, &#34;25.05&#34;, &#34;25.07&#34;, &#34;25.09&#34;, &#34;25.11&#34;, &#34;26.01&#34;, &#34;26.03&#34;, &#34;26.05&#34;],
+    labels:["25.03", "25.05", "25.07", "25.09", "25.11", "26.01", "26.03", "26.05"],
     datasets:[
       
       {
         label:'NVDA',
         data:[145.0, 152.0, 140.0, 160.0, 170.0, 175.0, 165.0, 191.0],
         borderColor:'#2563eb',
-        backgroundColor:rgba(37,99,235,0.1),
+        backgroundColor:'rgba(37,99,235,0.1)',
         fill:true,
         tension:0.3,
         pointRadius:3,
@@ -589,7 +589,7 @@ new Chart(document.getElementById('priceChart'),{
 new Chart(document.getElementById('valuationRadar'),{
   type:'radar',
   data:{
-    labels:[&#34;DCF安全边际&#34;, &#34;P/E vs 行业&#34;, &#34;EV/EBITDA&#34;, &#34;PEG&#34;, &#34;ROIC vs WACC&#34;, &#34;利润率&#34;, &#34;FCF质量&#34;, &#34;护城河&#34;, &#34;F-Score&#34;, &#34;资产负债&#34;, &#34;盈利稳定性&#34;],
+    labels:["DCF安全边际", "P/E vs 行业", "EV/EBITDA", "PEG", "ROIC vs WACC", "利润率", "FCF质量", "护城河", "F-Score", "资产负债", "盈利稳定性"],
     datasets:[
       
       {
@@ -621,13 +621,13 @@ new Chart(document.getElementById('valuationRadar'),{
 new Chart(document.getElementById('peerCompareChart'),{
   type:'bar',
   data:{
-    labels:[&#34;NVDA&#34;, &#34;AMD&#34;, &#34;INTC&#34;, &#34;MU&#34;, &#34;行业均值&#34;],
+    labels:["NVDA", "AMD", "INTC", "MU", "行业均值"],
     datasets:[
       
       {
         label:'Forward PE',
         data:[45.3, 38.2, -15.5, 28.6, 35.0],
-        backgroundColor:[&#34;#2563eb&#34;, &#34;#f97316&#34;, &#34;#8b5cf6&#34;, &#34;#10b981&#34;, &#34;#94a3b8&#34;],
+        backgroundColor:["#2563eb", "#f97316", "#8b5cf6", "#10b981", "#94a3b8"],
         borderRadius:4,
         barPercentage:0.7
       }
@@ -661,13 +661,13 @@ new Chart(document.getElementById('peerCompareChart'),{
 new Chart(document.getElementById('dcfChart'),{
   type:'bar',
   data:{
-    labels:[&#34;当前价&#34;, &#34;悲观&#34;, &#34;基准&#34;, &#34;乐观&#34;],
+    labels:["当前价", "悲观", "基准", "乐观"],
     datasets:[
       
       {
         label:'目标价',
         data:[191.0, 165.0, 245.0, 310.0],
-        backgroundColor:[&#34;#d97706&#34;, &#34;#dc2626&#34;, &#34;#d97706&#34;, &#34;#059669&#34;],
+        backgroundColor:["#d97706", "#dc2626", "#d97706", "#059669"],
         borderRadius:4,
         barPercentage:0.7
       }
@@ -701,13 +701,13 @@ new Chart(document.getElementById('dcfChart'),{
 new Chart(document.getElementById('scenarioChart'),{
   type:'bar',
   data:{
-    labels:[&#34;悲观(25%)&#34;, &#34;基准(50%)&#34;, &#34;乐观(25%)&#34;],
+    labels:["悲观(25%)", "基准(50%)", "乐观(25%)"],
     datasets:[
       
       {
         label:'预期回报%',
         data:[-26.8, 27.9, 61.9],
-        backgroundColor:[&#34;#dc2626&#34;, &#34;#d97706&#34;, &#34;#059669&#34;],
+        backgroundColor:["#dc2626", "#d97706", "#059669"],
         borderRadius:4,
         barPercentage:0.7
       }

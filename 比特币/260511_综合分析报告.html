@@ -549,14 +549,14 @@ const G='#059669',A='#d97706',R='#dc2626',B='#2563eb',S='#94a3b8';
 new Chart(document.getElementById('priceChart'),{
   type:'line',
   data:{
-    labels:[&#34;25.03&#34;, &#34;25.05&#34;, &#34;25.07&#34;, &#34;25.09&#34;, &#34;25.11&#34;, &#34;26.01&#34;, &#34;26.03&#34;, &#34;26.05&#34;],
+    labels:["25.03", "25.05", "25.07", "25.09", "25.11", "26.01", "26.03", "26.05"],
     datasets:[
       
       {
         label:'BTC',
         data:[72000.0, 68000.0, 75000.0, 82000.0, 90000.0, 105000.0, 93500.0, 98450.0],
         borderColor:'#f7931a',
-        backgroundColor:rgba(247,147,26,0.1),
+        backgroundColor:'rgba(247,147,26,0.1)',
         fill:true,
         tension:0.3,
         pointRadius:3,
@@ -593,7 +593,7 @@ new Chart(document.getElementById('priceChart'),{
 new Chart(document.getElementById('valuationRadar'),{
   type:'radar',
   data:{
-    labels:[&#34;MVRV Z-Score&#34;, &#34;NVT比率&#34;, &#34;算力趋势&#34;, &#34;ETF流入&#34;, &#34;活跃地址&#34;, &#34;交易所余额&#34;, &#34;长期持有者&#34;, &#34;减半周期&#34;, &#34;波动率&#34;, &#34;监管环境&#34;, &#34;采用率&#34;],
+    labels:["MVRV Z-Score", "NVT比率", "算力趋势", "ETF流入", "活跃地址", "交易所余额", "长期持有者", "减半周期", "波动率", "监管环境", "采用率"],
     datasets:[
       
       {
@@ -625,13 +625,13 @@ new Chart(document.getElementById('valuationRadar'),{
 new Chart(document.getElementById('peerCompareChart'),{
   type:'bar',
   data:{
-    labels:[&#34;BTC&#34;, &#34;ETH&#34;, &#34;SOL&#34;, &#34;BNB&#34;, &#34;加密均值&#34;],
+    labels:["BTC", "ETH", "SOL", "BNB", "加密均值"],
     datasets:[
       
       {
         label:'MVRV Z-Score',
         data:[2.46, 1.8, 3.2, 2.1, 2.4],
-        backgroundColor:[&#34;#f7931a&#34;, &#34;#627eea&#34;, &#34;#00ffa3&#34;, &#34;#f3ba2f&#34;, &#34;#94a3b8&#34;],
+        backgroundColor:["#f7931a", "#627eea", "#00ffa3", "#f3ba2f", "#94a3b8"],
         borderRadius:4,
         barPercentage:0.7
       }
@@ -665,13 +665,13 @@ new Chart(document.getElementById('peerCompareChart'),{
 new Chart(document.getElementById('dcfChart'),{
   type:'bar',
   data:{
-    labels:[&#34;当前价&#34;, &#34;保守&#34;, &#34;基准&#34;, &#34;乐观&#34;],
+    labels:["当前价", "保守", "基准", "乐观"],
     datasets:[
       
       {
         label:'目标价',
         data:[98450.0, 75000.0, 120000.0, 180000.0],
-        backgroundColor:[&#34;#d97706&#34;, &#34;#dc2626&#34;, &#34;#d97706&#34;, &#34;#059669&#34;],
+        backgroundColor:["#d97706", "#dc2626", "#d97706", "#059669"],
         borderRadius:4,
         barPercentage:0.7
       }
@@ -705,13 +705,13 @@ new Chart(document.getElementById('dcfChart'),{
 new Chart(document.getElementById('scenarioChart'),{
   type:'bar',
   data:{
-    labels:[&#34;悲观(25%)&#34;, &#34;基准(50%)&#34;, &#34;乐观(25%)&#34;],
+    labels:["悲观(25%)", "基准(50%)", "乐观(25%)"],
     datasets:[
       
       {
         label:'预期回报%',
         data:[-34.0, 21.9, 82.8],
-        backgroundColor:[&#34;#dc2626&#34;, &#34;#d97706&#34;, &#34;#059669&#34;],
+        backgroundColor:["#dc2626", "#d97706", "#059669"],
         borderRadius:4,
         barPercentage:0.7
       }

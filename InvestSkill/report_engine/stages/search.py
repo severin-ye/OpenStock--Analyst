@@ -146,7 +146,10 @@ SCHEMA_HINT = """
 """
 
 
-def run_search(report: StockReport) -> StockReport:
+def run_search(report: StockReport, logger=None) -> StockReport:
+    import time
+    t0 = time.time()
+
     cfg = get_deepseek_config()
     llm = ChatOpenAI(
         model=cfg["model"],
@@ -202,24 +205,43 @@ BTC 不适用传统财务指标，改为:
 
 只返回 JSON，不要 markdown 代码块包裹。
 """
+    log = logger or logging.getLogger('pipeline')
+    log.info(f"  LLM 请求: model={cfg['model']}, base_url={cfg['base_url']}")
+    log.info(f"  Prompt 长度: {len(prompt):,} chars")
+    log.info(f"  等待 LLM 响应 (Deepseek V4 Pro 通常 60-180s)...")
+
     try:
-        response = llm.invoke(prompt)
+        response = llm.invoke(prompt, timeout=300)
+        elapsed_llm = time.time() - t0
+
+        token_usage = getattr(response, 'response_metadata', {})
+        log.info(f"  LLM 响应: {elapsed_llm:.1f}s, token_usage={token_usage}")
+
         content = response.content.strip()
+        log.info(f"  原始响应长度: {len(content):,} chars")
+
         if content.startswith("```"):
             parts = content.split("```")
             content = parts[1] if len(parts) > 1 else parts[0]
             if content.startswith("json"):
                 content = content[4:]
         content = content.strip()
+        log.info(f"  清理后 JSON 长度: {len(content):,} chars")
 
         result = StockReport.model_validate_json(content)
         result.company_dir = report.company_dir
         result.module_states = report.module_states
         for m in result.module_states.values():
             m.status = ModuleStatus.FILLED
-        print(f"[Stage 1+2] ✅ {len(result.charts)} charts, {len(result.f_score_items)} F-Score, {result.composite_rank_8}, {len(json.dumps(content)):,} chars")
+
+        log.info(f"  解析成功: {len(result.charts)} charts, {len(result.f_score_items)} F-Score, composite={result.composite_rank_8}")
+        log.info(f"  顶层字典 keys: {list(result.model_dump(mode='json').keys())}")
         return result
     except Exception as e:
-        err_msg = str(e)[:200]
-        print(f"[Stage 1+2] ❌ {err_msg}")
+        elapsed = time.time() - t0
+        err_type = type(e).__name__
+        log.error(f"  ⚠️ LLM 失败 ({err_type}, {elapsed:.1f}s): {str(e)[:500]}")
+        if hasattr(e, '__traceback__'):
+            import traceback
+            log.debug(f"  Traceback: {traceback.format_exc()}")
         return report
