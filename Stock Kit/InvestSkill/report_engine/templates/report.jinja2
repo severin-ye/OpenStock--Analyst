@@ -225,17 +225,37 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
   {% if s5_body_html %}{{ s5_body_html | safe }}{% endif %}
 
-  {% if s5_valuation_methods %}
-  <div class="bars">
-    {% for m in s5_valuation_methods %}
-    <div class="bar-row">
-      <div class="bl">{{ m.name }}</div>
-      <div class="btr"><div class="bfill" style="width:{% if m.probability %}{{ m.probability.replace('%','') }}{% endif %}%;background:var(--blue)"></div></div>
-      <div class="bv">{{ m.value }}</div>
+  <div class="model-box">
+    <div class="mb-head">模型分析 · DCF 情景假设</div>
+    <div class="bars">
+      {% for m in s5_valuation_methods if m.name in ['DCF保守','DCF基准','DCF乐观','悲观','基准','乐观'] %}
+      <div class="bar-row">
+        <div class="bl">{{ m.name }}</div>
+        <div class="btr"><div class="bfill" style="width:{% if m.probability %}{{ m.probability.replace('%','') }}{% endif %}%;background:var(--blue)"></div></div>
+        <div class="bv">{{ m.value }}</div>
+      </div>
+      {% else %}
+      <p style="color:var(--muted);font-size:12px">无模型估值假设</p>
+      {% endfor %}
     </div>
-    {% endfor %}
+  </div>
+
+  {% for m in s5_valuation_methods if m.name not in ['DCF保守','DCF基准','DCF乐观','悲观','基准','乐观'] %}
+  {% if loop.first %}
+  <div class="real-data-box">
+    <div class="rd-head">真实数据参考</div>
+    <div class="bars">
+  {% endif %}
+      <div class="bar-row">
+        <div class="bl">{{ m.name }}</div>
+        <div class="btr"><div class="bfill" style="width:{% if m.probability %}{{ m.probability.replace('%','') }}{% endif %}%;background:var(--green)"></div></div>
+        <div class="bv">{{ m.value }}</div>
+      </div>
+  {% if loop.last %}
+    </div>
   </div>
   {% endif %}
+  {% endfor %}
 
   {% for chart in charts if chart.section_id == 's5' %}
   <div class="chart-wrap"><canvas id="{{ chart.chart_id }}"></canvas></div>
@@ -248,18 +268,43 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   {% if s6_body_html %}{{ s6_body_html | safe }}{% endif %}
 
   {% if s6_scenarios %}
-  <div class="t-wrap"><table>
-    <thead><tr><th>情景</th><th>概率</th><th>目标价</th><th>预期回报</th><th>描述</th></tr></thead>
-    <tbody>
-      {% for s in s6_scenarios %}
-      <tr>
-        <td>{{ s.scenario }}</td><td>{{ s.probability }}</td><td>{{ s.price_target }}</td>
-        <td class="{% if s.return_pct.startswith('+') %}up{% elif s.return_pct.startswith('-') %}dn{% else %}nu{% endif %}">{{ s.return_pct }}</td>
-        <td>{{ s.description }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table></div>
+  <div class="model-box">
+    <div class="mb-head">模型分析 · 情景假设</div>
+    <div class="t-wrap"><table>
+      <thead><tr><th>情景</th><th>概率</th><th>目标价</th><th>预期回报</th><th>描述</th></tr></thead>
+      <tbody>
+        {% for s in s6_scenarios if '分析师' not in s.scenario %}
+        <tr>
+          <td>{{ s.scenario }}</td><td>{{ s.probability }}</td><td>{{ s.price_target }}</td>
+          <td class="{% if s.return_pct.startswith('+') %}up{% elif s.return_pct.startswith('-') %}dn{% else %}nu{% endif %}">{{ s.return_pct }}</td>
+          <td>{{ s.description }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="color:var(--muted);text-align:center">无模型情景假设</td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+
+  {% for s in s6_scenarios if '分析师' in s.scenario %}
+  {% if loop.first %}
+  <div class="real-data-box">
+    <div class="rd-head">真实数据参考</div>
+    <div class="t-wrap"><table>
+      <thead><tr><th>情景</th><th>概率</th><th>目标价</th><th>预期回报</th><th>描述</th></tr></thead>
+      <tbody>
+  {% endif %}
+        <tr>
+          <td>{{ s.scenario }}</td><td>{{ s.probability }}</td><td>{{ s.price_target }}</td>
+          <td class="{% if s.return_pct.startswith('+') %}up{% elif s.return_pct.startswith('-') %}dn{% else %}nu{% endif %}">{{ s.return_pct }}</td>
+          <td>{{ s.description }}</td>
+        </tr>
+  {% if loop.last %}
+      </tbody>
+    </table></div>
+  </div>
+  {% endif %}
+  {% endfor %}
   {% endif %}
 
   {% for chart in charts if chart.section_id == 's6' %}
@@ -287,16 +332,16 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="card-header"><div class="card-num">8</div><div class="card-title">🎯 投资信号</div><div class="card-sub">Investment Signal Block</div></div>
   {% if s8_signal %}
   <div class="signal">
-    <div class="signal-head">INVESTMENT SIGNAL</div>
+    <div class="signal-head">投资信号</div>
     <div class="signal-rows">
-      <div class="sr"><label>Signal</label><span class="{% if s8_signal.signal == 'BULLISH' %}up{% elif s8_signal.signal == 'BEARISH' %}dn{% endif %}">{{ s8_signal.signal }}</span></div>
-      <div class="sr"><label>Confidence</label><span>{{ s8_signal.confidence }}</span></div>
-      <div class="sr"><label>Horizon</label><span>{{ s8_signal.horizon }}</span></div>
-      <div class="sr"><label>Score</label><span>{{ f_score_total }} / 9</span></div>
+      <div class="sr"><label>信号</label><span class="{% if s8_signal.signal == '看多' %}up{% elif s8_signal.signal == '看空' %}dn{% endif %}">{{ s8_signal.signal }}</span></div>
+      <div class="sr"><label>信心度</label><span>{{ s8_signal.confidence }}</span></div>
+      <div class="sr"><label>投资期限</label><span>{{ s8_signal.horizon }}</span></div>
+      <div class="sr"><label>评分</label><span>{{ f_score_total }} / 9</span></div>
     </div>
     <div class="signal-rows">
-      <div class="sr"><label>Action</label><span>{{ s8_signal.action }}</span></div>
-      <div class="sr"><label>Conviction</label><span>{{ s8_signal.conviction }}</span></div>
+      <div class="sr"><label>建议操作</label><span>{{ s8_signal.action }}</span></div>
+      <div class="sr"><label>确信度</label><span>{{ s8_signal.conviction }}</span></div>
     </div>
     <div class="signal-foot">教育性分析，不构成投资建议</div>
   </div>

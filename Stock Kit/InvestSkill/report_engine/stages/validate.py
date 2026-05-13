@@ -125,10 +125,11 @@ def validate_data_sanity(html_path: str) -> list[str]:
     ticker_match = re.search(r'"ticker"\s*:\s*"([\w.]+)"', content)
 
     # 回退: HTML 内联格式 (tools/pipeline Jinja2 渲染)
+    # 支持多币种前缀: $, HK$, ¥, ₩, € 等
     if not price_match:
-        price_match = re.search(r'当前价格[：:]\s*\$?([\d,.]+)', content)
+        price_match = re.search(r'当前价格[：:]\s*(?:HK\$|US\$|A\$|C\$|£|€|¥|₩|\$)?([\d,.]+)', content)
     if not price_match:
-        price_match = re.search(r'class="(?:up|dn|neut)">\$?([\d,.]+)</span>', content)
+        price_match = re.search(r'class="(?:up|dn|neut)">(?:HK\$|US\$|A\$|C\$|£|€|¥|₩|\$)?([\d,.]+)</span>', content)
     if not ticker_match:
         ticker_match = re.search(r'<div class="ticker">([\w.]+)</div>', content)
     if not ticker_match:

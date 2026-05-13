@@ -1,6 +1,6 @@
 # 📊 综合投资分析报告
 
-基于 **Greenblatt 排名法** 的美股 + 加密资产深度投资分析系统。
+基于 **Greenblatt 排名法** 的多市场深度投资分析系统：以美股为主，兼容港股、日股、韩股和加密资产。
 
 > 排名不是对公司优劣的判断，而是对 **"当前价格下值不值得买"** 的量化回答。
 
@@ -66,11 +66,18 @@ python3 -m http.server 8888
 
 | 数据源 | 提供数据 |
 |--------|----------|
-| Google Finance | 股价、PE、市值、52周高低、EPS、Beta |
-| stockanalysis.com | EBIT/EV、ROIC、Forward PEG |
-| marketbeat.com | F-Score 组件、YTD 收益、分析师目标价 |
-| CoinGecko API | 加密货币价格/市值 |
-| DeFiLlama API | 加密 TVL/Fees/Revenue
+| Google Finance / yfinance | 美股、港股、日股、韩股股价、PE、市值、52周高低、EPS、Beta |
+| StockAnalysis / MarketBeat | 美股 EV/EBIT、ROIC、Forward PEG、目标价、F-Score 交叉验证 |
+| Yahoo Finance / MarketScreener | 港股、日股、韩股 PB、Forward PE、目标价、共识、估值交叉验证 |
+| HKEXnews / EDINET / DART | 港股、日股、韩股官方财报、XBRL、现金流、负债、股本 |
+| 公司 IR | 所有市场的年报、季报、财报电话会、产能和业务数据 |
+| CoinGecko API | 加密货币价格、市值、成交量、供给 |
+| DeFiLlama API | 加密 TVL、Fees、Revenue |
+| mempool.space / blockchain.com | BTC 网络健康、交易、费用、算力辅助 |
+| LookIntoBitcoin / SoSoValue / Farside | BTC MVRV/NVT/周期、ETF AUM/flows |
+| beaconcha.in / Solscan / BscScan | ETH/SOL/BNB staking、验证者、地址活跃度 |
+
+跨市场原则：数据源状态只影响字段来源和缺失披露，不影响报告生成档位；非美股不得降级为聊天摘要。
 
 ---
 

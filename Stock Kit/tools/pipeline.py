@@ -27,8 +27,9 @@ from report_engine.schema import (
 from report_engine.stages.scaffold import scaffold
 from report_engine.stages.render import render_to_file
 
-from tools.fetcher import fetch_all_8, PriceSnapshot, TICKER_MAP, YF_TICKER_MAP
-from tools.ranker import compute_greenblatt, compute_crypto_ranking, RankingResult
+from tools.fetcher import fetch_all_8, fetch_yfinance, fetch_crypto_public, PriceSnapshot, TICKER_MAP, YF_TICKER_MAP
+from tools.market_data import source_chain_summary
+from tools.ranker import compute_greenblatt, compute_crypto_ranking, compute_pos_crypto_ranking, RankingResult
 
 BASE_DIR = Path('/home/severin/Codelib/股市分析')
 LOG_DIR = BASE_DIR / '.sisyphus' / 'pipeline_logs'
@@ -56,6 +57,16 @@ def build_logger(company_name: str) -> logging.Logger:
     return logger
 
 
+TICKER_NAME_MAP = {
+    'NVDA': '英伟达', 'AAPL': '苹果', 'INTC': '英特尔', 'TSLA': '特斯拉',
+    'AMD': 'AMD', 'MU': '美光', '1810.HK': '小米', 'BTC': '比特币',
+    'LLY': '礼来', 'AVGO': '博通', '000660.KS': 'SK海力士',
+    '005930.KS': '三星电子', '207940.KS': '三星生物制药', '005380.KS': '现代汽车',
+    '0700.HK': '腾讯', '9988.HK': '阿里巴巴', '3690.HK': '美团', '1211.HK': '比亚迪',
+    '7203.T': '丰田', '6758.T': '索尼', '9984.T': '软银集团',
+    'ETH': '以太坊', 'SOL': 'Solana', 'BNB': 'BNB',
+}
+
 def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, PriceSnapshot],
                            rankings: dict[str, RankingResult]) -> str:
     """构建完整真实数据注入块"""
@@ -64,10 +75,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
     if not info:
         return ""
 
-    name_map = {'NVDA': '英伟达', 'AAPL': '苹果', 'INTC': '英特尔', 'TSLA': '特斯拉',
-                'AMD': 'AMD', 'MU': '美光', '1810.HK': '小米', 'BTC': '比特币',
-                'LLY': '礼来', 'AVGO': '博通', '000660.KS': 'SK海力士',
-                '005930.KS': '三星电子', '207940.KS': '三星生物制药', '005380.KS': '现代汽车'}
+    name_map = TICKER_NAME_MAP
 
     lines = [f"""
 ## ⚠️ 反幻觉规则 — 必须遵守
@@ -78,9 +86,9 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 4. **叙述和分析可以发挥判断力，但引用的数字必须是下方的。**
 
 ---
-## 真实采集数据 (stockanalysis.com + marketbeat.com 交叉验证, {datetime.now().strftime('%Y-%m-%d')})
+## 真实采集数据 (按市场数据源矩阵交叉验证, {datetime.now().strftime('%Y-%m-%d')})
 
-### 全部 8 家标的数据
+### 全部支持标的数据
 
 | 标的 | 股价 | 市值 | YTD | PE | FwdPE | PEG | EBIT/EV | ROIC | F-Score | FCF Yield | Rev Growth | Beta |
 |------|------|------|-----|----|-------|-----|---------|------|---------|-----------|------------|------|
@@ -106,6 +114,26 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 - 距上次减半天数: {btc.days_since_halving} 天
 """)
 
+    pos_assets = [p for t, p in prices.items() if t in {'ETH', 'SOL', 'BNB'}]
+    if pos_assets:
+        lines.append("""
+### PoS 加密资产专属指标
+
+| 标的 | MCap/TVL | Staking比率 | 年通胀率 | TVL | Fees | Revenue | 数据源链 |
+|------|----------|-------------|----------|-----|------|---------|----------|
+""")
+        for p in pos_assets:
+            lines.append(
+                f"| {name_map.get(p.ticker, p.ticker)}({p.ticker}) | {p.mcap_tvl_ratio or '—'} | "
+                f"{p.staking_ratio or '—'}% | {p.supply_inflation or '—'}% | {p.tvl or '—'} | "
+                f"{p.fees_annualized or '—'} | {p.revenue_annualized or '—'} | {source_chain_summary(p.ticker)} |"
+            )
+
+    lines.append("""
+### 当前标的数据源 fallback 链
+""")
+    lines.append(f"- {ticker}: {source_chain_summary(ticker) or info.source}\n")
+
     # 排名结果
     if rank:
         lines.append("""
@@ -125,7 +153,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
     # 全部 8 家排名汇总
     if rankings:
         lines.append("""
-### 全部 8 家四层排名汇总 (纯数学, 禁止修改)
+### 全部支持标的四层排名汇总 (纯数学, 禁止修改)
 
 | 标的 | L1(EBIT/EV) | L2(ROIC) | L3(F-Score) | L4(PEG) | 综合分 | 综合排名 |
 |------|------------|----------|-------------|---------|--------|----------|
@@ -315,39 +343,89 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
 
     report.f_score_total = int(price_info.f_score or 0)
     report.s5_body_html = (
-        f"<p>估值区块只展示缓存中的事实指标：Forward P/E {price_info.forward_pe or '—'}、"
+        f"<p>估值区块展示缓存事实指标：Forward P/E {price_info.forward_pe or '—'}、"
         f"PEG {price_info.peg_ratio or '—'}、EBIT/EV {price_info.ebit_ev or '—'}、ROIC {price_info.roic or '—'}。"
-        f"本 pipeline 未计算 DCF，因此不输出 DCF 目标价作为事实。</p>"
+        f"下方「模型分析」框为 LLM 生成的 DCF 情景假设；如有「真实数据参考」则来自外部数据源。</p>"
     )
     report.s6_body_html = (
-        f"<p>未来展望中的数值只使用缓存目标价 {price_info.price_target or '—'} 与当前价 {report.cover_price} 计算。"
-        f"未取得逐情景模型输入时，不生成悲观/基准/乐观三档假设。</p>"
+        f"<p>未来展望包含 LLM 生成的悲观/基准/乐观三档情景假设（模型分析）；"
+        f"如有分析师目标价等真实数据，将在下方「真实数据参考」中单独列出。</p>"
     )
-    report.s5_valuation_methods = [
-        ValuationMethod(name='当前价格', value=report.cover_price, probability='事实'),
-        ValuationMethod(name='分析师目标价', value=price_info.price_target or '—', probability='外部来源'),
-        ValuationMethod(name='DCF估值', value='未计算', probability='不展示估算'),
-    ]
+
+    # 保留 LLM 生成的估值方法，追加真实数据
+    if not any(m.name == '当前价格' for m in report.s5_valuation_methods):
+        report.s5_valuation_methods.insert(0, ValuationMethod(name='当前价格', value=report.cover_price, probability='事实'))
+    if not any(m.name == '分析师目标价' for m in report.s5_valuation_methods):
+        report.s5_valuation_methods.insert(1, ValuationMethod(name='分析师目标价', value=price_info.price_target or '—', probability='外部来源'))
 
     target = parse_number(price_info.price_target)
-    if target and price_info.price:
-        ret = (target / price_info.price - 1) * 100
-        report.s6_scenarios = [ScenarioRow(
-            scenario='分析师目标价', probability='—', price_target=f"{currency}{target:,.2f}",
+    current = parse_number(report.cover_price)
+    if target and current and current > 0:
+        ret = (target / current - 1) * 100
+        # 不覆盖 LLM 生成的三档情景，追加分析师目标价作为独立行
+        analyst_scenario = ScenarioRow(
+            scenario='分析师目标价（真实数据）', probability='—', price_target=f"{currency}{target:,.2f}",
             return_pct=f"{ret:+.1f}%", description='来自缓存目标价，非 LLM 情景估算'
-        )]
+        )
+        if report.s6_scenarios:
+            report.s6_scenarios.append(analyst_scenario)
+        else:
+            report.s6_scenarios = [analyst_scenario]
+
+        # S5 dcfChart：当前价 + LLM 三档（如有）+ 分析师目标价
+        dcf_labels = ['当前价']
+        dcf_data = [round(current, 2)]
+        dcf_colors = ['#d97706']
+        for s in report.s5_valuation_methods:
+            if s.name in ('悲观', 'DCF保守') and parse_number(s.value):
+                dcf_labels.append('悲观')
+                dcf_data.append(round(parse_number(s.value), 2))
+                dcf_colors.append('#dc2626')
+            elif s.name in ('基准', 'DCF基准') and parse_number(s.value):
+                dcf_labels.append('基准')
+                dcf_data.append(round(parse_number(s.value), 2))
+                dcf_colors.append('#d97706')
+            elif s.name in ('乐观', 'DCF乐观') and parse_number(s.value):
+                dcf_labels.append('乐观')
+                dcf_data.append(round(parse_number(s.value), 2))
+                dcf_colors.append('#059669')
+        dcf_labels.append('分析师目标价')
+        dcf_data.append(round(target, 2))
+        dcf_colors.append('#2563eb')
         replace_chart(report, ChartDef(
             chart_id='dcfChart', chart_type=ChartType.BAR, section_id='s5',
-            labels=['当前价', '分析师目标价'],
-            datasets=[ChartDataset(label='价格', data=[round(price_info.price, 2), round(target, 2)],
-                                   color='#2563eb', point_background_colors=['#d97706', '#059669'])],
+            labels=dcf_labels,
+            datasets=[ChartDataset(label='价格', data=dcf_data,
+                                   color='#2563eb', point_background_colors=dcf_colors)],
             y_axis_label='$', y_axis_format='$', tooltip_prefix='$', tooltip_suffix='',
         ))
+
+        # S6 scenarioChart：LLM 三档（如有）+ 分析师目标价
+        sc_labels = []
+        sc_data = []
+        sc_colors = []
+        for s in report.s6_scenarios:
+            if s.scenario in ('悲观', '悲观情景') and parse_number(s.return_pct) is not None:
+                sc_labels.append('悲观')
+                sc_data.append(round(parse_number(s.return_pct), 1))
+                sc_colors.append('#dc2626')
+            elif s.scenario in ('基准', '基准情景') and parse_number(s.return_pct) is not None:
+                sc_labels.append('基准')
+                sc_data.append(round(parse_number(s.return_pct), 1))
+                sc_colors.append('#d97706')
+            elif s.scenario in ('乐观', '乐观情景') and parse_number(s.return_pct) is not None:
+                sc_labels.append('乐观')
+                sc_data.append(round(parse_number(s.return_pct), 1))
+                sc_colors.append('#059669')
+        # 分析师目标价回报
+        sc_labels.append('分析师目标价')
+        sc_data.append(round(ret, 1))
+        sc_colors.append('#2563eb')
         replace_chart(report, ChartDef(
             chart_id='scenarioChart', chart_type=ChartType.BAR, section_id='s6',
-            labels=['分析师目标价'],
-            datasets=[ChartDataset(label='预期回报%', data=[round(ret, 1)], color='#2563eb',
-                                   point_background_colors=['#059669' if ret >= 0 else '#dc2626'])],
+            labels=sc_labels,
+            datasets=[ChartDataset(label='预期回报%', data=sc_data, color='#2563eb',
+                                   point_background_colors=sc_colors)],
             y_axis_label='%', y_axis_format='%', tooltip_prefix='', tooltip_suffix='%',
         ))
 
@@ -356,7 +434,7 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
     for t, p in prices.items():
         val = parse_number(p.forward_pe)
         if val is not None and val > 0:
-            peer_labels.append(t)
+            peer_labels.append(TICKER_NAME_MAP.get(t, t))
             peer_data.append(round(val, 2))
     if peer_labels and peer_data:
         replace_chart(report, ChartDef(
@@ -596,11 +674,29 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
     report = scaffold(company_name)
     logger.info(f"  Ticker={report.ticker}, Exchange={report.exchange}, Asset={report.asset_category.value}")
 
+    # Stage 0.5: Auto-refresh prices.json before analysis
+    logger.info("[Stage 0.5: refresh] 分析前自动刷新 prices.json 缓存")
+    try:
+        from tools.fetcher import sync_public_data_to_json
+        sync_public_data_to_json(logger=logger)
+        logger.info("  ✅ 缓存刷新完成")
+    except Exception as e:
+        logger.warning(f"  ⚠️ 缓存刷新失败: {e}，继续使用旧缓存")
+
     # Stage 1: Fetch real data for ALL 8
-    logger.info("[Stage 1: fetch] 从 marketbeat.com + trefis.com 抓取 8 家数据")
+    logger.info("[Stage 1: fetch] 按多市场数据源矩阵加载缓存/实时数据")
     prices = fetch_all_8(logger=logger)
     ticker = report.ticker
     my_data = prices.get(ticker)
+    if not my_data:
+        if ticker in {'BTC', 'ETH', 'SOL', 'BNB'}:
+            fresh_crypto = fetch_crypto_public([ticker], logger=logger)
+            prices.update(fresh_crypto)
+        else:
+            yf_symbol = yfinance_symbol_for_ticker(ticker)
+            fresh_equity = fetch_yfinance([yf_symbol], logger=logger)
+            prices.update(fresh_equity)
+        my_data = prices.get(ticker)
     if my_data:
         logger.info(f"  {ticker}: price={my_data.price}, PE={my_data.pe_ratio}, PEG={my_data.peg_ratio}")
     else:
@@ -640,6 +736,26 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
                 )
                 rankings[t] = result
                 logger.info(f"  BTC: composite={result.composite_score:.2f}")
+        elif t in {'ETH', 'SOL', 'BNB'}:
+            pos = prices.get(t)
+            all_mcap_tvl = {k: v.mcap_tvl_ratio for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.mcap_tvl_ratio is not None}
+            all_staking = {k: v.staking_ratio for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.staking_ratio is not None}
+            all_crypto_f = {k: v.f_score for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.f_score is not None}
+            all_inflation = {k: v.supply_inflation for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.supply_inflation is not None}
+            if pos and all_mcap_tvl and all_staking and all_crypto_f and all_inflation:
+                result = compute_pos_crypto_ranking(
+                    t,
+                    pos.mcap_tvl_ratio,
+                    pos.staking_ratio,
+                    pos.f_score,
+                    pos.supply_inflation,
+                    all_mcap_tvl,
+                    all_staking,
+                    all_crypto_f,
+                    all_inflation,
+                )
+                rankings[t] = result
+                logger.info(f"  {t}: composite={result.composite_score:.2f}")
         elif t in all_ebit_ev:
             result = compute_greenblatt(
                 t,

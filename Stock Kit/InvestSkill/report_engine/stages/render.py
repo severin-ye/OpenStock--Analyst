@@ -48,7 +48,7 @@ def render(report: StockReport) -> str:
         's2': report.s2.title if report.s2 else '公司概览',
         's3': '过去一年走势',
         's4': report.s4.title if report.s4 else '竞争格局',
-        's5': report.s4.subtitle if report.s4 else '估值分析',
+        's5': '💰 估值分析',
         's6': '未来一年展望',
         's7': '风险矩阵',
         's8': '投资信号',
@@ -56,6 +56,21 @@ def render(report: StockReport) -> str:
 
     ctx = report.model_dump(mode='json')
     ctx['SECTION_LABELS'] = section_labels
+
+    # 信号中文化
+    signal_val_map = {
+        'BULLISH': '看多', 'BEARISH': '看空', 'NEUTRAL': '中性',
+        'HIGH': '高', 'MEDIUM': '中', 'LOW': '低',
+        'SHORT': '短期', 'LONG-TERM': '长期',
+        'BUY': '买入', 'HOLD': '持有', 'SELL': '卖出',
+        'STRONG': '强', 'MODERATE': '中等', 'WEAK': '弱',
+    }
+    signal = ctx.get('s8_signal')
+    if signal and isinstance(signal, dict):
+        for key in ('signal', 'confidence', 'horizon', 'action', 'conviction'):
+            if signal.get(key):
+                signal[key] = signal_val_map.get(signal[key], signal[key])
+        ctx['s8_signal'] = signal
 
     return template.render(**ctx)
 

@@ -11,11 +11,8 @@
   parse_google_finance(raw_text, 'NASDAQ') → dict → 写入 prices.json
 """
 
-import re
-import json
 from dataclasses import dataclass
-from typing import Optional
-from pathlib import Path
+import re
 
 # ──────────────────────────────────────────
 # Google Finance URL 模板
@@ -42,7 +39,10 @@ STOCK_REGISTRY: dict[str, tuple[str, str, str]] = {
     'INTC': ('INTC', 'NASDAQ', 'US'),
     'AMD': ('AMD', 'NASDAQ', 'US'),
     'MU': ('MU', 'NASDAQ', 'US'),
+    'LLY': ('LLY', 'NYSE', 'US'),
+    'AVGO': ('AVGO', 'NASDAQ', 'US'),
     # 港股
+    '1810.HK': ('1810', 'HKEX', 'HK'),
     '0700.HK': ('0700', 'HKEX', 'HK'),
     '9988.HK': ('9988', 'HKEX', 'HK'),
     '3690.HK': ('3690', 'HKEX', 'HK'),
@@ -53,6 +53,9 @@ STOCK_REGISTRY: dict[str, tuple[str, str, str]] = {
     '9984.T': ('9984', 'TSE', 'JP'),
     # 韩股
     '005930.KS': ('005930', 'KOSPI', 'KR'),
+    '000660.KS': ('000660', 'KOSPI', 'KR'),
+    '207940.KS': ('207940', 'KOSPI', 'KR'),
+    '005380.KS': ('005380', 'KOSPI', 'KR'),
 }
 
 # 币种 → 符号/代码
@@ -61,6 +64,67 @@ CURRENCY_MAP: dict[str, dict[str, str]] = {
     'HK': {'symbol': 'HK$', 'code': 'HKD'},
     'JP': {'symbol': '¥', 'code': 'JPY'},
     'KR': {'symbol': '₩', 'code': 'KRW'},
+}
+
+
+# ──────────────────────────────────────────
+# 多市场数据源矩阵
+# ──────────────────────────────────────────
+
+@dataclass(frozen=True)
+class SourceSpec:
+    """单个数据源的用途与限制。"""
+
+    name: str
+    url_pattern: str
+    fields: tuple[str, ...]
+    priority: int
+    notes: str = ""
+
+
+DATA_SOURCE_MATRIX: dict[str, list[SourceSpec]] = {
+    'US': [
+        SourceSpec('Google Finance', GF_URL_TEMPLATE, ('price', 'market_cap', 'pe_ratio', 'week52_low', 'week52_high', 'eps', 'beta'), 1),
+        SourceSpec('Yahoo Finance', 'https://finance.yahoo.com/quote/{ticker}/key-statistics/', ('forward_pe', 'peg_ratio', 'pb_ratio', 'beta'), 2, '页面可能反爬；优先用 yfinance 程序化读取'),
+        SourceSpec('StockAnalysis', 'https://stockanalysis.com/stocks/{ticker}/statistics/', ('enterprise_value', 'ev_ebit', 'roic', 'margins', 'f_score'), 3),
+        SourceSpec('MarketBeat', 'https://www.marketbeat.com/stocks/{exchange}/{ticker}/', ('price_target', 'analyst_rating', 'ytd_change_pct'), 4),
+        SourceSpec('SEC/company IR', 'company filings / investor relations', ('revenue', 'ebit', 'net_income', 'cash_flow', 'debt', 'equity'), 5),
+    ],
+    'HK': [
+        SourceSpec('Google Finance', GF_URL_TEMPLATE, ('price', 'market_cap', 'pe_ratio', 'week52_low', 'week52_high', 'eps', 'beta'), 1, 'HKG 覆盖不如美股稳定，缺 PB 时走 fallback'),
+        SourceSpec('Yahoo Finance', 'https://finance.yahoo.com/quote/{ticker}.HK/key-statistics/', ('forward_pe', 'peg_ratio', 'pb_ratio', 'beta'), 2),
+        SourceSpec('MarketScreener', 'https://www.marketscreener.com/search/?q={ticker}', ('price_target', 'consensus', 'enterprise_value', 'pb_ratio'), 3),
+        SourceSpec('HKEXnews', 'https://www.hkexnews.hk/search/titlesearch.xhtml?lang=en', ('annual_report', 'interim_report', 'cash_flow', 'debt', 'equity'), 4, '发行人披露为准，PDF/HTML 可由 LLM webfetch 抽表'),
+        SourceSpec('Company IR', 'company investor relations', ('revenue', 'ebit', 'net_income', 'capex', 'shares'), 5),
+    ],
+    'JP': [
+        SourceSpec('Google Finance', GF_URL_TEMPLATE, ('price', 'market_cap', 'pe_ratio', 'week52_low', 'week52_high', 'eps', 'beta'), 1),
+        SourceSpec('Yahoo Finance', 'https://finance.yahoo.com/quote/{ticker}.T/key-statistics/', ('forward_pe', 'peg_ratio', 'pb_ratio', 'beta'), 2),
+        SourceSpec('MarketScreener', 'https://www.marketscreener.com/search/?q={ticker}', ('price_target', 'consensus', 'enterprise_value', 'pb_ratio'), 3),
+        SourceSpec('EDINET', 'https://disclosure2.edinet-fsa.go.jp/weee0060.aspx', ('xbrl', 'financial_statements', 'cash_flow', 'debt', 'equity'), 4, '英文 XBRL 仅辅助，日文原文为准'),
+        SourceSpec('Company IR', 'company investor relations', ('revenue', 'ebit', 'net_income', 'capex', 'shares'), 5),
+    ],
+    'KR': [
+        SourceSpec('Google Finance', GF_URL_TEMPLATE, ('price', 'market_cap', 'pe_ratio', 'week52_low', 'week52_high', 'eps', 'beta'), 1),
+        SourceSpec('Yahoo Finance', 'https://finance.yahoo.com/quote/{ticker}.KS/key-statistics/', ('forward_pe', 'peg_ratio', 'pb_ratio', 'beta'), 2),
+        SourceSpec('MarketScreener', 'https://www.marketscreener.com/search/?q={ticker}', ('price_target', 'consensus', 'enterprise_value', 'pb_ratio'), 3),
+        SourceSpec('DART/OpenDART', 'https://englishdart.fss.or.kr/mainEng.do', ('xbrl', 'financial_statements', 'cash_flow', 'debt', 'equity'), 4, '英文披露仅辅助，韩文/XBRL 为准'),
+        SourceSpec('Company IR', 'company investor relations', ('revenue', 'ebit', 'net_income', 'capex', 'shares'), 5),
+    ],
+    'CRYPTO_BTC': [
+        SourceSpec('CoinGecko', 'https://api.coingecko.com/api/v3/coins/{coin_id}', ('price', 'market_cap', 'volume', 'circulating_supply', 'total_supply'), 1),
+        SourceSpec('mempool.space', 'https://mempool.space/api/v1/...', ('hash_rate', 'fees', 'mempool', 'network_health'), 2),
+        SourceSpec('blockchain.com charts', 'https://api.blockchain.info/charts/{chart}?format=json', ('transactions', 'active_addresses_proxy', 'fees'), 3),
+        SourceSpec('LookIntoBitcoin', 'https://www.lookintobitcoin.com/charts/', ('mvrv_z_score', 'nvt', 'cycle_indicators'), 4, '公开图表优先，非稳定 API'),
+        SourceSpec('SoSoValue/Farside/CMC ETF', 'public ETF tracker pages', ('spot_etf_aum', 'flows'), 5),
+    ],
+    'CRYPTO_POS': [
+        SourceSpec('CoinGecko', 'https://api.coingecko.com/api/v3/coins/{coin_id}', ('price', 'market_cap', 'volume', 'circulating_supply', 'total_supply'), 1),
+        SourceSpec('DeFiLlama', 'https://api.llama.fi/protocol/{slug}', ('tvl', 'chain_tvl'), 2),
+        SourceSpec('DeFiLlama fees', 'https://api.llama.fi/overview/fees/{slug}', ('fees', 'revenue', 'holders_revenue'), 3),
+        SourceSpec('Chain explorer / staking dashboard', 'chain-specific public pages', ('staking_ratio', 'validators', 'active_addresses'), 4),
+        SourceSpec('Company/project docs', 'protocol docs / foundation reports', ('supply_inflation', 'tokenomics'), 5),
+    ],
 }
 
 # ──────────────────────────────────────────
@@ -142,6 +206,32 @@ def parse_google_finance(text: str, market: str) -> dict:
         result['shares_outstanding'] = m.group(1) + m.group(2)
 
     return result
+
+
+def get_market_for_ticker(ticker: str) -> str:
+    """返回内部市场代码: US/HK/JP/KR/CRYPTO_BTC/CRYPTO_POS。"""
+    if ticker == 'BTC':
+        return 'CRYPTO_BTC'
+    if ticker in CRYPTO_IDS:
+        return 'CRYPTO_POS'
+    return STOCK_REGISTRY.get(ticker, ('', '', 'US'))[2]
+
+
+def build_google_finance_url(ticker: str) -> str:
+    """构造跨市场 Google Finance URL。"""
+    code, exchange, _market = STOCK_REGISTRY[ticker]
+    return GF_URL_TEMPLATE.format(code=code, exchange=EXCHANGE_TO_GF[exchange])
+
+
+def get_source_chain(ticker: str) -> list[SourceSpec]:
+    """返回某标的的数据源 fallback 顺序。"""
+    return DATA_SOURCE_MATRIX.get(get_market_for_ticker(ticker), [])
+
+
+def source_chain_summary(ticker: str) -> str:
+    """用于 prompt/日志的简短来源摘要。"""
+    chain = get_source_chain(ticker)
+    return ' → '.join(source.name for source in sorted(chain, key=lambda s: s.priority))
 
 
 # ──────────────────────────────────────────

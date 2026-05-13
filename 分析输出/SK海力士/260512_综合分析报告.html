@@ -1,0 +1,761 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>000660.KS — 综合投资分析报告</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0f172a;--blue:#2563eb;--blue-l:#3b82f6;--green:#059669;--red:#dc2626;--amber:#d97706;--slate:#64748b;--border:#e2e8f0;--bg:#f8fafc;--white:#fff;--text:#0f172a;--muted:#94a3b8;--r:8px;--sh:0 1px 3px rgba(0,0,0,.06)}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--navy);position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.main{margin-left:220px;flex:1}
+.inner{max-width:900px;margin:0 auto;padding:32px 32px 80px}
+.sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sidebar-logo .ticker{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.sidebar-logo .name{font-size:11px;color:var(--muted);margin-top:2px}
+.sidebar-score{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.score-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.25);border:1px solid rgba(59,130,246,.4);border-radius:20px;padding:6px 14px;color:#93c5fd;font-size:12px;font-weight:600}
+.score-pill .num{font-size:18px;font-weight:700;color:#fff}
+.sidebar nav{padding:12px 0 24px}
+.nav-gl{padding:6px 20px 4px;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:rgba(148,163,184,.5)}
+.nav-link{display:flex;align-items:center;gap:8px;padding:7px 20px;color:rgba(148,163,184,.85);text-decoration:none;font-size:12px;transition:background .15s,color .15s;border-left:2px solid transparent}
+.nav-link:hover{background:rgba(255,255,255,.05);color:#fff;border-left-color:var(--blue-l)}
+.nav-link .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.bull .dot{background:var(--green)} .bear .dot{background:var(--red)} .neut .dot{background:var(--amber)}
+.cover{background:linear-gradient(135deg,#0f172a 0%,#1a3a52 55%,#0d6e3f 100%);border-radius:var(--r);padding:40px 40px 36px;margin-bottom:24px;position:relative;overflow:hidden;color:#fff}
+.cover::before{content:'000660.KS';position:absolute;right:-16px;top:-8px;font-size:140px;font-weight:800;letter-spacing:-8px;opacity:.05;pointer-events:none}
+.cover-label{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:2px 10px;font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#6ee7b7;margin-bottom:14px}
+.cover h1{font-size:28px;font-weight:700;line-height:1.2;margin-bottom:4px}
+.cover .exchange{font-size:13px;color:rgba(148,163,184,.8);margin-bottom:28px}
+.kpi-strip{display:flex;gap:28px;flex-wrap:wrap}
+.kpi-strip .k label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:rgba(148,163,184,.7);margin-bottom:3px}
+.kpi-strip .k span{font-size:20px;font-weight:700;color:#fff}
+.kpi-strip .k small{font-size:11px;color:rgba(148,163,184,.7);margin-left:4px}
+.kpi-strip .k .dn{color:var(--red)}.kpi-strip .k .up{color:var(--green)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:28px;margin-bottom:20px;box-shadow:var(--sh);scroll-margin-top:24px}
+.card-header{display:flex;align-items:center;gap:10px;padding-bottom:18px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.card-num{width:26px;height:26px;border-radius:6px;background:var(--navy);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-title{font-size:15px;font-weight:700;color:var(--text)}
+.card-sub{font-size:12px;color:var(--slate);margin-left:auto}
+.card h3{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slate);margin:20px 0 10px}
+.card h3:first-of-type{margin-top:0}
+.t-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:6px;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--bg)}
+th{padding:9px 12px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--slate);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid #f1f5f9}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbff}
+.up{color:var(--green);font-weight:600} .dn{color:var(--red);font-weight:600} .nu{color:var(--amber);font-weight:600} .hi{background:#f0fdf4}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.tag{border-radius:4px;padding:2px 8px;font-size:11px;font-weight:500}
+.tg{background:#dcfce7;color:#166534} .tr{background:#fee2e2;color:#991b1b} .ta{background:#fef3c7;color:#92400e} .tb{background:#dbeafe;color:#1e40af}
+.bars{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-row .bl{min-width:150px;font-size:12px;color:var(--text)}
+.bar-row .btr{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.bar-row .bfill{height:100%;border-radius:3px}
+.bar-row .bv{min-width:52px;text-align:right;font-size:11px;font-weight:600;color:var(--slate)}
+.chart-wrap{position:relative;margin:16px 0}
+.chart-wrap canvas{max-height:260px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0}
+@media(max-width:680px){.chart-grid{grid-template-columns:1fr}}
+.signal{border:1.5px solid var(--blue);border-radius:8px;overflow:hidden;margin-top:22px}
+.signal-head{background:var(--navy);padding:9px 18px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#93c5fd;text-align:center}
+.signal-rows{display:grid;grid-template-columns:1fr 1fr}
+.sr{padding:9px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.sr:nth-child(odd){background:var(--bg)}
+.sr label{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.sr span{font-size:12px;font-weight:700}
+.signal-foot{background:var(--bg);padding:8px 16px;font-size:10px;color:var(--muted);text-align:center;border-top:1px solid var(--border)}
+.verdict{background:var(--navy);border-radius:10px;padding:28px 32px;color:#fff;margin-top:24px}
+.verdict h2{font-size:18px;font-weight:700;margin-bottom:20px;color:#fff}
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.verdict ul{padding-left:16px;line-height:2;font-size:12px;color:#cbd5e1}
+.verdict-score{display:flex;align-items:center;justify-content:center;flex-direction:column;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:24px;text-align:center}
+.verdict-score .big{font-size:52px;font-weight:800;color:#60a5fa;line-height:1}
+.verdict-score .lbl{font-size:11px;color:#94a3b8;margin-top:6px;text-transform:uppercase;letter-spacing:.5px}
+.verdict-score .rec{margin-top:12px;background:rgba(37,99,235,.4);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;color:#93c5fd}
+.note{background:#fffbeb;border-left:3px solid var(--amber);border-radius:0 6px 6px 0;padding:10px 14px;font-size:11px;color:#78350f;margin-top:14px}
+footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+@media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.layout{display:block}.main{margin-left:0}.inner{padding:20px}.chart-grid,.verdict-grid{grid-template-columns:1fr}.signal-rows{grid-template-columns:1fr}}
+@media print{.sidebar{display:none}.main{margin-left:0}.inner{max-width:none;padding:18px}.card{break-inside:avoid;box-shadow:none}.cover{break-inside:avoid}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="ticker">000660.KS</div><div class="name">SK海力士</div></div>
+  
+  <div class="sidebar-score"><div class="score-pill">🏆 <span class="num">#1/14</span></div></div>
+  
+  <nav>
+    <div class="nav-gl">分析章节</div>
+    
+    <a class="nav-link bull" href="#s1">
+      <span class="dot"></span>S1. 涨跌比例总览
+    </a>
+    
+    <a class="nav-link bull" href="#s2">
+      <span class="dot"></span>S2. 🏢 公司概览
+    </a>
+    
+    <a class="nav-link bull" href="#s3">
+      <span class="dot"></span>S3. 过去一年走势
+    </a>
+    
+    <a class="nav-link neut" href="#s4">
+      <span class="dot"></span>S4. ⚔️ 竞争格局
+    </a>
+    
+    <a class="nav-link bull" href="#s5">
+      <span class="dot"></span>S5. 💰 估值分析
+    </a>
+    
+    <a class="nav-link bull" href="#s6">
+      <span class="dot"></span>S6. 未来一年展望
+    </a>
+    
+    <a class="nav-link neut" href="#s7">
+      <span class="dot"></span>S7. 风险矩阵
+    </a>
+    
+    <a class="nav-link bull" href="#s8">
+      <span class="dot"></span>S8. 投资信号
+    </a>
+    
+    <div class="nav-gl" style="margin-top:8px">结论</div>
+    <a class="nav-link" href="#verdict"><span class="dot" style="background:#60a5fa"></span>最终裁决</a>
+  </nav>
+</aside>
+
+<main class="main"><div class="inner">
+
+
+<div class="cover">
+  <div class="cover-label">InvestSkill v2.0 · 综合投资分析报告</div>
+  <h1>000660.KS — 000660.KS — SK海力士 综合投资分析</h1>
+  <div class="exchange">分析日期 2026-05-11 | 当前价格: ₩1,835,000.00 | 市值: 1302.58T | KOSPI</div>
+  <div class="kpi-strip">
+    
+    <div class="k"><label>当前股价</label>
+      <span class="up">₩1,835,000.00</span>
+      
+    </div>
+    
+    <div class="k"><label>YTD</label>
+      <span class="up">+18.7%</span>
+      
+    </div>
+    
+    <div class="k"><label>52周范围</label>
+      <span class="">196500.0 - 1967000.0</span>
+      <small>来自缓存</small>
+    </div>
+    
+    <div class="k"><label>Forward P/E</label>
+      <span class="">4.915002</span>
+      
+    </div>
+    
+    <div class="k"><label>EBIT/EV</label>
+      <span class="">8.1%</span>
+      
+    </div>
+    
+    <div class="k"><label>ROIC</label>
+      <span class="">18.2%</span>
+      
+    </div>
+    
+  </div>
+</div>
+
+
+<div class="card" id="s1">
+  <div class="card-header"><div class="card-num">1</div><div class="card-title">📊 涨跌比例总览</div><div class="card-sub">整体分析 · 百分比优先</div></div>
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>涨跌比例</th><th>对应价格/估值</th><th>概率权重</th><th>行业对比</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>YTD</td>
+          <td class="up">+18.7%</td>
+          <td>₩1,835,000.00</td>
+          <td>—</td>
+          <td>SOX指数同期+12.3%</td>
+        </tr>
+        
+        <tr>
+          <td>52周极端</td>
+          <td class="nu">从低点+834%</td>
+          <td>₩196,500.00 - ₩1,967,000.00</td>
+          <td>—</td>
+          <td>波动率高于同业</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:12px">SK海力士在四层加权排名中综合得分3.75，位列14只可比标的第1位，核心驱动力来自极低的EBIT/EV（8.1%）和强劲的营收增长（+62%），但ROIC排名中等（第7/14），需关注资本效率改善空间。</p>
+</div>
+
+
+<div class="card" id="s2">
+  <div class="card-header"><div class="card-num">2</div><div class="card-title">🏢 公司概览</div><div class="card-sub">全球第二大DRAM与NAND存储器制造商</div></div>
+  <p>SK海力士（SK Hynix）是韩国半导体巨头，专注于DRAM和NAND闪存芯片的设计、制造与销售。公司为全球主要云服务商、PC OEM及移动设备厂商提供高带宽存储器（HBM）、DDR5、LPDDR5等产品。2025年受益于AI服务器需求爆发，HBM3E出货量大幅增长，推动营收同比+62%至₩82万亿。公司持续投资先进制程（1b nm DRAM、238层NAND），并积极拓展CXL内存、PIM等新兴架构。</p>
+  
+  <div class="t-wrap"><table>
+    <thead><tr><th>指标</th><th>数值</th><th>说明</th></tr></thead>
+    <tbody>
+      
+      <tr><td>市值</td><td><strong>₩1,302.58T</strong></td><td></td></tr>
+      
+      <tr><td>企业价值(EV)</td><td><strong>₩155万亿</strong></td><td></td></tr>
+      
+      <tr><td>年营收</td><td><strong>₩82万亿</strong></td><td>YoY +62%</td></tr>
+      
+      <tr><td>EBIT</td><td><strong>₩12.6万亿</strong></td><td></td></tr>
+      
+      <tr><td>净利润</td><td><strong>₩18.5万亿</strong></td><td></td></tr>
+      
+      <tr><td>Beta</td><td><strong>2.027</strong></td><td>高波动</td></tr>
+      
+    </tbody>
+  </table></div>
+  
+</div>
+
+
+<div class="card" id="s3">
+  <div class="card-header"><div class="card-num">3</div><div class="card-title">📈 过去一年走势</div><div class="card-sub">2025.04 — 2026.05</div></div>
+  <p>过去一年走势采用 Yahoo Finance/yfinance 月度复权收盘价，并以当前缓存价格校准最后一个节点。000660.KS 从 $290833.53 到 $1835000.00，期间高点 $1835000.00、低点 $267925.41，区间涨跌 +530.9%。该图表每个节点由程序注入，非 LLM 生成。</p>
+  
+  <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+  
+</div>
+
+
+<div class="card" id="s4">
+  <div class="card-header"><div class="card-num">4</div><div class="card-title">⚔️ 竞争格局</div><div class="card-sub">存储器三强鼎立，HBM赛道加速分化</div></div>
+  <p>全球DRAM市场由三星电子（约40%）、SK海力士（约30%）、美光（约25%）三家垄断。在HBM领域，SK海力士率先量产HBM3E，占据先发优势，英伟达GPU订单占比超60%。三星电子紧随其后，但良率爬坡较慢；美光则聚焦HBM3E后续代际。NAND方面，SK海力士通过收购英特尔NAND业务（Solidigm）强化企业级SSD竞争力，与三星、铠侠/西部数据竞争。长期看，AI算力需求持续增长，HBM、CXL等新型存储器将推动行业价值量提升，SK海力士技术领先地位有望维持。</p>
+</div>
+
+
+<div class="card" id="s5">
+  <div class="card-header"><div class="card-num">5</div><div class="card-title">💰 估值分析</div><div class="card-sub">DCF · 倍数</div></div>
+
+  
+  <h3>🛡️ Piotroski F-Score: 7/9</h3>
+  <div class="t-wrap"><table>
+    <thead><tr><th>组</th><th>指标</th><th>得分</th><th>说明</th></tr></thead>
+    <tbody>
+      
+      <tr class="hi">
+        <td>盈利</td><td>ROA &gt; 0</td>
+        <td style="text-align:center;font-weight:700">1</td><td>净利润₩18.5万亿，ROA为正</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>盈利</td><td>经营现金流 &gt; 0</td>
+        <td style="text-align:center;font-weight:700">1</td><td>FCF Yield 4.5%，经营现金流为正</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>盈利</td><td>ROA同比改善</td>
+        <td style="text-align:center;font-weight:700">1</td><td>营收增长62%，利润大幅提升，ROA同比改善</td>
+      </tr>
+      
+      <tr class="">
+        <td>盈利</td><td>经营现金流 &gt; 净利润</td>
+        <td style="text-align:center;font-weight:700">0</td><td>数据不足，无法确认</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>杠杆</td><td>长期负债比率下降</td>
+        <td style="text-align:center;font-weight:700">1</td><td>资本结构改善，负债率可控</td>
+      </tr>
+      
+      <tr class="">
+        <td>杠杆</td><td>流动比率上升</td>
+        <td style="text-align:center;font-weight:700">0</td><td>数据不足</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>杠杆</td><td>未增发新股</td>
+        <td style="text-align:center;font-weight:700">1</td><td>无大规模增发记录</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>营运</td><td>毛利率上升</td>
+        <td style="text-align:center;font-weight:700">1</td><td>HBM等高附加值产品占比提升，毛利率改善</td>
+      </tr>
+      
+      <tr class="hi">
+        <td>营运</td><td>资产周转率上升</td>
+        <td style="text-align:center;font-weight:700">1</td><td>营收增速远超资产增速，周转率提升</td>
+      </tr>
+      
+    </tbody>
+  </table></div>
+  
+
+  
+  <h3>📊 四层加权排名 · #1/14</h3>
+  <div class="t-wrap"><table>
+    <thead><tr><th>Layer</th><th>维度</th><th>主指标</th><th>数值</th><th>权重</th><th>排名</th><th>判断</th></tr></thead>
+    <tbody>
+      
+      <tr>
+        <td>L1</td>
+        <td>💰 便不便宜</td>
+        <td>EBIT/EV</td>
+        <td>8.10%</td>
+        <td style="text-align:center">40%</td>
+        <td style="text-align:center;font-weight:700">#1/14</td>
+        <td>深度价值核心</td>
+      </tr>
+      
+      <tr>
+        <td>L2</td>
+        <td>🏭 赚不赚钱</td>
+        <td>ROIC</td>
+        <td>18.2%</td>
+        <td style="text-align:center">25%</td>
+        <td style="text-align:center;font-weight:700">#7/14</td>
+        <td>资本效率一般</td>
+      </tr>
+      
+      <tr>
+        <td>L3</td>
+        <td>🛡️ 会不会崩</td>
+        <td>F-Score</td>
+        <td>7/9</td>
+        <td style="text-align:center">25%</td>
+        <td style="text-align:center;font-weight:700">#4/24</td>
+        <td>财务安全</td>
+      </tr>
+      
+      <tr>
+        <td>L4</td>
+        <td>📈 增长值不值</td>
+        <td>PEG</td>
+        <td>0.80x</td>
+        <td style="text-align:center">10%</td>
+        <td style="text-align:center;font-weight:700">#6/11</td>
+        <td>增长划算</td>
+      </tr>
+      
+    </tbody>
+  </table></div>
+  
+
+  
+  <div class="note">☝️ 加权综合 = 1×40% + 7×25% + 4×25% + 6×10% = 3.75</div>
+  
+
+  <p>估值区块展示缓存事实指标：Forward P/E 4.915002、PEG 0.80x、EBIT/EV 8.1%、ROIC 18.2%。下方「模型分析」框为 LLM 生成的 DCF 情景假设；如有「真实数据参考」则来自外部数据源。</p>
+
+  <div class="model-box">
+    <div class="mb-head">模型分析 · DCF 情景假设</div>
+    <div class="bars">
+      
+      <div class="bar-row">
+        <div class="bl">DCF保守</div>
+        <div class="btr"><div class="bfill" style="width:30%;background:var(--blue)"></div></div>
+        <div class="bv">₩1,500,000</div>
+      </div>
+      
+      <div class="bar-row">
+        <div class="bl">DCF基准</div>
+        <div class="btr"><div class="bfill" style="width:50%;background:var(--blue)"></div></div>
+        <div class="bv">₩2,200,000</div>
+      </div>
+      
+      <div class="bar-row">
+        <div class="bl">DCF乐观</div>
+        <div class="btr"><div class="bfill" style="width:20%;background:var(--blue)"></div></div>
+        <div class="bv">₩2,600,000</div>
+      </div>
+      
+    </div>
+  </div>
+
+  
+  
+  <div class="real-data-box">
+    <div class="rd-head">真实数据参考</div>
+    <div class="bars">
+  
+      <div class="bar-row">
+        <div class="bl">当前价格</div>
+        <div class="btr"><div class="bfill" style="width:事实%;background:var(--green)"></div></div>
+        <div class="bv">₩1,835,000.00</div>
+      </div>
+  
+  
+  
+      <div class="bar-row">
+        <div class="bl">分析师目标价</div>
+        <div class="btr"><div class="bfill" style="width:外部来源%;background:var(--green)"></div></div>
+        <div class="bv">₩280,000</div>
+      </div>
+  
+    </div>
+  </div>
+  
+  
+
+  
+  <div class="chart-wrap"><canvas id="valuationRadar"></canvas></div>
+  
+  <div class="chart-wrap"><canvas id="peerCompareChart"></canvas></div>
+  
+  <div class="chart-wrap"><canvas id="dcfChart"></canvas></div>
+  
+</div>
+
+
+<div class="card" id="s6">
+  <div class="card-header"><div class="card-num">6</div><div class="card-title">🔮 未来一年展望</div><div class="card-sub">2026.05 — 2027.05 · 情景概率</div></div>
+  <p>未来展望包含 LLM 生成的悲观/基准/乐观三档情景假设（模型分析）；如有分析师目标价等真实数据，将在下方「真实数据参考」中单独列出。</p>
+
+  
+  <div class="model-box">
+    <div class="mb-head">模型分析 · 情景假设</div>
+    <div class="t-wrap"><table>
+      <thead><tr><th>情景</th><th>概率</th><th>目标价</th><th>预期回报</th><th>描述</th></tr></thead>
+      <tbody>
+        
+        <tr>
+          <td>悲观</td><td>25%</td><td>₩1,500,000</td>
+          <td class="dn">-18.3%</td>
+          <td>存储器周期下行，DRAM价格大幅下跌，HBM订单不及预期</td>
+        </tr>
+        
+        <tr>
+          <td>基准</td><td>50%</td><td>₩2,200,000</td>
+          <td class="up">+19.9%</td>
+          <td>HBM持续放量，DRAM价格温和，营收增长15-20%</td>
+        </tr>
+        
+        <tr>
+          <td>乐观</td><td>25%</td><td>₩2,600,000</td>
+          <td class="up">+41.7%</td>
+          <td>HBM4提前量产，AI需求超预期，存储器供需偏紧</td>
+        </tr>
+        
+      </tbody>
+    </table></div>
+  </div>
+
+  
+  
+  <div class="real-data-box">
+    <div class="rd-head">真实数据参考</div>
+    <div class="t-wrap"><table>
+      <thead><tr><th>情景</th><th>概率</th><th>目标价</th><th>预期回报</th><th>描述</th></tr></thead>
+      <tbody>
+  
+        <tr>
+          <td>分析师目标价（真实数据）</td><td>—</td><td>₩280,000.00</td>
+          <td class="dn">-84.7%</td>
+          <td>来自缓存目标价，非 LLM 情景估算</td>
+        </tr>
+  
+      </tbody>
+    </table></div>
+  </div>
+  
+  
+  
+
+  
+  <div class="chart-wrap"><canvas id="scenarioChart"></canvas></div>
+  
+</div>
+
+
+<div class="card" id="s7">
+  <div class="card-header"><div class="card-num">7</div><div class="card-title">⚠️ 风险矩阵</div><div class="card-sub">概率 × 估计影响</div></div>
+  
+  <div class="t-wrap"><table>
+    <thead><tr><th>风险</th><th>概率</th><th>影响</th><th>应对</th></tr></thead>
+    <tbody>
+      
+      <tr><td>存储器周期下行</td><td>中</td><td>高</td><td>HBM长期合同锁定价格，降低周期波动影响</td></tr>
+      
+      <tr><td>地缘政治风险</td><td>中</td><td>中</td><td>韩国本土产能为主，客户分散化</td></tr>
+      
+      <tr><td>技术迭代风险</td><td>低</td><td>高</td><td>持续高研发投入，1b nm DRAM领先</td></tr>
+      
+      <tr><td>汇率波动</td><td>中</td><td>中</td><td>韩元贬值有利于出口竞争力</td></tr>
+      
+    </tbody>
+  </table></div>
+  
+</div>
+
+
+<div class="card" id="s8">
+  <div class="card-header"><div class="card-num">8</div><div class="card-title">🎯 投资信号</div><div class="card-sub">Investment Signal Block</div></div>
+  
+  <div class="signal">
+    <div class="signal-head">投资信号</div>
+    <div class="signal-rows">
+      <div class="sr"><label>信号</label><span class="up">看多</span></div>
+      <div class="sr"><label>信心度</label><span>高</span></div>
+      <div class="sr"><label>投资期限</label><span>中</span></div>
+      <div class="sr"><label>评分</label><span>7 / 9</span></div>
+    </div>
+    <div class="signal-rows">
+      <div class="sr"><label>建议操作</label><span>买入</span></div>
+      <div class="sr"><label>确信度</label><span>强</span></div>
+    </div>
+    <div class="signal-foot">教育性分析，不构成投资建议</div>
+  </div>
+  
+</div>
+
+
+<div id="verdict" style="scroll-margin-top:24px">
+  
+  <div class="verdict">
+    <h2>最终裁决</h2>
+    <div class="verdict-grid">
+      <div>
+        <h3 style="color:#6ee7b7;font-size:12px;margin-bottom:10px">✅ 看多理由</h3>
+        <ul><li>EBIT/EV排名第1，估值极具吸引力</li><li>营收增长+62%，AI存储器需求强劲</li><li>F-Score 7/9，财务健康</li></ul>
+      </div>
+      <div>
+        <h3 style="color:#fca5a5;font-size:12px;margin-bottom:10px">⚠️ 看空理由</h3>
+        <ul><li>ROIC排名第7，资本效率中等</li><li>Beta 2.027，高波动风险</li><li>存储器周期下行可能影响短期盈利</li></ul>
+      </div>
+    </div>
+    <div class="verdict-score">
+      <div class="big">7/9</div>
+      <div class="lbl">Piotroski F-Score · 财务健康度</div>
+      <div class="rec">买入</div>
+    </div>
+  </div>
+  
+</div>
+
+<footer>InvestSkill v3.0 · 教育性分析，不构成投资建议</footer>
+
+</div></main>
+</div>
+
+
+<script>
+const G='#059669',A='#d97706',R='#dc2626',B='#2563eb',S='#94a3b8';
+
+
+
+new Chart(document.getElementById('priceChart'),{
+  type:'line',
+  data:{
+    labels:["25.06", "25.07", "25.08", "25.09", "25.10", "25.11", "25.12", "26.01", "26.02", "26.03", "26.04", "26.05"],
+    datasets:[
+      
+      {
+        label:'000660.KS',
+        data:[290833.53, 272407.41, 267925.41, 346611.72, 557571.12, 528645.19, 649800.94, 907325.75, 1059045.75, 807000.0, 1286000.0, 1835000.0],
+        borderColor:'#2563eb',
+        backgroundColor:'rgba(37,99,235,0.1)',
+        fill:true,
+        tension:0.3,
+        pointRadius:3,
+        borderWidth:2.0,
+        
+        
+        
+        
+        pointHoverRadius:5
+      }
+      
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{position:'top',labels:{font:{size:11}}}
+    },
+    scales:{
+      x:{grid:{display:false}},
+      y:{
+        
+        
+        ticks:{callback:function(v){return '$'+v+''}},
+        grid:{color:'#f1f5f9'}
+      }
+    }
+  }
+});
+
+
+
+
+new Chart(document.getElementById('valuationRadar'),{
+  type:'radar',
+  data:{
+    labels:["EBIT/EV", "ROIC", "F-Score", "PEG"],
+    datasets:[
+      
+      {
+        label:'排名映射分',
+        data:[100.0, 57.1, 87.5, 54.5],
+        borderColor:'#2563eb',
+        backgroundColor:'rgba(37,99,235,0.15)',
+        pointBackgroundColor:'#2563eb',
+        borderWidth:2.0
+      }
+      
+    ]
+  },
+  options:{
+    responsive:true,
+    scales:{
+      r:{
+        min:0,max:100,
+        ticks:{stepSize:20,display:false}
+      }
+    },
+    plugins:{legend:{display:false}}
+  }
+});
+
+
+
+
+new Chart(document.getElementById('peerCompareChart'),{
+  type:'bar',
+  data:{
+    labels:["英伟达", "苹果", "英特尔", "特斯拉", "AMD", "美光", "小米", "SK海力士", "现代汽车", "礼来", "博通", "阿里巴巴", "美团", "比亚迪", "丰田", "索尼", "三星电子", "腾讯", "软银集团", "三星生物制药"],
+    datasets:[
+      
+      {
+        label:'Forward P/E',
+        data:[19.44, 30.62, 84.56, 177.01, 35.64, 7.81, 16.92, 4.92, 13.01, 21.84, 23.65, 17.42, 15.78, 16.1, 8.77, 19.02, 5.48, 11.75, 20.27, 29.77],
+        backgroundColor:'#2563eb',
+        borderRadius:4,
+        barPercentage:0.7
+      }
+      
+    ]
+  },
+  options:{
+    responsive:true,
+    
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(c){return ''+c.raw+'x'}}}
+    },
+    scales:{
+      
+      x:{grid:{display:false}},
+      y:{
+        
+        
+        ticks:{callback:function(v){return ''+v+'x'}},
+        grid:{color:'#f1f5f9'}
+      }
+      
+    }
+  }
+});
+
+
+
+
+new Chart(document.getElementById('dcfChart'),{
+  type:'bar',
+  data:{
+    labels:["当前价", "悲观", "基准", "乐观", "分析师目标价"],
+    datasets:[
+      
+      {
+        label:'价格',
+        data:[1835000.0, 1500000.0, 2200000.0, 2600000.0, 280000.0],
+        backgroundColor:["#d97706", "#dc2626", "#d97706", "#059669", "#2563eb"],
+        borderRadius:4,
+        barPercentage:0.7
+      }
+      
+    ]
+  },
+  options:{
+    responsive:true,
+    
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(c){return '$'+c.raw+''}}}
+    },
+    scales:{
+      
+      x:{grid:{display:false}},
+      y:{
+        
+        
+        ticks:{callback:function(v){return '$'+v+''}},
+        grid:{color:'#f1f5f9'}
+      }
+      
+    }
+  }
+});
+
+
+
+
+new Chart(document.getElementById('scenarioChart'),{
+  type:'bar',
+  data:{
+    labels:["悲观", "基准", "乐观", "分析师目标价"],
+    datasets:[
+      
+      {
+        label:'预期回报%',
+        data:[-18.3, 19.9, 41.7, -84.7],
+        backgroundColor:["#dc2626", "#d97706", "#059669", "#2563eb"],
+        borderRadius:4,
+        barPercentage:0.7
+      }
+      
+    ]
+  },
+  options:{
+    responsive:true,
+    
+    plugins:{
+      legend:{display:false},
+      tooltip:{callbacks:{label:function(c){return ''+c.raw+'%'}}}
+    },
+    scales:{
+      
+      x:{grid:{display:false}},
+      y:{
+        
+        
+        ticks:{callback:function(v){return ''+v+'%'}},
+        grid:{color:'#f1f5f9'}
+      }
+      
+    }
+  }
+});
+
+
+</script>
+</body>
+</html>

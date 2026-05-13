@@ -200,10 +200,16 @@ def compute_crypto_ranking(
     l3_rank = rank_higher({k: float(v) for k, v in all_f_score.items()}, 'BTC')
     l4_rank = rank_lower(all_halving_days, 'BTC')
 
-    l1r = int(l1_rank.split('/')[0].replace('#', ''))
-    l2r = int(l2_rank.split('/')[0].replace('#', ''))
-    l3r = int(l3_rank.split('/')[0].replace('#', ''))
-    l4r = int(l4_rank.split('/')[0].replace('#', ''))
+    def _parse_rank(rank_str: str, total: int) -> int:
+        try:
+            return int(rank_str.split('/')[0].replace('#', ''))
+        except ValueError:
+            return total
+
+    l1r = _parse_rank(l1_rank, total)
+    l2r = _parse_rank(l2_rank, total)
+    l3r = _parse_rank(l3_rank, total)
+    l4r = _parse_rank(l4_rank, total)
 
     composite_score = l1r * 0.40 + l2r * 0.25 + l3r * 0.25 + l4r * 0.10
 
@@ -284,10 +290,16 @@ def compute_pos_crypto_ranking(
     l3_rank = rank_higher({k: float(v) for k, v in all_f_score.items()}, ticker)
     l4_rank = rank_lower(all_inflation, ticker)
 
-    l1r = int(l1_rank.split('/')[0].replace('#', ''))
-    l2r = int(l2_rank.split('/')[0].replace('#', ''))
-    l3r = int(l3_rank.split('/')[0].replace('#', ''))
-    l4r = int(l4_rank.split('/')[0].replace('#', ''))
+    def _parse_rank(rank_str: str, total: int) -> int:
+        try:
+            return int(rank_str.split('/')[0].replace('#', ''))
+        except ValueError:
+            return total
+
+    l1r = _parse_rank(l1_rank, total)
+    l2r = _parse_rank(l2_rank, total)
+    l3r = _parse_rank(l3_rank, total)
+    l4r = _parse_rank(l4_rank, total)
 
     composite_score = l1r * 0.40 + l2r * 0.25 + l3r * 0.25 + l4r * 0.10
 

@@ -4,7 +4,7 @@
 
 ## 概述
 
-美股 + 加密资产综合投资分析项目。基于 InvestSkill v1.6.0（yennanliu，MIT）框架，按 Greenblatt 排名法（EBIT/EV + ROIC + F-Score），输出 Markdown 分析 + Chart.js 交互 HTML 报告。
+以美股为主、兼容港股/日股/韩股/加密资产的综合投资分析项目。基于 InvestSkill v1.6.0（yennanliu，MIT）框架，按 Greenblatt 排名法（EBIT/EV + ROIC + F-Score），输出 Markdown 分析 + Chart.js 交互 HTML 报告。
 
 ## 目录结构
 
@@ -66,7 +66,7 @@ Skill (InvestSkill)         Tool (tools/)
 
 ### 数据采集：Google Finance 优先（多市场统一）
 
-**第一层 — Google Finance（价格/PE/市值/52周高低）**：
+**第一层 — Google Finance / yfinance（价格/PE/市值/52周高低）**：
 | 市场 | Google Finance URL | 能拿到 |
 |:---|:---|:---|
 | 美股 | `https://www.google.com/finance/quote/{SYMBOL}:NASDAQ` | 股价、PE、市值、52周、EPS、Beta、股息率 |
@@ -75,14 +75,23 @@ Skill (InvestSkill)         Tool (tools/)
 | 韩股 | `https://www.google.com/finance/quote/{CODE}:KRX` | 同上（KRW 计价） |
 
 **第二层 — 专业源补充（Google 没有的）**：
-- EBIT/EV、ROIC、F-Score、PEG → stockanalysis.com + marketbeat.com（美股）/ HKEXnews解析（港股）/ EDINET XBRL（日股）/ DART XBRL（韩股）
+- 美股：StockAnalysis + MarketBeat + SEC/公司 IR
+- 港股：Yahoo Finance / MarketScreener + HKEXnews + 公司 IR
+- 日股：Yahoo Finance / MarketScreener + EDINET XBRL + 公司 IR
+- 韩股：Yahoo Finance / MarketScreener + DART/OpenDART XBRL + 公司 IR
+- EBIT/EV、ROIC、F-Score、PEG 优先用官方财报 + 行情层自行计算；二手站只作交叉验证
 
 **第三层 — 加密专属（Google 不支持）**：
-- 价格/市值 → CoinGecko 免费 API
+- 价格/市值/供给 → CoinGecko 免费 API
 - TVL/Fees/Revenue → DeFiLlama 免费 API
-- MVRV Z-Score → LLM webfetch 公开图表提取
+- BTC 网络健康 → mempool.space + blockchain.com charts
+- BTC MVRV/NVT/周期 → LookIntoBitcoin 公开图表（非稳定 API，需披露）
+- BTC ETF AUM/flows → SoSoValue / Farside / CoinMarketCap ETF Tracker
+- ETH staking → beaconcha.in / 官方 Beacon 链数据
+- SOL staking/活跃 stake → Solana 官方 / Solscan / validators.app / Rated
+- BNB staking/地址活跃度 → BNB Chain 官方 / BscScan
 
-参见 `Stock Kit/tools/market_data.py` 解析器和 URL 模板。
+参见 `Stock Kit/tools/market_data.py` 的 `DATA_SOURCE_MATRIX`、`STOCK_REGISTRY`、`CRYPTO_IDS` 和 URL 构造函数。
 
 ### 输出格式
 - **百分比优先**：涨跌用 `+X%`/`-X%`，目标价辅助
@@ -106,10 +115,12 @@ print('OK' if passed else 'FAIL'); [print(f'  {i}') for i in issues]
 |:---|:---|:---|:---|:---:|
 | 美股 | Google Finance | stockanalysis + marketbeat | 标准四层 | ✅ |
 | 港股 | Google Finance (HKG) | HKEXnews 年报解析 | 标准四层 + HKD标注 | 🟡 数据源待完善 |
-| 日股 | Google Finance (TYO) | EDINET XBRL 解析 | 标准四层 + JPY标注 | 🔜 Phase 2 |
-| 韩股 | Google Finance (KRX) | DART XBRL 解析 | 标准四层 + KRW标注 | 🔜 Phase 2 |
+| 日股 | Google Finance (TYO) | EDINET XBRL/公司IR/公开财务源 | 标准四层 + JPY标注 | 🟡 数据源待完善但仍生成正式报告 |
+| 韩股 | Google Finance (KRX) | DART XBRL/公司IR/公开财务源 | 标准四层 + KRW标注 | 🟡 数据源待完善但仍生成正式报告 |
 | 加密 BTC | CoinGecko + webfetch | 公开图表(LookIntoBitcoin) | MVRV+算力+F-Score+减半 | ✅ |
-| 加密 PoS | CoinGecko + DeFiLlama | 免费 API | MCap/TVL+Staking+CF-Score+通胀 | 🟡 数据源待采集 |
+| 加密 PoS | CoinGecko + DeFiLlama | 链浏览器/官方 staking 页 | MCap/TVL+Staking+CF-Score+通胀 | 🟡 价格/TVL基础数据已接入，staking/通胀待人工补强 |
+
+**多市场输出原则（🚨 防降级）**：市场支持状态只影响数据源选择、币种标注和缺失字段披露，**不影响报告生成等级**。用户说“综合分析/出报告/生成研报”时，港股、日股、韩股和加密资产也必须按同一档位生成正式 HTML 报告；不得因为“Phase 2”“数据源待完善”“非美股”而降级为聊天摘要。
 
 **加密排名双轨**：
 - BTC：L1 MVRV Z-Score · L2 算力 · L3 链上 F-Score · L4 减半周期
@@ -154,8 +165,8 @@ PYTHONPATH="Stock Kit:Stock Kit/InvestSkill" python3 -m tools.pipeline 英伟达
 # 运行分析 Pipeline (完整, 调用 LLM)
 PYTHONPATH="Stock Kit:Stock Kit/InvestSkill" python3 -m tools.pipeline 英伟达
 
-# 刷新价格数据 (yfinance 全市场, 无 AI 依赖)
-PYTHONPATH="Stock Kit:Stock Kit/InvestSkill" python3 -c "from tools.fetcher import sync_yfinance_to_json; sync_yfinance_to_json()"
+# 刷新公开数据 (yfinance 股票 + CoinGecko/DeFiLlama 加密基础数据, 无 AI 依赖)
+PYTHONPATH="Stock Kit:Stock Kit/InvestSkill" python3 -c "from tools.fetcher import sync_public_data_to_json; sync_public_data_to_json()"
 
 # 重新生成 index.html 排名总览（所有报告生成后必须执行）
 PYTHONPATH="Stock Kit:Stock Kit/InvestSkill" python3 -m tools.pipeline index

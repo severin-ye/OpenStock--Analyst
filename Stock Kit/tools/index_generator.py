@@ -58,8 +58,8 @@ REPORT_NAMES: dict[str, str] = {
 
 def has_report_for_ticker(ticker: str) -> bool:
     name = NAME_MAP.get(ticker, ticker)
-    report_rel = REPORT_NAMES.get(name)
-    return bool(report_rel and (BASE_DIR / report_rel).exists())
+    report_dir = BASE_DIR / '分析输出' / name
+    return report_dir.is_dir() and any(report_dir.glob('*.html'))
 
 MARKET_GROUP: dict[str, list[str]] = {
     '🇺🇸 美股': ['NVDA', 'AAPL', 'INTC', 'TSLA', 'AMD', 'MU'],
@@ -124,15 +124,16 @@ footer{text-align:center;padding:16px 0;font-size:11px;color:var(--muted)}
 
 
 def _card_html(name: str, ticker: str, exchange: str, rank_pos: int, total: int,
-               composite_rank: str, score_10: float, score_color: str,
+               score_10: float, score_color: str,
                metrics: list[tuple[str, str, str]],
                is_crypto: bool = False) -> str:
-    report_rel = REPORT_NAMES.get(name)
-    if not report_rel or not (BASE_DIR / report_rel).exists():
+    report_dir = BASE_DIR / '分析输出' / name
+    html_files = sorted(report_dir.glob('*.html')) if report_dir.is_dir() else []
+    if not html_files:
         return ''
+    report_rel = str(html_files[-1].relative_to(BASE_DIR))
     rc = RANK_COLORS.get(rank_pos, '')
     extra_class = ' crypto-card' if is_crypto else ''
-    rank_display = composite_rank if composite_rank and composite_rank.startswith('#') else f'#{rank_pos}/{total}'
     lines = [
         f'<a class="rank-link" href="{report_rel}">',
         f'  <div class="rank-card {rc}{extra_class}">',
@@ -146,9 +147,9 @@ def _card_html(name: str, ticker: str, exchange: str, rank_pos: int, total: int,
         f'      <div class="ticker-name">{name} <small>{ticker} · {exchange}</small></div>',
         f'    </div>',
         f'    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">',
-        f'      <div class="score-big" style="color:{score_color}">{rank_display}</div>',
+        f'      <div class="score-big" style="color:{score_color}">{score_10:.1f}</div>',
         f'    </div>',
-        f'    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">综合排名 (越小越好)</div>',
+        f'    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">十分制评分</div>',
         f'    <div class="metrics">',
     ]
     for label, value, pos in metrics:
@@ -171,7 +172,7 @@ def _build_stock_cards(sorted_stocks: list[tuple], total: int) -> list[str]:
             ('F-Score', l3.value, l3.rank),
             (l4.metric, l4.value, l4.rank),
         ]
-        card = _card_html(name, ticker, exchange, i, total, rank, s10, color, metrics)
+        card = _card_html(name, ticker, exchange, i, total, s10, color, metrics)
         if card:
             cards.append(card)
     return cards
@@ -226,7 +227,7 @@ def _build_market_section(label: str, tickers: list[str], all_rankings: list[tup
                 ('F-Score', l3.value, l3.rank),
                 (l4.metric, l4.value, l4.rank),
             ]
-        card = _card_html(name, ticker, exchange, i, len(market_items), rank, s10, color, metrics, is_crypto)
+        card = _card_html(name, ticker, exchange, i, len(market_items), s10, color, metrics, is_crypto)
         if not card:
             continue
         cards_html.append(card)
@@ -319,10 +320,9 @@ def generate() -> str:
             '      <div class="ticker-name">比特币 <small>BTC · Crypto</small></div>\n'
             '    </div>\n'
             '    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">\n'
-            f'      <div class="score-big" style="color:var(--amber)">#{pc.composite_rank}</div>\n'
+            f'      <div class="score-big" style="color:var(--amber)">{pc.score_10:.1f}</div>\n'
             '    </div>\n'
-            f'    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">BTC 综合排名</div>\n'
-            '    </div>\n'
+            f'    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">BTC 十分制评分</div>\n'
             '    <div class="metrics">\n'
             + '\n'.join(
                 f'      <div class="m"><label>{l}</label><span>{v}</span><span class="pos">{p}</span></div>'
@@ -356,7 +356,7 @@ def generate() -> str:
                 f'  </div></a>'
             )
         else:
-            all_rankings_for_market.append((ticker, 0.0, '', 0.0, []))
+            # Skip PoS crypto with incomplete data - don't add to rankings
             crypto_cards.append(
                 f'<a class="rank-link" href="#">\n'
                 f'  <div class="rank-card crypto-card">\n'
