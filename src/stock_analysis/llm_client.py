@@ -20,12 +20,11 @@ import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 # 请求/响应目录
-BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent.parent)))
-LLM_REQ_DIR = BASE_DIR / '.sisyphus' / 'llm_requests'
-LLM_RESP_DIR = BASE_DIR / '.sisyphus' / 'llm_responses'
+BASE_DIR = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(Path(__file__).resolve().parent.parent.parent)))
+LLM_REQ_DIR = BASE_DIR / ".sisyphus" / "llm_requests"
+LLM_RESP_DIR = BASE_DIR / ".sisyphus" / "llm_responses"
 
 # 确保目录存在
 LLM_REQ_DIR.mkdir(parents=True, exist_ok=True)
@@ -80,7 +79,7 @@ class OpenCodeLLMClient:
             "prompt": prompt,
             "prompt_length": len(prompt),
         }
-        req_file.write_text(json.dumps(req_data, ensure_ascii=False, indent=2), encoding='utf-8')
+        req_file.write_text(json.dumps(req_data, ensure_ascii=False, indent=2), encoding="utf-8")
 
         # 2. 打印 stdout 标记（供 OpenCode Agent 捕获）
         marker = f"{REQUEST_MARKER}:{request_id}"
@@ -94,8 +93,8 @@ class OpenCodeLLMClient:
         while elapsed < self.timeout:
             if resp_file.exists():
                 try:
-                    resp_data = json.loads(resp_file.read_text(encoding='utf-8'))
-                    content = resp_data.get('content', '')
+                    resp_data: dict = json.loads(resp_file.read_text(encoding="utf-8"))
+                    content: str = resp_data.get("content", "")
 
                     # 清理文件
                     req_file.unlink(missing_ok=True)
@@ -147,10 +146,11 @@ def create_llm_client(use_opencode: bool = False, timeout: int = 300):
         client = OpenCodeLLMClient(timeout=timeout)
         if not client.is_available():
             import warnings
+
             warnings.warn(
                 "--use-opencode-llm 已启用，但当前环境非交互式（stdout 不是 tty）。\n"
                 "OpenCode Agent 可能无法捕获 stdout 标记，将自动 fallback 到直接 API 调用。",
-                RuntimeWarning
+                RuntimeWarning,
             )
             return None
         return client

@@ -28,18 +28,18 @@ jobs:
 
     - name: Lint with ruff
       run: |
-        ruff check stock_kit/tools/ --exclude tests
+        ruff check src/stock_analysis/ --exclude tests
 
     - name: Type check with mypy
       run: |
-        mypy stock_kit/tools/ --exclude tests --ignore-missing-imports
+        mypy src/stock_analysis/ --exclude tests --ignore-missing-imports
 
     - name: Test with pytest
       run: |
-        PYTHONPATH="stock_kit" pytest stock_kit/tools/tests/test_engine.py stock_kit/tools/tests/test_pipeline.py stock_kit/tools/tests/test_ranker.py -v
+        PYTHONPATH="src" pytest tests/test_engine.py tests/test_pipeline.py tests/test_ranker.py tests/test_validate_crypto.py -v
 
     - name: Verify imports
       run: |
-        PYTHONPATH="stock_kit" python3 -c "from tools.pipeline import run_analysis; print('Import OK')"
-        PYTHONPATH="stock_kit" python3 -c "from tools.fetcher import fetch_all_8; print('Fetcher OK')"
-        PYTHONPATH="stock_kit" python3 -c "from tools.ranker import compute_greenblatt; print('Ranker OK')"
+        PYTHONPATH="src" python3 -c "from stock_analysis.cli import run_analysis; print('Import OK')"
+        PYTHONPATH="src" python3 -c "from stock_analysis.data.fetcher import fetch_all_8; print('Fetcher OK')"
+        PYTHONPATH="src" python3 -c "from stock_analysis.ranking.greenblatt import compute_greenblatt; print('Ranker OK')"

@@ -1,6 +1,5 @@
 """Stage 1+2: 一站式生成 (搜索 + 分析合并) — 四层加权排名"""
 
-
 import logging
 
 from langchain_openai import ChatOpenAI
@@ -107,9 +106,20 @@ SCHEMA_HINT = """
   },
 
   "charts": [
-    {"chart_id":"priceChart","chart_type":"line","section_id":"s3","labels":["月1","月2","月3","月4","月5","月6","月7","月8"],"datasets":[{"label":"TICKER","data":[0,0,0,0,0,0,0,0],"color":"#2563eb","fill":true,"tension":0.3,"point_radius":3}],"y_axis_label":"$","y_axis_format":"$"},
-    {"chart_id":"valuationRadar","chart_type":"radar","section_id":"s5","labels":["DCF安全边际","P/E vs 行业","EV/EBITDA","PEG","ROIC vs WACC","利润率","FCF质量","护城河","F-Score","资产负债","盈利稳定性"],"datasets":[{"label":"TICKER","data":[0,0,0,0,0,0,0,0,0,0,0],"color":"#2563eb"}]},
-    {"chart_id":"peerCompareChart","chart_type":"bar","section_id":"s5","labels":["标的1","标的2","标的3","标的4","行业均值"],"datasets":[{"label":"Forward PE","data":[0,0,0,0,0],"point_background_colors":["#2563eb","#f97316","#8b5cf6","#10b981","#94a3b8"]}]},
+    {"chart_id":"priceChart","chart_type":"line","section_id":"s3",
+     "labels":["月1","月2","月3","月4","月5","月6","月7","月8"],
+     "datasets":[{"label":"TICKER","data":[0,0,0,0,0,0,0,0],
+                  "color":"#2563eb","fill":true,"tension":0.3,"point_radius":3}],
+     "y_axis_label":"$","y_axis_format":"$"},
+    {"chart_id":"valuationRadar","chart_type":"radar","section_id":"s5",
+     "labels":["DCF安全边际","P/E vs 行业","EV/EBITDA","PEG","ROIC vs WACC",
+               "利润率","FCF质量","护城河","F-Score","资产负债","盈利稳定性"],
+     "datasets":[{"label":"TICKER","data":[0,0,0,0,0,0,0,0,0,0,0],
+                  "color":"#2563eb"}]},
+    {"chart_id":"peerCompareChart","chart_type":"bar","section_id":"s5",
+     "labels":["标的1","标的2","标的3","标的4","行业均值"],
+     "datasets":[{"label":"Forward PE","data":[0,0,0,0,0],
+                  "point_background_colors":["#2563eb","#f97316","#8b5cf6","#10b981","#94a3b8"]}]},
     {"chart_id":"dcfChart","chart_type":"bar","section_id":"s5","labels":["当前价","悲观","基准","乐观"],"datasets":[{"label":"目标价","data":[0,0,0,0],"point_background_colors":["#d97706","#dc2626","#d97706","#059669"]}]},
     {"chart_id":"scenarioChart","chart_type":"bar","section_id":"s6","labels":["悲观(25%)","基准(50%)","乐观(25%)"],"datasets":[{"label":"预期回报%","data":[0,0,0],"point_background_colors":["#dc2626","#d97706","#059669"]}],"y_axis_label":"%","y_axis_format":"%","tooltip_prefix":"","tooltip_suffix":"%"}
   ],
@@ -138,6 +148,7 @@ def run_search(report: StockReport, logger=None) -> StockReport:
     )
 
     import time
+
     t0 = time.time()
 
     cfg = get_llm_config()
@@ -158,7 +169,9 @@ def run_search(report: StockReport, logger=None) -> StockReport:
 
 ## 四层加权排名体系 (深度价值导向)
 
-所有投资标的一起排名: NVDA(英伟达), AAPL(苹果), TSLA(特斯拉), INTC(英特尔), AMD, MU(美光), 小米(1810.HK), BTC(比特币), SK海力士(000660.KS), 三星电子(005930.KS), 三星生物制药(207940.KS), 现代汽车(005380.KS), 博通(AVGO), LLY(礼来)。共14家。
+所有投资标的一起排名: NVDA(英伟达), AAPL(苹果), TSLA(特斯拉), INTC(英特尔), AMD,
+MU(美光), 小米(1810.HK), BTC(比特币), SK海力士(000660.KS), 三星电子(005930.KS),
+三星生物制药(207940.KS), 现代汽车(005380.KS), 博通(AVGO), LLY(礼来)。共14家。
 排名范围严格 #1~14/14 (#1=最好, #14=最差)。禁止用其他分母!
 
 | Layer | 指标 | 权重 | 说明 |
@@ -202,7 +215,7 @@ BTC 不适用传统财务指标，改为:
 
 只返回 JSON，不要 markdown 代码块包裹。
 """
-    log = logger or logging.getLogger('pipeline')
+    log = logger or logging.getLogger("pipeline")
     log.info(f"  LLM 请求: model={cfg['model']}, base_url={cfg['base_url']}")
     log.info(f"  Prompt 长度: {len(prompt):,} chars")
     log.info("  等待 LLM 响应 (Deepseek V4 Pro 通常 60-180s)...")
@@ -211,7 +224,7 @@ BTC 不适用传统财务指标，改为:
         response = llm.invoke(prompt, timeout=300)
         elapsed_llm = time.time() - t0
 
-        token_usage = getattr(response, 'response_metadata', {})
+        token_usage = getattr(response, "response_metadata", {})
         log.info(f"  LLM 响应: {elapsed_llm:.1f}s, token_usage={token_usage}")
 
         content = response.content.strip()
@@ -231,14 +244,17 @@ BTC 不适用传统财务指标，改为:
         for m in result.module_states.values():
             m.status = ModuleStatus.FILLED
 
-        log.info(f"  解析成功: {len(result.charts)} charts, {len(result.f_score_items)} F-Score, composite={result.composite_rank_8}")
+        log.info(
+            f"  解析成功: {len(result.charts)} charts, {len(result.f_score_items)} F-Score, composite={result.composite_rank_8}"
+        )
         log.info(f"  顶层字典 keys: {list(result.model_dump(mode='json').keys())}")
         return result
     except Exception as e:
         elapsed = time.time() - t0
         err_type = type(e).__name__
         log.error(f"  ⚠️ LLM 失败 ({err_type}, {elapsed:.1f}s): {str(e)[:500]}")
-        if hasattr(e, '__traceback__'):
+        if hasattr(e, "__traceback__"):
             import traceback
+
             log.debug(f"  Traceback: {traceback.format_exc()}")
         return report

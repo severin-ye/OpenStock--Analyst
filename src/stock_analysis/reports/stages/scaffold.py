@@ -20,11 +20,11 @@ from stock_analysis.reports.schema import (
 )
 
 _ALIASES: dict[str, str] = {
-    'Solana': '索拉纳',
+    "Solana": "索拉纳",
 }
 
-BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parents[5])))
-OUTPUT_DIR = BASE_DIR / '分析输出'
+BASE_DIR = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(Path(__file__).resolve().parents[5])))
+OUTPUT_DIR = BASE_DIR / "分析输出"
 
 
 def scaffold(company_name: str) -> StockReport:
@@ -34,7 +34,6 @@ def scaffold(company_name: str) -> StockReport:
 
     resolved = _ALIASES.get(company_name, company_name)
     ticker, name_en, exchange, sector, category = name_zh_to_tuple()[resolved]
-    today = datetime.now().strftime('%y%m%d')
 
     report = StockReport(
         ticker=ticker,
@@ -43,10 +42,10 @@ def scaffold(company_name: str) -> StockReport:
         exchange=exchange,
         sector=sector,
         asset_category=category,
-        report_date=datetime.now().strftime('%Y-%m-%d'),
-        data_date=f'{datetime.now().strftime("%Y-%m-%d")} 收盘',
+        report_date=datetime.now().strftime("%Y-%m-%d"),
+        data_date=f"{datetime.now().strftime('%Y-%m-%d')} 收盘",
         company_dir=str(company_dir),
-        cover_title=f'{ticker} — {company_name} 综合投资分析',
+        cover_title=f"{ticker} — {company_name} 综合投资分析",
     )
 
     applicable = [m for m in ALL_MODULES if category in m.asset_categories]

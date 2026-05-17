@@ -29,12 +29,13 @@ from stock_analysis.registry import (
 
 try:
     import yfinance as yf
+
     HAS_YFINANCE = True
 except ImportError:
     HAS_YFINANCE = False
 
-DATA_DIR = Path(__file__).parent.parent / 'data'
-PRICES_JSON = DATA_DIR / 'prices.json'
+DATA_DIR = Path(__file__).parent.parent / "data"
+PRICES_JSON = DATA_DIR / "prices.json"
 
 YF_TICKER_MAP: dict[str, str] = yf_ticker_map()
 YF_SYMBOLS: list[str] = yf_stock_symbols()
@@ -81,30 +82,30 @@ class PriceSnapshot:
     @property
     def ebit_ev_num(self) -> Optional[float]:
         try:
-            return float(self.ebit_ev.rstrip('%'))
+            return float(self.ebit_ev.rstrip("%"))
         except (ValueError, AttributeError):
             return None
 
     @property
     def roic_num(self) -> Optional[float]:
         try:
-            return float(self.roic.rstrip('%'))
+            return float(self.roic.rstrip("%"))
         except (ValueError, AttributeError):
             return None
 
     @property
     def peg_num(self) -> Optional[float]:
         try:
-            return float(self.peg_ratio.rstrip('x').strip())
+            return float(self.peg_ratio.rstrip("x").strip())
         except (ValueError, AttributeError):
             return None
 
 
-_ALIASES: dict[str, str] = {'Solana': '索拉纳'}
+_ALIASES: dict[str, str] = {"Solana": "索拉纳"}
 
 TICKER_MAP: dict[str, str] = name_zh_to_ticker()
 for alias, canonical in _ALIASES.items():
-    TICKER_MAP[alias] = TICKER_MAP.get(canonical, '')
+    TICKER_MAP[alias] = TICKER_MAP.get(canonical, "")
 
 TICKER_TO_NAME: dict[str, str] = ticker_to_name_zh()
 
@@ -114,7 +115,8 @@ def _fetch_ticker_info(symbol: str, timeout: int = 30) -> dict | None:
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(lambda: yf.Ticker(symbol).info)
-            return future.result(timeout=timeout)
+            result: dict = future.result(timeout=timeout)
+            return result
     except concurrent.futures.TimeoutError:
         return None
     except Exception:
@@ -144,36 +146,36 @@ def fetch_yfinance(symbols: list[str] | None = None, logger=None) -> dict[str, P
                     log.warning(f"  yfinance 采集 {sym} 超时，跳过")
                 continue
             internal_key = YF_TICKER_MAP.get(sym, sym)
-            cur = info.get('currency', 'USD')
-            cur_symbol = {'USD': '$', 'HKD': 'HK$', 'JPY': '¥', 'KRW': '₩', 'CNY': '¥'}.get(cur, '$')
-            price = info.get('currentPrice') or info.get('regularMarketPrice') or 0.0
-            market_cap = info.get('marketCap')
-            cap_str = ''
+            cur = info.get("currency", "USD")
+            cur_symbol = {"USD": "$", "HKD": "HK$", "JPY": "¥", "KRW": "₩", "CNY": "¥"}.get(cur, "$")
+            price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
+            market_cap = info.get("marketCap")
+            cap_str = ""
             if market_cap and market_cap > 0:
                 if market_cap >= 1e12:
-                    cap_str = f'{market_cap/1e12:.2f}T'
+                    cap_str = f"{market_cap / 1e12:.2f}T"
                 else:
-                    cap_str = f'{market_cap/1e9:.2f}B'
+                    cap_str = f"{market_cap / 1e9:.2f}B"
 
             snap = PriceSnapshot(
                 ticker=internal_key,
                 price=float(price) if price else 0.0,
                 currency=cur_symbol,
                 market_cap=cap_str,
-                pe_ratio=str(info['trailingPE']) if info.get('trailingPE') else '',
-                forward_pe=str(info['forwardPE']) if info.get('forwardPE') else '',
-                week52_high=str(info['fiftyTwoWeekHigh']) if info.get('fiftyTwoWeekHigh') else '',
-                week52_low=str(info['fiftyTwoWeekLow']) if info.get('fiftyTwoWeekLow') else '',
-                beta=str(info.get('beta', '')),
-                ytd_change_pct='',
-                source='yfinance',
+                pe_ratio=str(info["trailingPE"]) if info.get("trailingPE") else "",
+                forward_pe=str(info["forwardPE"]) if info.get("forwardPE") else "",
+                week52_high=str(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") else "",
+                week52_low=str(info["fiftyTwoWeekLow"]) if info.get("fiftyTwoWeekLow") else "",
+                beta=str(info.get("beta", "")),
+                ytd_change_pct="",
+                source="yfinance",
             )
             results[internal_key] = snap
             # 从 yfinance 财报推算 EBIT/EV、ROIC、F-Score
             try:
                 ratios = _compute_financial_ratios(sym, float(price) if price else 0.0, logger=log)
                 for field, val in ratios.items():
-                    if hasattr(snap, field) and val is not None and val != '':
+                    if hasattr(snap, field) and val is not None and val != "":
                         setattr(snap, field, val)
             except Exception:
                 pass
@@ -195,9 +197,15 @@ def _compute_financial_ratios(sym: str, price: float, logger=None) -> dict:
     import yfinance as yf
 
     result: dict = {
-        'ebit_ev': '', 'roic': '', 'f_score': 0,
-        'revenue': '', 'ebit': '', 'net_income': '',
-        'enterprise_value': '', 'fcf_yield': '', 'revenue_growth': '',
+        "ebit_ev": "",
+        "roic": "",
+        "f_score": 0,
+        "revenue": "",
+        "ebit": "",
+        "net_income": "",
+        "enterprise_value": "",
+        "fcf_yield": "",
+        "revenue_growth": "",
     }
 
     def _safe(v):
@@ -220,83 +228,82 @@ def _compute_financial_ratios(sym: str, price: float, logger=None) -> dict:
         cur_fs = f_s.iloc[:, 0]
         prev_fs = f_s.iloc[:, 1] if f_s.shape[1] > 1 else None
         cur_cf = cf.iloc[:, 0]
-        prev_cf = cf.iloc[:, 1] if cf.shape[1] > 1 else None
-
         def _g(row, key):
             return _safe(row[key]) if row is not None and key in row.index else None
 
-        total_assets = _g(cur_bs, 'Total Assets')
-        total_debt = _g(cur_bs, 'Total Debt')
-        equity = _g(cur_bs, 'Total Equity Gross Minority Interest') or _g(cur_bs, 'Stockholders Equity') or 0
-        cash = _g(cur_bs, 'Cash And Cash Equivalents') or _g(cur_bs, 'Cash Cash Equivalents And Short Term Investments') or 0
-        ca = _g(cur_bs, 'Current Assets')
-        cl = _g(cur_bs, 'Current Liabilities')
-        ltd = _g(cur_bs, 'Long Term Debt')
-        shares = _g(cur_bs, 'Ordinary Shares Number')
+        total_assets = _g(cur_bs, "Total Assets")
+        total_debt = _g(cur_bs, "Total Debt")
+        equity = _g(cur_bs, "Total Equity Gross Minority Interest") or _g(cur_bs, "Stockholders Equity") or 0
+        cash = (
+            _g(cur_bs, "Cash And Cash Equivalents")
+            or _g(cur_bs, "Cash Cash Equivalents And Short Term Investments")
+            or 0
+        )
+        ca = _g(cur_bs, "Current Assets")
+        cl = _g(cur_bs, "Current Liabilities")
+        ltd = _g(cur_bs, "Long Term Debt")
+        shares = _g(cur_bs, "Ordinary Shares Number")
 
-        ebit = _g(cur_fs, 'EBIT')
-        ebitda = _g(cur_fs, 'EBITDA')
-        ni = _g(cur_fs, 'Net Income')
-        rev = _g(cur_fs, 'Total Revenue') or _g(cur_fs, 'Operating Revenue')
-        gp = _g(cur_fs, 'Gross Profit')
-        pretax = _g(cur_fs, 'Pretax Income')
-        tax = _g(cur_fs, 'Tax Provision')
+        ebit = _g(cur_fs, "EBIT")
+        ni = _g(cur_fs, "Net Income")
+        rev = _g(cur_fs, "Total Revenue") or _g(cur_fs, "Operating Revenue")
+        gp = _g(cur_fs, "Gross Profit")
+        pretax = _g(cur_fs, "Pretax Income")
+        tax = _g(cur_fs, "Tax Provision")
 
-        opcf = _g(cur_cf, 'Operating Cash Flow')
-        fcf = _g(cur_cf, 'Free Cash Flow')
+        opcf = _g(cur_cf, "Operating Cash Flow")
+        fcf = _g(cur_cf, "Free Cash Flow")
 
-        prev_total_assets = _g(prev_bs, 'Total Assets')
-        prev_ltd = _g(prev_bs, 'Long Term Debt')
-        prev_ca = _g(prev_bs, 'Current Assets')
-        prev_cl = _g(prev_bs, 'Current Liabilities')
-        prev_equity = (_g(prev_bs, 'Total Equity Gross Minority Interest') or _g(prev_bs, 'Stockholders Equity'))
-        prev_shares = _g(prev_bs, 'Ordinary Shares Number')
-        prev_ni = _g(prev_fs, 'Net Income')
-        prev_rev = _g(prev_fs, 'Total Revenue') or _g(prev_fs, 'Operating Revenue')
-        prev_gp = _g(prev_fs, 'Gross Profit')
-        prev_opcf = _g(prev_cf, 'Operating Cash Flow')
+        prev_total_assets = _g(prev_bs, "Total Assets")
+        prev_ltd = _g(prev_bs, "Long Term Debt")
+        prev_ca = _g(prev_bs, "Current Assets")
+        prev_cl = _g(prev_bs, "Current Liabilities")
+        prev_shares = _g(prev_bs, "Ordinary Shares Number")
+        prev_ni = _g(prev_fs, "Net Income")
+        prev_rev = _g(prev_fs, "Total Revenue") or _g(prev_fs, "Operating Revenue")
+        prev_gp = _g(prev_fs, "Gross Profit")
 
-        mkt_cap = _safe(info.get('marketCap')) or 0
+        mkt_cap = _safe(info.get("marketCap")) or 0
         if not mkt_cap and price and shares:
             mkt_cap = price * shares
         ev = mkt_cap + (total_debt or 0) - (cash or 0)
 
-        cur = info.get('currency', 'USD')
-        cur_sym = {'USD': '$', 'HKD': 'HK$', 'JPY': '¥', 'KRW': '₩', 'CNY': '¥'}.get(cur, '$')
+        cur = info.get("currency", "USD")
+        cur_sym = {"USD": "$", "HKD": "HK$", "JPY": "¥", "KRW": "₩", "CNY": "¥"}.get(cur, "$")
 
         def _fmt(v):
             if v is None:
-                return ''
+                return ""
             if abs(v) >= 1e12:
-                return f'{cur_sym}{v / 1e12:.2f}T'
+                return f"{cur_sym}{v / 1e12:.2f}T"
             if abs(v) >= 1e9:
-                return f'{cur_sym}{v / 1e9:.2f}B'
-            return f'{cur_sym}{v:,.0f}'
+                return f"{cur_sym}{v / 1e9:.2f}B"
+            return f"{cur_sym}{v:,.0f}"
 
         if rev:
-            result['revenue'] = _fmt(rev)
+            result["revenue"] = _fmt(rev)
         if ebit:
-            result['ebit'] = _fmt(ebit)
+            result["ebit"] = _fmt(ebit)
         if ni:
-            result['net_income'] = _fmt(ni)
+            result["net_income"] = _fmt(ni)
         if ev and ev > 0:
-            result['enterprise_value'] = _fmt(ev)
+            result["enterprise_value"] = _fmt(ev)
 
         if ebit and ev and ev > 0:
-            result['ebit_ev'] = f'{ebit / ev * 100:.2f}%'
+            result["ebit_ev"] = f"{ebit / ev * 100:.2f}%"
 
         if ebit and equity and (total_debt is not None):
             rate = tax / pretax if pretax and pretax != 0 else 0.25
             rate = max(0.0, min(float(rate), 0.5))
             ic = equity + total_debt - cash
             if ic and ic > 0:
-                result['roic'] = f'{ebit * (1 - rate) / ic * 100:.2f}%'
+                result["roic"] = f"{ebit * (1 - rate) / ic * 100:.2f}%"
 
         if fcf and mkt_cap and mkt_cap > 0:
-            result['fcf_yield'] = f'{fcf / mkt_cap * 100:.2f}%'
+            result["fcf_yield"] = f"{fcf / mkt_cap * 100:.2f}%"
 
         if rev and prev_rev and prev_rev > 0:
-            result['revenue_growth'] = f'{(rev / prev_rev - 1) * 100:+.1f}%'
+            result["revenue_growth"] = f"{(rev / prev_rev - 1) * 100:+.1f}%"
 
         # ══════════════════════════════════════
         # Piotroski F-Score 9 项
@@ -329,15 +336,12 @@ def _compute_financial_ratios(sym: str, price: float, logger=None) -> dict:
         at_prev = prev_rev / prev_total_assets if prev_rev and prev_total_assets else -1
         fs += 1 if at_cur > at_prev else 0
 
-        result['f_score'] = fs
+        result["f_score"] = fs
         if logger:
-            logger.info(
-                f'  yfinance 财报推算 {sym}: EBIT/EV={result["ebit_ev"]} '
-                f'ROIC={result["roic"]} F-Score={fs}/9'
-            )
+            logger.info(f"  yfinance 财报推算 {sym}: EBIT/EV={result['ebit_ev']} ROIC={result['roic']} F-Score={fs}/9")
     except Exception as e:
         if logger:
-            logger.warning(f'  yfinance 财报推算失败 {sym}: {e}')
+            logger.warning(f"  yfinance 财报推算失败 {sym}: {e}")
 
     return result
 
@@ -364,7 +368,7 @@ def sync_yfinance_to_json(symbols: list[str] | None = None, logger=None) -> int:
             old.week52_low = snap.week52_low
             old.beta = snap.beta
             old.currency = snap.currency
-            old.source = 'yfinance'
+            old.source = "yfinance"
             merged[ticker] = old
         else:
             merged[ticker] = snap
@@ -372,16 +376,16 @@ def sync_yfinance_to_json(symbols: list[str] | None = None, logger=None) -> int:
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     data = {t: asdict(s) for t, s in merged.items()}
-    PRICES_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+    PRICES_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     if log:
         log.info(f"  yfinance 同步完成: {count} 家写入 {PRICES_JSON}")
     return count
 
 
 def _fetch_json(url: str, timeout: int = 20) -> object:
-    req = urllib.request.Request(url, headers={'User-Agent': 'stock-kit/1.0'})
+    req = urllib.request.Request(url, headers={"User-Agent": "stock-kit/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode('utf-8'))
+        return json.loads(resp.read().decode("utf-8"))
 
 
 def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[str, PriceSnapshot]:
@@ -396,37 +400,37 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
     """
     log = logger
     tickers = symbols or list(CRYPTO_ID_MAP.keys())
-    coin_ids = ','.join(CRYPTO_ID_MAP[t] for t in tickers if t in CRYPTO_ID_MAP)
+    coin_ids = ",".join(CRYPTO_ID_MAP[t] for t in tickers if t in CRYPTO_ID_MAP)
     if not coin_ids:
         return {}
 
     results: dict[str, PriceSnapshot] = {}
     try:
         url = (
-            'https://api.coingecko.com/api/v3/simple/price'
-            f'?ids={coin_ids}&vs_currencies=usd&include_market_cap=true'
-            '&include_24hr_vol=true&include_24hr_change=true'
+            "https://api.coingecko.com/api/v3/simple/price"
+            f"?ids={coin_ids}&vs_currencies=usd&include_market_cap=true"
+            "&include_24hr_vol=true&include_24hr_change=true"
         )
         raw = _fetch_json(url)
         for ticker, coin_id in CRYPTO_ID_MAP.items():
             if ticker not in tickers or not isinstance(raw, dict) or coin_id not in raw:
                 continue
             data = raw[coin_id]
-            market_cap = data.get('usd_market_cap') or 0
+            market_cap = data.get("usd_market_cap") or 0
             snap = PriceSnapshot(
                 ticker=ticker,
-                price=float(data.get('usd') or 0.0),
-                currency='$',
-                market_cap=f"${market_cap/1e9:.2f}B" if market_cap else '',
-                ytd_change_pct='',
-                pe_ratio='N/A',
-                forward_pe='N/A',
-                peg_ratio='N/A',
-                ebit_ev='N/A',
-                roic='N/A',
-                fcf_yield='N/A',
-                revenue_growth='N/A',
-                source='CoinGecko',
+                price=float(data.get("usd") or 0.0),
+                currency="$",
+                market_cap=f"${market_cap / 1e9:.2f}B" if market_cap else "",
+                ytd_change_pct="",
+                pe_ratio="N/A",
+                forward_pe="N/A",
+                peg_ratio="N/A",
+                ebit_ev="N/A",
+                roic="N/A",
+                fcf_yield="N/A",
+                revenue_growth="N/A",
+                source="CoinGecko",
             )
             results[ticker] = snap
             if log:
@@ -437,9 +441,9 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
 
     # ── DeFiLlama TVL ──
     try:
-        chains = _fetch_json('https://api.llama.fi/v2/chains')
+        chains = _fetch_json("https://api.llama.fi/v2/chains")
         if isinstance(chains, list):
-            tvl_by_chain = {c.get('name'): c.get('tvl') for c in chains if isinstance(c, dict)}
+            tvl_by_chain = {c.get("name"): c.get("tvl") for c in chains if isinstance(c, dict)}
             for ticker, chain_name in DEFILLAMA_CHAIN_MAP.items():
                 if ticker not in results:
                     continue
@@ -447,14 +451,14 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
                 if not tvl:
                     continue
                 snap = results[ticker]
-                snap.tvl = f"${float(tvl)/1e9:.2f}B"
+                snap.tvl = f"${float(tvl) / 1e9:.2f}B"
                 market_cap_num = None
-                match = re.search(r'\$([\d.]+)B', snap.market_cap)
+                match = re.search(r"\$([\d.]+)B", snap.market_cap)
                 if match:
                     market_cap_num = float(match.group(1))
                 if market_cap_num:
                     snap.mcap_tvl_ratio = round(market_cap_num / (float(tvl) / 1e9), 2)
-                snap.source = 'CoinGecko + DeFiLlama'
+                snap.source = "CoinGecko + DeFiLlama"
                 if log:
                     log.info(f"  DeFiLlama {ticker:4s} TVL={snap.tvl} MCap/TVL={snap.mcap_tvl_ratio}")
     except Exception as e:
@@ -462,17 +466,17 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
             log.warning(f"  DeFiLlama 采集失败: {e}")
 
     # ── ETH staking: CoinGecko circulating supply + known deposit contract ratio ──
-    if 'ETH' in results:
+    if "ETH" in results:
         try:
             coin_data = _fetch_json(
-                'https://api.coingecko.com/api/v3/coins/ethereum?localization=false&tickers=false'
-                '&community_data=false&developer_data=false&sparkline=false'
+                "https://api.coingecko.com/api/v3/coins/ethereum?localization=false&tickers=false"
+                "&community_data=false&developer_data=false&sparkline=false"
             )
             if isinstance(coin_data, dict):
-                cs = coin_data.get('market_data', {}).get('circulating_supply')
+                cs = coin_data.get("market_data", {}).get("circulating_supply")
                 if cs and isinstance(cs, (int, float)) and cs > 0:
                     # Deposit contract balance ~34M ETH as of mid-2025, updated periodically
-                    snap = results['ETH']
+                    snap = results["ETH"]
                     estimated_staked = 34_000_000  # ~28% of 120M supply
                     snap.staking_ratio = round(estimated_staked / float(cs) * 100, 1)
                     if log:
@@ -482,21 +486,25 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
                 log.warning(f"  ETH staking 估算失败: {e}")
 
     # ── SOL staking via Solana RPC ──
-    if 'SOL' in results:
+    if "SOL" in results:
         try:
             import urllib.request as _ur
-            body = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'getVoteAccounts'})
-            req = _ur.Request('https://api.mainnet-beta.solana.com', data=body.encode(),
-                              headers={'Content-Type': 'application/json', 'User-Agent': 'stock-kit/1.0'})
+
+            body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "getVoteAccounts"})
+            req = _ur.Request(
+                "https://api.mainnet-beta.solana.com",
+                data=body.encode(),
+                headers={"Content-Type": "application/json", "User-Agent": "stock-kit/1.0"},
+            )
             with _ur.urlopen(req, timeout=20) as resp:
-                r = json.loads(resp.read().decode('utf-8'))
-            if isinstance(r, dict) and 'result' in r:
-                current = r['result'].get('current', [])
-                total_staked_sol = sum(
-                    float(v.get('activatedStake', 0)) for v in current if isinstance(v, dict)
-                ) / 1e9  # lamports → SOL
+                r = json.loads(resp.read().decode("utf-8"))
+            if isinstance(r, dict) and "result" in r:
+                current = r["result"].get("current", [])
+                total_staked_sol = (
+                    sum(float(v.get("activatedStake", 0)) for v in current if isinstance(v, dict)) / 1e9
+                )  # lamports → SOL
                 if total_staked_sol > 0:
-                    snap = results['SOL']
+                    snap = results["SOL"]
                     snap.staking_ratio = round(total_staked_sol / 600_000_000 * 100, 1)  # approx total supply
                     if log:
                         log.info(f"  Solana RPC staked={total_staked_sol:.0f} SOL ratio={snap.staking_ratio}%")
@@ -505,12 +513,14 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
                 log.warning(f"  Solana RPC 采集失败: {e}")
 
     # ── BNB staking via BscScan (需要免费 API key) ──
-    if 'BNB' in results:
+    if "BNB" in results:
         try:
-            snap = results['BNB']
+            snap = results["BNB"]
             snap.staking_ratio = 15.0  # BNB Chain staking ratio ~15%, 基于公开数据估算
             if log:
-                log.info(f"  BNB staking ratio≈{snap.staking_ratio}% (基于公开 BNB Chain 数据估算, 需 BscScan API key 自动化)")
+                log.info(
+                    f"  BNB staking ratio≈{snap.staking_ratio}% (基于公开 BNB Chain 数据估算, 需 BscScan API key 自动化)"
+                )
         except Exception:
             pass
 
@@ -520,10 +530,10 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
     #   SOL: ~4.5%/年 (按协议通胀曲线递减, 2026 约 4.5%)
     #   BNB: ~0%/年 (BNB Chain 自动销毁 > 新发行)
     PROTOCOL_INFLATION: dict[str, tuple[str, str]] = {
-        'BTC': ('0.83', 'BTC 减半后区块奖励固定, 2028 下次减半'),
-        'ETH': ('0.50', 'ETH PoS 净发行 (EIP-1559 销毁抵消大部分发行)'),
-        'SOL': ('4.50', 'SOL 协议通胀曲线递减, 2031 年降至 ~1.5%'),
-        'BNB': ('0.00', 'BNB Chain 自动销毁 > 新发行, 实际通缩'),
+        "BTC": ("0.83", "BTC 减半后区块奖励固定, 2028 下次减半"),
+        "ETH": ("0.50", "ETH PoS 净发行 (EIP-1559 销毁抵消大部分发行)"),
+        "SOL": ("4.50", "SOL 协议通胀曲线递减, 2031 年降至 ~1.5%"),
+        "BNB": ("0.00", "BNB Chain 自动销毁 > 新发行, 实际通缩"),
     }
     for ticker in tickers:
         if ticker not in results or ticker not in PROTOCOL_INFLATION:
@@ -574,7 +584,7 @@ def _compute_crypto_f_score(snap: PriceSnapshot) -> int:
     # 4. TVL (生态深度)
     tvl_num = 0.0
     if snap.tvl:
-        match = re.search(r'\$([\d.]+)B', snap.tvl)
+        match = re.search(r"\$([\d.]+)B", snap.tvl)
         if match:
             tvl_num = float(match.group(1))
     if tvl_num > 1:
@@ -583,7 +593,7 @@ def _compute_crypto_f_score(snap: PriceSnapshot) -> int:
     # 5. Market Cap (网络规模)
     mcap_num = 0.0
     if snap.market_cap:
-        match = re.search(r'\$([\d.]+)B', snap.market_cap)
+        match = re.search(r"\$([\d.]+)B", snap.market_cap)
         if match:
             mcap_num = float(match.group(1))
     if mcap_num > 10:
@@ -605,15 +615,26 @@ def sync_public_data_to_json(symbols: list[str] | None = None, logger=None) -> i
     for ticker, snap in crypto.items():
         old = existing.get(ticker)
         if old:
-            for field in ('price', 'currency', 'market_cap', 'tvl', 'mcap_tvl_ratio', 'source',
-                          'staking_ratio', 'supply_inflation', 'f_score'):
+            for field in (
+                "price",
+                "currency",
+                "market_cap",
+                "tvl",
+                "mcap_tvl_ratio",
+                "source",
+                "staking_ratio",
+                "supply_inflation",
+                "f_score",
+            ):
                 setattr(old, field, getattr(snap, field))
             existing[ticker] = old
         else:
             existing[ticker] = snap
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-    PRICES_JSON.write_text(json.dumps({t: asdict(s) for t, s in existing.items()}, ensure_ascii=False, indent=2), encoding='utf-8')
+    PRICES_JSON.write_text(
+        json.dumps({t: asdict(s) for t, s in existing.items()}, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return stock_count + len(crypto)
 
 
@@ -623,7 +644,7 @@ def save_prices(snapshots: list[PriceSnapshot]) -> Path:
     data = {}
     for snap in snapshots:
         data[snap.ticker] = asdict(snap)
-    PRICES_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+    PRICES_JSON.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return PRICES_JSON
 
 
@@ -631,7 +652,7 @@ def load_prices() -> dict[str, PriceSnapshot]:
     """从 JSON 缓存加载"""
     if not PRICES_JSON.exists():
         return {}
-    raw = json.loads(PRICES_JSON.read_text(encoding='utf-8'))
+    raw = json.loads(PRICES_JSON.read_text(encoding="utf-8"))
     result = {}
     for ticker, d in raw.items():
         result[ticker] = PriceSnapshot(**d)
@@ -655,69 +676,135 @@ def fetch_all_8(logger=None) -> dict[str, PriceSnapshot]:
 
 def _sample_data() -> dict[str, PriceSnapshot]:
     return {
-        'NVDA': PriceSnapshot(
-            ticker='NVDA',
-            price=191.48, market_cap='$4.7T',
-            ytd_change_pct='+35.2%', pe_ratio='45.3', forward_pe='41.2',
-            peg_ratio='0.66x', week52_low='$110.00', week52_high='$210.00',
-            ebit_ev='2.52%', roic='55.5%', f_score=8, fcf_yield='1.8%',
-            revenue_growth='+78%',
+        "NVDA": PriceSnapshot(
+            ticker="NVDA",
+            price=191.48,
+            market_cap="$4.7T",
+            ytd_change_pct="+35.2%",
+            pe_ratio="45.3",
+            forward_pe="41.2",
+            peg_ratio="0.66x",
+            week52_low="$110.00",
+            week52_high="$210.00",
+            ebit_ev="2.52%",
+            roic="55.5%",
+            f_score=8,
+            fcf_yield="1.8%",
+            revenue_growth="+78%",
         ),
-        'AAPL': PriceSnapshot(
-            ticker='AAPL',
-            price=195.50, market_cap='$3.0T',
-            ytd_change_pct='+15.6%', pe_ratio='32.5', forward_pe='28.7',
-            peg_ratio='2.15x', week52_low='$160.00', week52_high='$260.00',
-            ebit_ev='5.8%', roic='48.2%', f_score=7, fcf_yield='3.5%',
-            revenue_growth='+5%',
+        "AAPL": PriceSnapshot(
+            ticker="AAPL",
+            price=195.50,
+            market_cap="$3.0T",
+            ytd_change_pct="+15.6%",
+            pe_ratio="32.5",
+            forward_pe="28.7",
+            peg_ratio="2.15x",
+            week52_low="$160.00",
+            week52_high="$260.00",
+            ebit_ev="5.8%",
+            roic="48.2%",
+            f_score=7,
+            fcf_yield="3.5%",
+            revenue_growth="+5%",
         ),
-        'TSLA': PriceSnapshot(
-            ticker='TSLA',
-            price=212.00, market_cap='$678B',
-            ytd_change_pct='+20.3%', pe_ratio='65.2', forward_pe='58.3',
-            peg_ratio='3.80x', week52_low='$140.00', week52_high='$490.00',
-            ebit_ev='4.1%', roic='22.8%', f_score=6, fcf_yield='1.2%',
-            revenue_growth='+8%',
+        "TSLA": PriceSnapshot(
+            ticker="TSLA",
+            price=212.00,
+            market_cap="$678B",
+            ytd_change_pct="+20.3%",
+            pe_ratio="65.2",
+            forward_pe="58.3",
+            peg_ratio="3.80x",
+            week52_low="$140.00",
+            week52_high="$490.00",
+            ebit_ev="4.1%",
+            roic="22.8%",
+            f_score=6,
+            fcf_yield="1.2%",
+            revenue_growth="+8%",
         ),
-        'INTC': PriceSnapshot(
-            ticker='INTC',
-            price=124.82, market_cap='$546B',
-            ytd_change_pct='+238%', pe_ratio='0.00', forward_pe='31.5',
-            peg_ratio='1.05x', week52_low='$18.97', week52_high='$130.57',
-            ebit_ev='1.8%', roic='-4.52%', f_score=4, fcf_yield='-12.5%',
-            revenue_growth='+23%',
+        "INTC": PriceSnapshot(
+            ticker="INTC",
+            price=124.82,
+            market_cap="$546B",
+            ytd_change_pct="+238%",
+            pe_ratio="0.00",
+            forward_pe="31.5",
+            peg_ratio="1.05x",
+            week52_low="$18.97",
+            week52_high="$130.57",
+            ebit_ev="1.8%",
+            roic="-4.52%",
+            f_score=4,
+            fcf_yield="-12.5%",
+            revenue_growth="+23%",
         ),
-        'AMD': PriceSnapshot(
-            ticker='AMD',
-            price=158.30, market_cap='$256B',
-            ytd_change_pct='+12.4%', pe_ratio='68.5', forward_pe='32.1',
-            peg_ratio='0.59x', week52_low='$87.00', week52_high='$195.00',
-            ebit_ev='1.5%', roic='4.0%', f_score=6, fcf_yield='1.5%',
-            revenue_growth='+42%',
+        "AMD": PriceSnapshot(
+            ticker="AMD",
+            price=158.30,
+            market_cap="$256B",
+            ytd_change_pct="+12.4%",
+            pe_ratio="68.5",
+            forward_pe="32.1",
+            peg_ratio="0.59x",
+            week52_low="$87.00",
+            week52_high="$195.00",
+            ebit_ev="1.5%",
+            roic="4.0%",
+            f_score=6,
+            fcf_yield="1.5%",
+            revenue_growth="+42%",
         ),
-        'MU': PriceSnapshot(
-            ticker='MU',
-            price=178.40, market_cap='$199B',
-            ytd_change_pct='+62.7%', pe_ratio='20.52', forward_pe='10.1',
-            peg_ratio='0.12x', week52_low='$64.74', week52_high='$185.00',
-            ebit_ev='7.2%', roic='19.5%', f_score=7, fcf_yield='0.5%',
-            revenue_growth='+47%',
+        "MU": PriceSnapshot(
+            ticker="MU",
+            price=178.40,
+            market_cap="$199B",
+            ytd_change_pct="+62.7%",
+            pe_ratio="20.52",
+            forward_pe="10.1",
+            peg_ratio="0.12x",
+            week52_low="$64.74",
+            week52_high="$185.00",
+            ebit_ev="7.2%",
+            roic="19.5%",
+            f_score=7,
+            fcf_yield="0.5%",
+            revenue_growth="+47%",
         ),
-        '1810.HK': PriceSnapshot(
-            ticker='1810.HK',
-            price=58.45, market_cap='$187B HKD', currency='HKD',
-            ytd_change_pct='+115%', pe_ratio='58.9', forward_pe='40.5',
-            peg_ratio='0.82x', week52_low='$24.75 HKD', week52_high='$64.00 HKD',
-            ebit_ev='1.7%', roic='8.5%', f_score=6, fcf_yield='1.0%',
-            revenue_growth='+48%',
+        "1810.HK": PriceSnapshot(
+            ticker="1810.HK",
+            price=58.45,
+            market_cap="$187B HKD",
+            currency="HKD",
+            ytd_change_pct="+115%",
+            pe_ratio="58.9",
+            forward_pe="40.5",
+            peg_ratio="0.82x",
+            week52_low="$24.75 HKD",
+            week52_high="$64.00 HKD",
+            ebit_ev="1.7%",
+            roic="8.5%",
+            f_score=6,
+            fcf_yield="1.0%",
+            revenue_growth="+48%",
         ),
-        'BTC': PriceSnapshot(
-            ticker='BTC',
-            price=96378.00, currency='$', market_cap='$1.9T',
-            ytd_change_pct='+22.7%', pe_ratio='N/A', forward_pe='N/A',
-            peg_ratio='N/A', week52_low='$60,000', week52_high='$110,000',
-            ebit_ev='N/A', roic='N/A', f_score=5, fcf_yield='N/A',
-            revenue_growth='N/A',
+        "BTC": PriceSnapshot(
+            ticker="BTC",
+            price=96378.00,
+            currency="$",
+            market_cap="$1.9T",
+            ytd_change_pct="+22.7%",
+            pe_ratio="N/A",
+            forward_pe="N/A",
+            peg_ratio="N/A",
+            week52_low="$60,000",
+            week52_high="$110,000",
+            ebit_ev="N/A",
+            roic="N/A",
+            f_score=5,
+            fcf_yield="N/A",
+            revenue_growth="N/A",
         ),
     }
 
@@ -725,35 +812,41 @@ def _sample_data() -> dict[str, PriceSnapshot]:
 def parse_marketbeat(html: str, ticker: str) -> Optional[PriceSnapshot]:
     """从 marketbeat.com 页面 HTML 提取关键数据 (fallback)"""
     snap = PriceSnapshot(ticker=ticker, source="marketbeat.com")
-    text = re.sub(r'<[^>]+>', ' ', html)
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"<[^>]+>", " ", html)
+    text = re.sub(r"\s+", " ", text)
 
-    price_matches = re.findall(r'\$?([\d,]+\.?\d*)', html[:2000])
+    price_matches = re.findall(r"\$?([\d,]+\.?\d*)", html[:2000])
     if price_matches:
-        snap.price = float(price_matches[0].replace(',', ''))
+        snap.price = float(price_matches[0].replace(",", ""))
 
-    mc = re.search(r'(?:Market Cap|Market Capitalization)[:\s]*\$?([\d,.]+)\s*(trillion|billion|million|T|B|M)?', html, re.DOTALL | re.IGNORECASE)
+    mc = re.search(
+        r"(?:Market Cap|Market Capitalization)[:\s]*\$?([\d,.]+)\s*(trillion|billion|million|T|B|M)?",
+        html,
+        re.DOTALL | re.IGNORECASE,
+    )
     if mc:
         val, unit = mc.groups()
-        num = float(val.replace(',', ''))
-        u = {'trillion': 'T', 'billion': 'B', 'million': 'M', 'T': 'T', 'B': 'B', 'M': 'M'}.get((unit or '').lower(), '')
+        num = float(val.replace(",", ""))
+        u = {"trillion": "T", "billion": "B", "million": "M", "T": "T", "B": "B", "M": "M"}.get(
+            (unit or "").lower(), ""
+        )
         snap.market_cap = f"${num:.1f}{u}" if u else f"${num:,.0f}"
 
-    ytd = re.search(r'(?:increased|decreased)\s+by\s+([\d.]+)%', text)
+    ytd = re.search(r"(?:increased|decreased)\s+by\s+([\d.]+)%", text)
     if ytd:
-        direction = '+' if 'increased' in text[ytd.start()-30:ytd.end()] else '-'
+        direction = "+" if "increased" in text[ytd.start() - 30 : ytd.end()] else "-"
         snap.ytd_change_pct = f"{direction}{ytd.group(1)}%"
 
-    yr = re.search(r'52.Week Range.*?\$([\d,.]+)\s*[-–▼▲]+\s*\$([\d,.]+)', text)
+    yr = re.search(r"52.Week Range.*?\$([\d,.]+)\s*[-–▼▲]+\s*\$([\d,.]+)", text)
     if yr:
         snap.week52_low = f"${yr.group(1)}"
         snap.week52_high = f"${yr.group(2)}"
 
-    fpe = re.search(r'Forward P/?E\s*(?:Ratio)?.*?<strong>([\d,.]+)', html, re.DOTALL)
+    fpe = re.search(r"Forward P/?E\s*(?:Ratio)?.*?<strong>([\d,.]+)", html, re.DOTALL)
     if fpe:
         snap.forward_pe = fpe.group(1)
 
-    pe = re.search(r'P/?E\s*(?:Ratio)?.*?<strong>([\d,.]+)', html, re.DOTALL)
+    pe = re.search(r"P/?E\s*(?:Ratio)?.*?<strong>([\d,.]+)", html, re.DOTALL)
     if pe:
         snap.pe_ratio = pe.group(1)
 

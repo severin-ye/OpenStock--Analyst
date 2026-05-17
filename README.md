@@ -33,7 +33,7 @@ We built the tool we wish existed: **real-time ranking across stocks and crypto,
 One command. Real data. A ranked list of every asset you track.
 
 ```bash
-PYTHONPATH="src" python3 -m stock_analysis.cli 英伟达
+PYTHONPATH="src" python3 -m stock_analysis.cli NVIDIA
 ```
 
 Pipeline fetches live prices → computes EBIT/EV, ROIC, F-Score, PEG → ranks everything → generates an HTML report with pre-computed numbers. The LLM only writes narrative. **It cannot hallucinate financial data because it never sees the raw data.**
@@ -67,10 +67,10 @@ pip install -r requirements.txt
 
 ```bash
 # Dry-run: fetch + rank, no LLM
-PYTHONPATH="src" python3 -m stock_analysis.cli 英伟达 --dry-run
+PYTHONPATH="src" python3 -m stock_analysis.cli NVIDIA --dry-run
 
 # Full report: HTML with charts and narrative
-PYTHONPATH="src" python3 -m stock_analysis.cli 英伟达
+PYTHONPATH="src" python3 -m stock_analysis.cli NVIDIA
 
 # Regenerate ranking dashboard
 PYTHONPATH="src" python3 -m stock_analysis.cli index
@@ -92,7 +92,7 @@ python3 -m http.server 8888
 | 🎯 | **Real-Time Data** | yfinance for stocks, CoinGecko/DeFiLlama for crypto. No stale data. |
 | 📊 | **HTML Reports** | 8 structured sections, Chart.js visualizations, investment verdict. |
 | 🔄 | **Auto Dashboard** | `index.html` auto-regenerates with cross-asset ranking overview. |
-| 🤖 | **OpenCode Native** | Plugin mode with IPC fallback. Direct API as default, `--use-opencode-llm` as退化. |
+| 🤖 | **OpenCode Native** | Plugin mode with IPC fallback. Direct API as default, `--use-opencode-llm` as fallback. |
 
 ---
 
@@ -118,7 +118,7 @@ Composite = L1_rank × 0.40 + L2_rank × 0.25 + L3_rank × 0.25 + L4_rank × 0.1
 ```
 OpenCode Agent          Pipeline (Python)
      │                         │
-     │  "Analyze 英伟达"        │
+     │  "Analyze NVIDIA"        │
      └───────────┬─────────────┘
                  │
      ┌───────────▼───────────┐

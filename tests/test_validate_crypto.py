@@ -3,7 +3,7 @@ from pathlib import Path
 
 from stock_analysis.reports.stages.validate import validate
 
-BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent.parent.parent)))
+BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent)))
 
 
 def test_eth_report_validation_accepts_pos_crypto_fields():

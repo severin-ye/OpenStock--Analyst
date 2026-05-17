@@ -19,7 +19,6 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from stock_analysis.registry import ticker_to_name_zh
 from stock_analysis.data.fetcher import YF_TICKER_MAP, PriceSnapshot, fetch_all_8, fetch_crypto_public, fetch_yfinance
 from stock_analysis.data.sources import source_chain_summary
 from stock_analysis.ranking.greenblatt import (
@@ -29,8 +28,8 @@ from stock_analysis.ranking.greenblatt import (
     compute_greenblatt,
     compute_pos_crypto_ranking,
 )
+from stock_analysis.registry import ticker_to_name_zh
 from stock_analysis.reports.schema import (
-    AssetCategory,
     ChartDataset,
     ChartDef,
     ChartType,
@@ -44,30 +43,28 @@ from stock_analysis.reports.schema import (
 from stock_analysis.reports.stages.render import render_to_file
 from stock_analysis.reports.stages.scaffold import scaffold
 
-BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent.parent)))
-LOG_DIR = BASE_DIR / '.sisyphus' / 'pipeline_logs'
+BASE_DIR = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(Path(__file__).resolve().parent.parent.parent)))
+LOG_DIR = BASE_DIR / ".sisyphus" / "pipeline_logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def build_logger(company_name: str) -> logging.Logger:
     log_filename = LOG_DIR / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{company_name}.log"
-    logger = logging.getLogger(f'pipeline.{company_name}')
+    logger = logging.getLogger(f"pipeline.{company_name}")
     logger.setLevel(logging.DEBUG)
 
     # 清理旧 handler，避免多次调用时 handler 累积导致日志重复输出
     for handler in list(logger.handlers):
         logger.removeHandler(handler)
 
-    fh = logging.FileHandler(log_filename, encoding='utf-8')
+    fh = logging.FileHandler(log_filename, encoding="utf-8")
     fh.setLevel(logging.DEBUG)
-    fh.setFormatter(logging.Formatter(
-        '%(asctime)s [%(levelname)s] %(message)s', datefmt='%H:%M:%S'
-    ))
+    fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S"))
     logger.addHandler(fh)
 
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    ch.setFormatter(logging.Formatter('[%(levelname)s] %(message)s'))
+    ch.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
     logger.addHandler(ch)
 
     logger.info(f"日志文件: {log_filename}")
@@ -76,8 +73,8 @@ def build_logger(company_name: str) -> logging.Logger:
 
 def has_report_for_ticker(ticker: str) -> bool:
     company_name = ticker_to_name_zh().get(ticker, ticker)
-    report_dir = BASE_DIR / '分析输出' / company_name
-    return report_dir.is_dir() and any(report_dir.glob('*.html'))
+    report_dir = BASE_DIR / "分析输出" / company_name
+    return report_dir.is_dir() and any(report_dir.glob("*.html"))
 
 
 def snapshot_report_outputs(output_dir: Path) -> dict[str, int]:
@@ -85,7 +82,7 @@ def snapshot_report_outputs(output_dir: Path) -> dict[str, int]:
         return {}
 
     snapshot = {}
-    for html_path in sorted(output_dir.rglob('*.html')):
+    for html_path in sorted(output_dir.rglob("*.html")):
         try:
             snapshot[str(html_path.relative_to(output_dir))] = html_path.stat().st_mtime_ns
         except OSError:
@@ -103,12 +100,12 @@ def watch_report_outputs(
     sleep_fn=time.sleep,
     logger: Optional[logging.Logger] = None,
 ) -> None:
-    output_dir = output_dir or (BASE_DIR / '分析输出')
+    output_dir = output_dir or (BASE_DIR / "分析输出")
     if regenerate_fn is None:
         from stock_analysis.generator import regenerate as regenerate_fn
 
     if logger:
-        logger.info(f'[watch] 开始监听: {output_dir}')
+        logger.info(f"[watch] 开始监听: {output_dir}")
 
     previous_snapshot = snapshot_fn(output_dir)
     polls = 0
@@ -130,22 +127,24 @@ def watch_report_outputs(
                 latest_snapshot = snapshot_fn(output_dir)
 
         if logger:
-            logger.info('[watch] 检测到分析输出 HTML 变更，重建 index.html')
+            logger.info("[watch] 检测到分析输出 HTML 变更，重建 index.html")
 
         try:
             regenerate_fn()
         except Exception as e:
             if logger:
-                logger.warning(f'[watch] index.html 重建失败: {e}')
+                logger.warning(f"[watch] index.html 重建失败: {e}")
         else:
             previous_snapshot = settled_snapshot
             if logger:
-                logger.info('[watch] index.html 重建完成')
+                logger.info("[watch] index.html 重建完成")
 
         polls += 1
 
-def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, PriceSnapshot],
-                           rankings: dict[str, RankingResult]) -> str:
+
+def build_real_data_prompt(
+    company_name: str, ticker: str, prices: dict[str, PriceSnapshot], rankings: dict[str, RankingResult]
+) -> str:
     """构建完整真实数据注入块"""
     info = prices.get(ticker)
     rank = rankings.get(ticker)
@@ -154,7 +153,8 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 
     name_map = ticker_to_name_zh()
 
-    lines = [f"""
+    lines = [
+        f"""
 ## ⚠️ 反幻觉规则 — 必须遵守
 
 1. **所有数值必须来自下方真实数据区块。禁止使用训练数据中的任何数字。**
@@ -163,13 +163,14 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 4. **叙述和分析可以发挥判断力，但引用的数字必须是下方的。**
 
 ---
-## 真实采集数据 (按市场数据源矩阵交叉验证, {datetime.now().strftime('%Y-%m-%d')})
+## 真实采集数据 (按市场数据源矩阵交叉验证, {datetime.now().strftime("%Y-%m-%d")})
 
 ### 全部支持标的数据
 
 | 标的 | 股价 | 市值 | YTD | PE | FwdPE | PEG | EBIT/EV | ROIC | F-Score | FCF Yield | Rev Growth | Beta |
 |------|------|------|-----|----|-------|-----|---------|------|---------|-----------|------------|------|
-"""]
+"""
+    ]
     for t_key in sorted(prices.keys(), key=lambda x: (x != ticker, x)):  # current ticker first
         p = prices[t_key]
         nm = name_map.get(t_key, t_key)
@@ -182,7 +183,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
         )
 
     # BTC 特殊指标
-    btc = prices.get('BTC')
+    btc = prices.get("BTC")
     if btc and btc.mvrv_z_score:
         lines.append(f"""
 ### BTC 专属指标
@@ -191,7 +192,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 - 距上次减半天数: {btc.days_since_halving} 天
 """)
 
-    pos_assets = [p for t, p in prices.items() if t in {'ETH', 'SOL', 'BNB'}]
+    pos_assets = [p for t, p in prices.items() if t in {"ETH", "SOL", "BNB"}]
     if pos_assets:
         lines.append("""
 ### PoS 加密资产专属指标
@@ -220,7 +221,9 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 |-------|------|------|------|------|------|------|
 """)
         for r in rank.rows:
-            lines.append(f"| {r.layer} | {r.dimension} | {r.metric} | {r.value} | {r.rank} | {r.weight} | {r.verdict} |")
+            lines.append(
+                f"| {r.layer} | {r.dimension} | {r.metric} | {r.value} | {r.rank} | {r.weight} | {r.verdict} |"
+            )
         lines.append(f"""
 综合分: {rank.composite_score:.2f} (越小越好)
 综合排名: {rank.composite_rank}
@@ -230,9 +233,9 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 
     # 安全阈值警告
     if info and info.f_score is not None:
-        is_crypto = ticker in {'ETH', 'SOL', 'BNB', 'BTC'}
-        is_pos = ticker in {'ETH', 'SOL', 'BNB'}
-        f_score_label = "Crypto F-Score" if is_pos else ("链上改编 F-Score" if ticker == 'BTC' else "Piotroski F-Score")
+        is_crypto = ticker in {"ETH", "SOL", "BNB", "BTC"}
+        is_pos = ticker in {"ETH", "SOL", "BNB"}
+        f_score_label = "Crypto F-Score" if is_pos else ("链上改编 F-Score" if ticker == "BTC" else "Piotroski F-Score")
         max_score = 6 if is_pos else 9
 
         if is_pos and info.f_score <= 1:
@@ -275,7 +278,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
 """)
         sorted_ranks = sorted(
             [(t, r.composite_score, r.score_10, r.composite_rank) for t, r in rankings.items()],
-            key=lambda x: (-x[2], x[0])
+            key=lambda x: (-x[2], x[0]),
         )
         for t, score, score_10, c_rank in sorted_ranks:
             nm = name_map.get(t, t)
@@ -324,10 +327,12 @@ def yfinance_symbol_for_ticker(ticker: str) -> str:
     return ticker
 
 
-CRYPTO_INTERNAL_TICKERS = {'BTC', 'ETH', 'SOL', 'BNB'}
+CRYPTO_INTERNAL_TICKERS = {"BTC", "ETH", "SOL", "BNB"}
 
 
-def fetch_price_history_points(ticker: str, current_price: float, logger: logging.Logger) -> tuple[list[str], list[float]]:
+def fetch_price_history_points(
+    ticker: str, current_price: float, logger: logging.Logger
+) -> tuple[list[str], list[float]]:
     try:
         import yfinance as yf
     except ImportError:
@@ -335,12 +340,12 @@ def fetch_price_history_points(ticker: str, current_price: float, logger: loggin
         return [], []
 
     yf_symbol = yfinance_symbol_for_ticker(ticker)
-    hist = yf.Ticker(yf_symbol).history(period='1y', interval='1mo', auto_adjust=True)
-    if hist.empty or 'Close' not in hist:
+    hist = yf.Ticker(yf_symbol).history(period="1y", interval="1mo", auto_adjust=True)
+    if hist.empty or "Close" not in hist:
         logger.warning(f"  {ticker}: yfinance 历史价格为空，跳过真实走势覆盖")
         return [], []
 
-    closes = hist['Close'].dropna()
+    closes = hist["Close"].dropna()
     if closes.empty:
         logger.warning(f"  {ticker}: yfinance Close 序列为空，跳过真实走势覆盖")
         return [], []
@@ -360,9 +365,9 @@ def fetch_price_history_points(ticker: str, current_price: float, logger: loggin
             )
             return [], []
 
-    labels = [idx.strftime('%y.%m') for idx in closes.index]
+    labels = [idx.strftime("%y.%m") for idx in closes.index]
     data = [round(float(v), 2) for v in closes.values]
-    current_label = datetime.now().strftime('%y.%m')
+    current_label = datetime.now().strftime("%y.%m")
     if labels[-1] != current_label or abs(data[-1] - current_price) / current_price > 0.01:
         labels.append(current_label)
         data.append(round(float(current_price), 2))
@@ -371,8 +376,9 @@ def fetch_price_history_points(ticker: str, current_price: float, logger: loggin
     return labels, data
 
 
-def apply_real_price_history(report: StockReport, price_info: PriceSnapshot | None,
-                             logger: logging.Logger) -> StockReport:
+def apply_real_price_history(
+    report: StockReport, price_info: PriceSnapshot | None, logger: logging.Logger
+) -> StockReport:
     if not price_info or not price_info.price:
         logger.warning("  缺少当前价格，无法覆盖过去一年走势")
         return report
@@ -393,14 +399,19 @@ def apply_real_price_history(report: StockReport, price_info: PriceSnapshot | No
     )
 
     price_chart = ChartDef(
-        chart_id='priceChart', chart_type=ChartType.LINE, section_id='s3',
+        chart_id="priceChart",
+        chart_type=ChartType.LINE,
+        section_id="s3",
         labels=labels,
-        datasets=[ChartDataset(label=report.ticker, data=data, color='#2563eb', fill=True, tension=0.3)],
-        y_axis_label='$', y_axis_format='$', tooltip_prefix='$', tooltip_suffix='',
+        datasets=[ChartDataset(label=report.ticker, data=data, color="#2563eb", fill=True, tension=0.3)],
+        y_axis_label="$",
+        y_axis_format="$",
+        tooltip_prefix="$",
+        tooltip_suffix="",
     )
 
     for idx, chart in enumerate(report.charts):
-        if chart.chart_id == 'priceChart':
+        if chart.chart_id == "priceChart":
             report.charts[idx] = price_chart
             break
     else:
@@ -413,14 +424,14 @@ def parse_number(value: str | float | int | None) -> float | None:
         return float(value)
     if not value:
         return None
-    match = re.search(r'-?[\d,.]+', str(value))
+    match = re.search(r"-?[\d,.]+", str(value))
     if not match:
         return None
-    return float(match.group(0).replace(',', ''))
+    return float(match.group(0).replace(",", ""))
 
 
 def parse_rank(rank: str) -> tuple[int, int] | None:
-    match = re.search(r'#(\d+)/(\d+)', rank or '')
+    match = re.search(r"#(\d+)/(\d+)", rank or "")
     if not match:
         return None
     return int(match.group(1)), int(match.group(2))
@@ -434,62 +445,88 @@ def replace_chart(report: StockReport, chart: ChartDef) -> None:
     report.charts.append(chart)
 
 
-def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapshot | None,
-                                    rank: RankingResult | None,
-                                    prices: dict[str, PriceSnapshot],
-                                    logger: logging.Logger) -> StockReport:
+def apply_authoritative_report_data(
+    report: StockReport,
+    price_info: PriceSnapshot | None,
+    rank: RankingResult | None,
+    prices: dict[str, PriceSnapshot],
+    logger: logging.Logger,
+) -> StockReport:
     if not price_info:
         logger.warning("  缺少缓存数据，无法覆盖权威数值")
         return report
 
-    currency = price_info.currency or '$'
+    currency = price_info.currency or "$"
     report.cover_price = f"{currency}{price_info.price:,.2f}" if price_info.price else "—"
     report.cover_market_cap = price_info.market_cap or "—"
 
-    is_crypto = report.ticker in {'ETH', 'SOL', 'BNB', 'BTC'}
-    is_pos = report.ticker in {'ETH', 'SOL', 'BNB'}
+    is_crypto = report.ticker in {"ETH", "SOL", "BNB", "BTC"}
+    is_pos = report.ticker in {"ETH", "SOL", "BNB"}
 
     if is_pos:
         report.cover_kpi = [
-            KPIItem(label='当前价格', value=report.cover_price, css_class='up' if price_info.price else 'neut'),
-            KPIItem(label='MCap/TVL', value=f"{price_info.mcap_tvl_ratio:.2f}" if price_info.mcap_tvl_ratio else '—', css_class='up' if price_info.mcap_tvl_ratio and price_info.mcap_tvl_ratio < 8 else 'dn'),
-            KPIItem(label='TVL', value=price_info.tvl or '—', sub='DeFiLlama'),
-            KPIItem(label='Staking率', value=f"{price_info.staking_ratio}%" if price_info.staking_ratio else '—'),
-            KPIItem(label='年通胀率', value=f"{price_info.supply_inflation}%" if price_info.supply_inflation else '—'),
-            KPIItem(label='Crypto F-Score', value=f"{price_info.f_score}/6"),
+            KPIItem(label="当前价格", value=report.cover_price, css_class="up" if price_info.price else "neut"),
+            KPIItem(
+                label="MCap/TVL",
+                value=f"{price_info.mcap_tvl_ratio:.2f}" if price_info.mcap_tvl_ratio else "—",
+                css_class="up" if price_info.mcap_tvl_ratio and price_info.mcap_tvl_ratio < 8 else "dn",
+            ),
+            KPIItem(label="TVL", value=price_info.tvl or "—", sub="DeFiLlama"),
+            KPIItem(label="Staking率", value=f"{price_info.staking_ratio}%" if price_info.staking_ratio else "—"),
+            KPIItem(label="年通胀率", value=f"{price_info.supply_inflation}%" if price_info.supply_inflation else "—"),
+            KPIItem(label="Crypto F-Score", value=f"{price_info.f_score}/6"),
         ]
     else:
         report.cover_kpi = [
-            KPIItem(label='当前股价', value=report.cover_price, css_class='up' if price_info.price else 'neut'),
-            KPIItem(label='YTD', value=price_info.ytd_change_pct or '—', css_class='up' if not str(price_info.ytd_change_pct).startswith('-') else 'dn'),
-            KPIItem(label='52周范围', value=f"{price_info.week52_low} - {price_info.week52_high}", sub='来自缓存'),
-            KPIItem(label='Forward P/E', value=price_info.forward_pe or '—'),
-            KPIItem(label='EBIT/EV', value=price_info.ebit_ev or '—'),
-            KPIItem(label='ROIC', value=price_info.roic or '—'),
+            KPIItem(label="当前股价", value=report.cover_price, css_class="up" if price_info.price else "neut"),
+            KPIItem(
+                label="YTD",
+                value=price_info.ytd_change_pct or "—",
+                css_class="up" if not str(price_info.ytd_change_pct).startswith("-") else "dn",
+            ),
+            KPIItem(label="52周范围", value=f"{price_info.week52_low} - {price_info.week52_high}", sub="来自缓存"),
+            KPIItem(label="Forward P/E", value=price_info.forward_pe or "—"),
+            KPIItem(label="EBIT/EV", value=price_info.ebit_ev or "—"),
+            KPIItem(label="ROIC", value=price_info.roic or "—"),
         ]
 
     if rank:
         report.greenblatt_ranking = [
-            RankingRow(layer=r.layer, dimension=r.dimension, metric=r.metric, value=r.value,
-                       rank=r.rank, weight=r.weight, verdict=r.verdict)
+            RankingRow(
+                layer=r.layer,
+                dimension=r.dimension,
+                metric=r.metric,
+                value=r.value,
+                rank=r.rank,
+                weight=r.weight,
+                verdict=r.verdict,
+            )
             for r in rank.rows
         ]
         report.ranking_summary = rank.summary
         report.composite_score = rank.composite_score
         report.composite_rank_8 = rank.composite_rank
-        report.layer_weights = {'L1': '40%', 'L2': '25%', 'L3': '25%', 'L4': '10%'}
+        report.layer_weights = {"L1": "40%", "L2": "25%", "L3": "25%", "L4": "10%"}
 
         radar_labels = [r.metric for r in rank.rows]
         radar_data = []
         for r in rank.rows:
             parsed = parse_rank(r.rank)
             radar_data.append(round((parsed[1] - parsed[0] + 1) / parsed[1] * 100, 1) if parsed else 0.0)
-        replace_chart(report, ChartDef(
-            chart_id='valuationRadar', chart_type=ChartType.RADAR, section_id='s5',
-            labels=radar_labels,
-            datasets=[ChartDataset(label='排名映射分', data=radar_data, color='#2563eb')],
-            y_axis_label='', y_axis_format='', tooltip_prefix='', tooltip_suffix='',
-        ))
+        replace_chart(
+            report,
+            ChartDef(
+                chart_id="valuationRadar",
+                chart_type=ChartType.RADAR,
+                section_id="s5",
+                labels=radar_labels,
+                datasets=[ChartDataset(label="排名映射分", data=radar_data, color="#2563eb")],
+                y_axis_label="",
+                y_axis_format="",
+                tooltip_prefix="",
+                tooltip_suffix="",
+            ),
+        )
 
     report.f_score_total = str(int(price_info.f_score or 0))
 
@@ -510,22 +547,22 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
     # F-Score 安全阈值: 强制覆盖推荐
     if is_pos and price_info.f_score <= 1:
         if report.s8_signal:
-            report.s8_signal.action = 'HOLD'
-            if report.s8_signal.signal == 'BULLISH':
-                report.s8_signal.signal = 'NEUTRAL'
-            report.s8_signal.conviction = 'WEAK'
+            report.s8_signal.action = "HOLD"
+            if report.s8_signal.signal == "BULLISH":
+                report.s8_signal.signal = "NEUTRAL"
+            report.s8_signal.conviction = "WEAK"
         if report.verdict:
-            report.verdict.recommendation = '谨慎持有（Crypto F-Score 0-1/6，链上健康度不足）'
-            report.verdict.rec_class = 'neut'
+            report.verdict.recommendation = "谨慎持有（Crypto F-Score 0-1/6，链上健康度不足）"
+            report.verdict.rec_class = "neut"
     elif not is_crypto and price_info.f_score <= 3:
         if report.s8_signal:
-            report.s8_signal.action = 'HOLD'
-            if report.s8_signal.signal == 'BULLISH':
-                report.s8_signal.signal = 'NEUTRAL'
-            report.s8_signal.conviction = 'WEAK'
+            report.s8_signal.action = "HOLD"
+            if report.s8_signal.signal == "BULLISH":
+                report.s8_signal.signal = "NEUTRAL"
+            report.s8_signal.conviction = "WEAK"
         if report.verdict:
-            report.verdict.recommendation = '谨慎持有（F-Score ≤ 3/9，财务有风险）'
-            report.verdict.rec_class = 'neut'
+            report.verdict.recommendation = "谨慎持有（F-Score ≤ 3/9，财务有风险）"
+            report.verdict.rec_class = "neut"
 
     report.s6_body_html = (
         "<p>未来展望包含 LLM 生成的悲观/基准/乐观三档情景假设（模型分析）；"
@@ -533,19 +570,26 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
     )
 
     # 保留 LLM 生成的估值方法，追加真实数据
-    if not any(m.name == '当前价格' for m in report.s5_valuation_methods):
-        report.s5_valuation_methods.insert(0, ValuationMethod(name='当前价格', value=report.cover_price, probability='事实'))
-    if not any(m.name == '分析师目标价' for m in report.s5_valuation_methods):
-        report.s5_valuation_methods.insert(1, ValuationMethod(name='分析师目标价', value=price_info.price_target or '—', probability='外部来源'))
+    if not any(m.name == "当前价格" for m in report.s5_valuation_methods):
+        report.s5_valuation_methods.insert(
+            0, ValuationMethod(name="当前价格", value=report.cover_price, probability="事实")
+        )
+    if not any(m.name == "分析师目标价" for m in report.s5_valuation_methods):
+        report.s5_valuation_methods.insert(
+            1, ValuationMethod(name="分析师目标价", value=price_info.price_target or "—", probability="外部来源")
+        )
 
     target = parse_number(price_info.price_target)
     current = parse_number(report.cover_price)
     if target and current and current > 0:
         ret = (target / current - 1) * 100
         # 不覆盖 LLM 生成的三档情景，追加分析师目标价作为独立行
-        analyst_scenario = ScenarioRow(
-            scenario='分析师目标价（真实数据）', probability='—', price_target=f"{currency}{target:,.2f}",
-            return_pct=f"{ret:+.1f}%", description='来自缓存目标价，非 LLM 情景估算'
+        analyst_scenario: ScenarioRow = ScenarioRow(
+            scenario="分析师目标价（真实数据）",
+            probability="—",
+            price_target=f"{currency}{target:,.2f}",
+            return_pct=f"{ret:+.1f}%",
+            description="来自缓存目标价，非 LLM 情景估算",
         )
         if report.s6_scenarios:
             report.s6_scenarios.append(analyst_scenario)
@@ -553,61 +597,85 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
             report.s6_scenarios = [analyst_scenario]
 
         # S5 dcfChart：当前价 + LLM 三档（如有）+ 分析师目标价
-        dcf_labels = ['当前价']
+        dcf_labels = ["当前价"]
         dcf_data = [round(current, 2)]
-        dcf_colors = ['#d97706']
+        dcf_colors = ["#d97706"]
         for s in report.s5_valuation_methods:
-            if s.name in ('悲观', 'DCF保守') and parse_number(s.value):
-                dcf_labels.append('悲观')
-                dcf_data.append(round(parse_number(s.value), 2))
-                dcf_colors.append('#dc2626')
-            elif s.name in ('基准', 'DCF基准') and parse_number(s.value):
-                dcf_labels.append('基准')
-                dcf_data.append(round(parse_number(s.value), 2))
-                dcf_colors.append('#d97706')
-            elif s.name in ('乐观', 'DCF乐观') and parse_number(s.value):
-                dcf_labels.append('乐观')
-                dcf_data.append(round(parse_number(s.value), 2))
-                dcf_colors.append('#059669')
-        dcf_labels.append('分析师目标价')
+            val = parse_number(s.value)
+            if val is None:
+                continue
+            if s.name in ("悲观", "DCF保守"):
+                dcf_labels.append("悲观")
+                dcf_data.append(round(val, 2))
+                dcf_colors.append("#dc2626")
+            elif s.name in ("基准", "DCF基准"):
+                dcf_labels.append("基准")
+                dcf_data.append(round(val, 2))
+                dcf_colors.append("#d97706")
+            elif s.name in ("乐观", "DCF乐观"):
+                dcf_labels.append("乐观")
+                dcf_data.append(round(val, 2))
+                dcf_colors.append("#059669")
+        dcf_labels.append("分析师目标价")
         dcf_data.append(round(target, 2))
-        dcf_colors.append('#2563eb')
-        replace_chart(report, ChartDef(
-            chart_id='dcfChart', chart_type=ChartType.BAR, section_id='s5',
-            labels=dcf_labels,
-            datasets=[ChartDataset(label='价格', data=dcf_data,
-                                   color='#2563eb', point_background_colors=dcf_colors)],
-            y_axis_label='$', y_axis_format='$', tooltip_prefix='$', tooltip_suffix='',
-        ))
+        dcf_colors.append("#2563eb")
+        replace_chart(
+            report,
+            ChartDef(
+                chart_id="dcfChart",
+                chart_type=ChartType.BAR,
+                section_id="s5",
+                labels=dcf_labels,
+                datasets=[
+                    ChartDataset(label="价格", data=dcf_data, color="#2563eb", point_background_colors=dcf_colors)
+                ],
+                y_axis_label="$",
+                y_axis_format="$",
+                tooltip_prefix="$",
+                tooltip_suffix="",
+            ),
+        )
 
         # S6 scenarioChart：LLM 三档（如有）+ 分析师目标价
         sc_labels = []
         sc_data = []
         sc_colors = []
-        for s in report.s6_scenarios:
-            if s.scenario in ('悲观', '悲观情景') and parse_number(s.return_pct) is not None:
-                sc_labels.append('悲观')
-                sc_data.append(round(parse_number(s.return_pct), 1))
-                sc_colors.append('#dc2626')
-            elif s.scenario in ('基准', '基准情景') and parse_number(s.return_pct) is not None:
-                sc_labels.append('基准')
-                sc_data.append(round(parse_number(s.return_pct), 1))
-                sc_colors.append('#d97706')
-            elif s.scenario in ('乐观', '乐观情景') and parse_number(s.return_pct) is not None:
-                sc_labels.append('乐观')
-                sc_data.append(round(parse_number(s.return_pct), 1))
-                sc_colors.append('#059669')
+        for scenario in report.s6_scenarios:
+            ret_val = parse_number(scenario.return_pct)
+            if ret_val is None:
+                continue
+            if scenario.scenario in ("悲观", "悲观情景"):
+                sc_labels.append("悲观")
+                sc_data.append(round(ret_val, 1))
+                sc_colors.append("#dc2626")
+            elif scenario.scenario in ("基准", "基准情景"):
+                sc_labels.append("基准")
+                sc_data.append(round(ret_val, 1))
+                sc_colors.append("#d97706")
+            elif scenario.scenario in ("乐观", "乐观情景"):
+                sc_labels.append("乐观")
+                sc_data.append(round(ret_val, 1))
+                sc_colors.append("#059669")
         # 分析师目标价回报
-        sc_labels.append('分析师目标价')
+        sc_labels.append("分析师目标价")
         sc_data.append(round(ret, 1))
-        sc_colors.append('#2563eb')
-        replace_chart(report, ChartDef(
-            chart_id='scenarioChart', chart_type=ChartType.BAR, section_id='s6',
-            labels=sc_labels,
-            datasets=[ChartDataset(label='预期回报%', data=sc_data, color='#2563eb',
-                                   point_background_colors=sc_colors)],
-            y_axis_label='%', y_axis_format='%', tooltip_prefix='', tooltip_suffix='%',
-        ))
+        sc_colors.append("#2563eb")
+        replace_chart(
+            report,
+            ChartDef(
+                chart_id="scenarioChart",
+                chart_type=ChartType.BAR,
+                section_id="s6",
+                labels=sc_labels,
+                datasets=[
+                    ChartDataset(label="预期回报%", data=sc_data, color="#2563eb", point_background_colors=sc_colors)
+                ],
+                y_axis_label="%",
+                y_axis_format="%",
+                tooltip_prefix="",
+                tooltip_suffix="%",
+            ),
+        )
 
     peer_labels = []
     peer_data = []
@@ -617,12 +685,20 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
             peer_labels.append(ticker_to_name_zh().get(t, t))
             peer_data.append(round(val, 2))
     if peer_labels and peer_data:
-        replace_chart(report, ChartDef(
-            chart_id='peerCompareChart', chart_type=ChartType.BAR, section_id='s5',
-            labels=peer_labels,
-            datasets=[ChartDataset(label='Forward P/E', data=peer_data, color='#2563eb')],
-            y_axis_label='x', y_axis_format='', tooltip_prefix='', tooltip_suffix='x',
-        ))
+        replace_chart(
+            report,
+            ChartDef(
+                chart_id="peerCompareChart",
+                chart_type=ChartType.BAR,
+                section_id="s5",
+                labels=peer_labels,
+                datasets=[ChartDataset(label="Forward P/E", data=peer_data, color="#2563eb")],
+                y_axis_label="x",
+                y_axis_format="",
+                tooltip_prefix="",
+                tooltip_suffix="x",
+            ),
+        )
 
     logger.info("  已用 prices.json/ranker/yfinance 覆盖关键数值与图表")
     return report
@@ -648,8 +724,14 @@ OUTPUT_SCHEMA = """
   ],
 
   "s1_price_changes": [
-    {"dimension": "YTD", "change_pct": "从上表取", "corresponding_price": "", "probability_weight": "—", "industry_compare": "SOX对比"},
-    {"dimension": "52周极端", "change_pct": "", "corresponding_price": "", "probability_weight": "—", "industry_compare": ""}
+    {
+      "dimension": "YTD", "change_pct": "从上表取",
+      "corresponding_price": "", "probability_weight": "—", "industry_compare": "SOX对比"
+    },
+    {
+      "dimension": "52周极端", "change_pct": "",
+      "corresponding_price": "", "probability_weight": "—", "industry_compare": ""
+    }
   ],
   "s1_core_judgment": "基于排名结果的一句话总结",
 
@@ -661,10 +743,14 @@ OUTPUT_SCHEMA = """
   "s4": {"title": "⚔️ 竞争格局", "subtitle": "", "body_html": "<p>竞争分析</p>"},
 
   "greenblatt_ranking": [
-    {"layer": "L1", "dimension": "从上表取", "metric": "从上表取", "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
-    {"layer": "L2", "dimension": "从上表取", "metric": "从上表取", "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
-    {"layer": "L3", "dimension": "从上表取", "metric": "从上表取", "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
-    {"layer": "L4", "dimension": "从上表取", "metric": "从上表取", "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"}
+    {"layer": "L1", "dimension": "从上表取", "metric": "从上表取",
+     "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
+    {"layer": "L2", "dimension": "从上表取", "metric": "从上表取",
+     "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
+    {"layer": "L3", "dimension": "从上表取", "metric": "从上表取",
+     "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"},
+    {"layer": "L4", "dimension": "从上表取", "metric": "从上表取",
+     "value": "从上表取", "weight": "从上表取", "rank": "从上表取", "verdict": "基于排名写判断"}
   ],
   "ranking_summary": "从上表取",
   "composite_score": 0.0,
@@ -749,8 +835,9 @@ OUTPUT_SCHEMA = """
 """
 
 
-def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
-                           logger: logging.Logger, use_opencode_llm: bool = False) -> StockReport:
+def run_llm_with_real_data(
+    report: StockReport, real_data_prompt: str, logger: logging.Logger, use_opencode_llm: bool = False
+) -> StockReport:
     """调用 LLM, 注入真实数据 — 无 SCHEMA_HINT 污染"""
     from langchain_openai import ChatOpenAI
 
@@ -762,6 +849,7 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
     opencode_client = None
     if use_opencode_llm:
         from stock_analysis.llm_client import create_llm_client
+
         opencode_client = create_llm_client(use_opencode=True)
         if opencode_client:
             logger.info("  使用 OpenCode LLM IPC 模式（通过文件 + stdout 标记）")
@@ -777,9 +865,8 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
             temperature=0.1,
         )
 
-    is_crypto = report.asset_category == AssetCategory.CRYPTO
-    is_pos = report.ticker in {'ETH', 'SOL', 'BNB'}
-    is_btc = report.ticker == 'BTC'
+    is_pos = report.ticker in {"ETH", "SOL", "BNB"}
+    is_btc = report.ticker == "BTC"
 
     # 加密资产排名体系说明
     if is_pos:
@@ -795,7 +882,10 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
 
 综合分 = L1排名×0.40 + L2排名×0.25 + L3排名×0.25 + L4排名×0.10 | 越小越好
 
-⚠️ Crypto F-Score (0/6) 与 Piotroski F-Score (0/9) 是完全不同的体系。加密资产没有传统财报数据，f_score_items 全部填 score=0, reason="数据不足（加密资产无传统财报）"。verdict.f_score_total 写 Crypto F-Score 的值（字符串类型如 "X/6"）。根级 f_score_total 写纯数字字符串（如 "6"）。
+⚠️ Crypto F-Score (0/6) 与 Piotroski F-Score (0/9) 是完全不同的体系。
+加密资产没有传统财报数据，f_score_items 全部填 score=0,
+reason="数据不足（加密资产无传统财报）"。verdict.f_score_total 写 Crypto F-Score 的值（字符串类型如 "X/6"）。
+根级 f_score_total 写纯数字字符串（如 "6"）。
 """
     elif is_btc:
         ranking_system = """
@@ -874,9 +964,10 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
         else:
             response = llm.invoke(prompt, timeout=300)
             elapsed = time.time() - t0
-            token_usage = getattr(response, 'response_metadata', {})
+            token_usage = getattr(response, "response_metadata", {})
             logger.info(f"  LLM 响应: {elapsed:.1f}s, tokens={token_usage}")
-            content = response.content.strip()
+            raw_content = response.content
+            content = raw_content.strip() if isinstance(raw_content, str) else str(raw_content)
             logger.info(f"  原始响应长度: {len(content):,} chars")
 
         if content.startswith("```"):
@@ -894,7 +985,7 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
         logger.info(f"  解析成功: {len(result.charts)} charts, {len(result.f_score_items)} F-Score")
         return result
     except Exception as e:
-        logger.error(f"  LLM 失败 ({type(e).__name__}, {time.time()-t0:.1f}s): {str(e)[:500]}")
+        logger.error(f"  LLM 失败 ({type(e).__name__}, {time.time() - t0:.1f}s): {str(e)[:500]}")
         return report
 
 
@@ -911,9 +1002,9 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     logger = build_logger(company_name)
     t_total = time.time()
 
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
     logger.info(f"Pipeline 启动: {company_name}")
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
 
     # Stage 0: Scaffold
     logger.info("[Stage 0: scaffold]")
@@ -924,6 +1015,7 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     logger.info("[Stage 0.5: refresh] 分析前自动刷新 prices.json 缓存")
     try:
         from stock_analysis.data.fetcher import sync_public_data_to_json
+
         sync_public_data_to_json(logger=logger)
         logger.info("  ✅ 缓存刷新完成")
     except Exception as e:
@@ -935,7 +1027,7 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     ticker = report.ticker
     my_data = prices.get(ticker)
     if not my_data:
-        if ticker in {'BTC', 'ETH', 'SOL', 'BNB'}:
+        if ticker in {"BTC", "ETH", "SOL", "BNB"}:
             fresh_crypto = fetch_crypto_public([ticker], logger=logger)
             prices.update(fresh_crypto)
         else:
@@ -969,28 +1061,47 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     rankable_tickers.add(ticker)
     rankings = {}
     for t in prices:
-        if t == 'BTC':
+        if t == "BTC":
             # BTC 专用排名
-            btc = prices.get('BTC')
+            btc = prices.get("BTC")
             if btc and btc.mvrv_z_score:
-                all_mvrv = {'BTC': btc.mvrv_z_score}
-                all_hash = {'BTC': btc.hash_rate_eh}
-                all_btc_f = {'BTC': btc.f_score}
-                all_halving = {'BTC': btc.days_since_halving}
+                all_mvrv = {"BTC": btc.mvrv_z_score}
+                all_hash = {"BTC": btc.hash_rate_eh}
+                all_btc_f = {"BTC": btc.f_score}
+                all_halving = {"BTC": btc.days_since_halving}
                 result = compute_crypto_ranking(
-                    btc.mvrv_z_score, btc.hash_rate_eh,
-                    btc.f_score, btc.days_since_halving,
-                    all_mvrv, all_hash, all_btc_f, all_halving,
+                    btc.mvrv_z_score,
+                    btc.hash_rate_eh,
+                    btc.f_score,
+                    btc.days_since_halving,
+                    all_mvrv,
+                    all_hash,
+                    all_btc_f,
+                    all_halving,
                 )
                 if t in rankable_tickers:
                     rankings[t] = result
                 logger.info(f"  BTC: composite={result.composite_score:.2f}")
-        elif t in {'ETH', 'SOL', 'BNB'}:
+        elif t in {"ETH", "SOL", "BNB"}:
             pos = prices.get(t)
-            all_mcap_tvl = {k: v.mcap_tvl_ratio for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.mcap_tvl_ratio is not None}
-            all_staking = {k: v.staking_ratio for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.staking_ratio is not None}
-            all_crypto_f = {k: v.f_score for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.f_score is not None}
-            all_inflation = {k: v.supply_inflation for k, v in prices.items() if k in {'ETH', 'SOL', 'BNB'} and v.supply_inflation is not None}
+            all_mcap_tvl = {
+                k: v.mcap_tvl_ratio
+                for k, v in prices.items()
+                if k in {"ETH", "SOL", "BNB"} and v.mcap_tvl_ratio is not None
+            }
+            all_staking = {
+                k: v.staking_ratio
+                for k, v in prices.items()
+                if k in {"ETH", "SOL", "BNB"} and v.staking_ratio is not None
+            }
+            all_crypto_f = {
+                k: v.f_score for k, v in prices.items() if k in {"ETH", "SOL", "BNB"} and v.f_score is not None
+            }
+            all_inflation = {
+                k: v.supply_inflation
+                for k, v in prices.items()
+                if k in {"ETH", "SOL", "BNB"} and v.supply_inflation is not None
+            }
             if pos and all_mcap_tvl and all_staking and all_crypto_f and all_inflation:
                 result = compute_pos_crypto_ranking(
                     t,
@@ -1013,7 +1124,10 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
                 all_roic.get(t),
                 all_f_score.get(t),
                 all_peg.get(t),
-                all_ebit_ev, all_roic, all_f_score, all_peg,
+                all_ebit_ev,
+                all_roic,
+                all_f_score,
+                all_peg,
             )
             if t in rankable_tickers:
                 rankings[t] = result
@@ -1032,8 +1146,8 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     report = run_llm_with_real_data(report, real_data_prompt, logger, use_opencode_llm=use_opencode_llm)
 
     # LLM 失败检测: 如果 report 仍为空壳（无 charts、无 verdict），跳过 render
-    charts = getattr(report, 'charts', None)
-    company_overview = getattr(report, 'company_overview', None)
+    charts = getattr(report, "charts", None)
+    company_overview = getattr(report, "company_overview", None)
     if not charts and not company_overview:
         logger.error("  LLM 返回空报告，跳过 render。请检查 API 配置或网络连接。")
         return None
@@ -1043,15 +1157,16 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
 
     # Stage 4: Render
     logger.info("[Stage 4: render] 生成 HTML")
-    today = datetime.now().strftime('%y%m%d')
-    output_dir = BASE_DIR / '分析输出' / company_name
+    today = datetime.now().strftime("%y%m%d")
+    output_dir = BASE_DIR / "分析输出" / company_name
     output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / f'{today}_综合分析报告.html'
+    output_path = output_dir / f"{today}_综合分析报告.html"
     html_path = render_to_file(report, str(output_path), logger=logger)
 
     # Stage 5: Validate
     logger.info("[Stage 5: validate] HTML 完整性检查")
     from stock_analysis.reports.stages.validate import validate
+
     passed, issues = validate(report, html_path)
     logger.info(f"  通过: {'是' if passed else '否'}")
     for i in issues:
@@ -1059,60 +1174,67 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
 
     try:
         from stock_analysis.generator import regenerate
+
         regenerate()
-        logger.info('[Stage 6: index] index.html 已根据分析输出重建')
+        logger.info("[Stage 6: index] index.html 已根据分析输出重建")
     except Exception as e:
-        logger.warning(f'[Stage 6: index] index.html 重建失败: {e}')
+        logger.warning(f"[Stage 6: index] index.html 重建失败: {e}")
 
     total_elapsed = time.time() - t_total
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
     logger.info(f"总耗时: {total_elapsed:.1f}s")
     logger.info(f"HTML: {html_path}")
     logger.info(f"{'✅ 完成' if passed else '⚠️ 部分完成'}")
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
 
     return html_path
 
 
 def main():
-    """命令行入口"""
-    if len(sys.argv) < 2:
-        print('用法: stock-analysis <公司名> [--dry-run] [--use-opencode-llm]')
-        print('      stock-analysis index     # 再生index.html')
-        print('      stock-analysis watch     # 监听分析输出并自动重建index.html')
-        print('      stock-analysis validate <报告路径>')
-        print('')
-        print('选项:')
-        print('  --dry-run             不调用 LLM，仅验证数据流')
-        print('  --use-opencode-llm    通过 IPC 调用 OpenCode Agent 的 LLM（而非直接 API）')
-        sys.exit(1)
-    if sys.argv[1] == 'index':
+    """CLI entry point"""
+    if len(sys.argv) < 2 or sys.argv[1] in ("--help", "-h"):
+        print("stock-analysis — Greenblatt Ranking Investment Analysis Tool")
+        print("")
+        print("Usage:")
+        print("  stock-analysis <company_name> [--dry-run] [--use-opencode-llm]")
+        print("  stock-analysis index")
+        print("  stock-analysis watch")
+        print("  stock-analysis validate <report_path>")
+        print("")
+        print("Options:")
+        print("  --dry-run             Skip LLM calls, validate data pipeline only")
+        print("  --use-opencode-llm    Use OpenCode Agent LLM via IPC instead of direct API")
+        print("  -h, --help            Show this help message")
+        sys.exit(0 if sys.argv[1] in ("--help", "-h") else 1)
+    if sys.argv[1] == "index":
         from stock_analysis.generator import regenerate
+
         regenerate()
         sys.exit(0)
-    if sys.argv[1] == 'watch':
-        logger = build_logger('watch-index')
+    if sys.argv[1] == "watch":
+        logger = build_logger("watch-index")
         try:
             watch_report_outputs(logger=logger)
         except KeyboardInterrupt:
-            logger.info('[watch] 已停止监听')
+            logger.info("[watch] Stopped watching")
         sys.exit(0)
-    if sys.argv[1] == 'validate':
+    if sys.argv[1] == "validate":
         if len(sys.argv) < 3:
-            print('用法: stock-analysis validate <报告路径>')
+            print("Usage: stock-analysis validate <report_path>")
             sys.exit(1)
         from stock_analysis.reports.stages.validate import validate
+
         html_path = sys.argv[2]
         passed, issues = validate(None, html_path)
-        print('✅ 通过' if passed else '❌ 未通过')
+        print("✅ PASS" if passed else "❌ FAIL")
         for i in issues:
-            print(f'  {i}')
+            print(f"  {i}")
         sys.exit(0 if passed else 1)
     company = sys.argv[1]
-    dry = '--dry-run' in sys.argv
-    use_opencode = '--use-opencode-llm' in sys.argv
+    dry = "--dry-run" in sys.argv
+    use_opencode = "--use-opencode-llm" in sys.argv
     run_analysis(company, dry_run=dry, use_opencode_llm=use_opencode)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

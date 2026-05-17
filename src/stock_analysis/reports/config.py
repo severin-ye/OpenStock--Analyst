@@ -18,13 +18,13 @@ import os
 import re
 from pathlib import Path
 
-logger = logging.getLogger('config')
+logger = logging.getLogger("config")
 
-OPENCODE_CONFIG = Path.home() / '.config' / 'opencode' / 'opencode.jsonc'
+OPENCODE_CONFIG = Path.home() / ".config" / "opencode" / "opencode.jsonc"
 
 
 def _read_secret(path: str) -> str:
-    filepath = Path(path.replace('{file:', '').rstrip('}')).expanduser()
+    filepath = Path(path.replace("{file:", "").rstrip("}")).expanduser()
     try:
         return filepath.read_text().strip()
     except FileNotFoundError:
@@ -33,26 +33,27 @@ def _read_secret(path: str) -> str:
 
 def load_config() -> dict:
     try:
-        text = OPENCODE_CONFIG.read_text(encoding='utf-8')
+        text = OPENCODE_CONFIG.read_text(encoding="utf-8")
         logger.debug(f"已读取 OpenCode 配置: {OPENCODE_CONFIG}")
     except FileNotFoundError:
         logger.debug(f"OpenCode 配置文件不存在: {OPENCODE_CONFIG}")
         return {}
     lines = []
     for line in text.splitlines():
-        idx = line.find('//')
+        idx = line.find("//")
         if idx >= 0:
             before = line[:idx]
             quote_count = before.count('"') - before.count('\\"')
             if quote_count % 2 == 0:
                 line = line[:idx]
         lines.append(line)
-    text = '\n'.join(lines)
-    text = re.sub(r'/\*[\s\S]*?\*/', '', text)
-    return json.loads(text)
+    text = "\n".join(lines)
+    text = re.sub(r"/\*[\s\S]*?\*/", "", text)
+    result: dict = json.loads(text)
+    return result
 
 
-PREFERRED_LLM_ORDER = ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'qwen3.6-plus']
+PREFERRED_LLM_ORDER = ["deepseek-v4-pro", "deepseek-v4-flash", "deepseek-v3.2", "qwen3.6-plus"]
 
 
 def get_llm_config() -> dict:
@@ -64,20 +65,20 @@ def get_llm_config() -> dict:
 
     如果两者都未找到，抛出 RuntimeError 并说明配置方式。
     """
-    api_key = os.environ.get('LLM_API_KEY')
-    base_url = os.environ.get('LLM_BASE_URL')
-    model = os.environ.get('LLM_MODEL')
+    api_key = os.environ.get("LLM_API_KEY")
+    base_url = os.environ.get("LLM_BASE_URL")
+    model = os.environ.get("LLM_MODEL")
 
     if api_key and base_url:
         logger.info("使用环境变量 LLM 配置")
-        if not base_url.endswith('/v1'):
-            base_url = base_url.rstrip('/') + '/v1'
+        if not base_url.endswith("/v1"):
+            base_url = base_url.rstrip("/") + "/v1"
         return {
-            'api_key': api_key,
-            'base_url': base_url,
-            'model': model or 'deepseek-v4-pro',
-            'provider_model_id': model or 'deepseek-v4-pro',
-            'provider_name': 'env',
+            "api_key": api_key,
+            "base_url": base_url,
+            "model": model or "deepseek-v4-pro",
+            "provider_model_id": model or "deepseek-v4-pro",
+            "provider_name": "env",
         }
 
     logger.info(f"尝试读取 OpenCode 配置: {OPENCODE_CONFIG}")
@@ -97,39 +98,38 @@ def get_llm_config() -> dict:
             f"     export LLM_BASE_URL=https://api.deepseek.com"
         )
 
-    providers = config.get('provider', {})
+    providers = config.get("provider", {})
 
     if not providers:
         raise RuntimeError(
-            f"OpenCode 配置文件存在，但未找到 provider 配置。\n"
-            f"请检查 {OPENCODE_CONFIG} 是否包含 'provider' 字段。"
+            f"OpenCode 配置文件存在，但未找到 provider 配置。\n请检查 {OPENCODE_CONFIG} 是否包含 'provider' 字段。"
         )
 
     for prov_name, prov_data in providers.items():
-        options = prov_data.get('options', {})
-        base_url = options.get('baseURL', '')
-        api_key_raw = options.get('apiKey', '')
+        options = prov_data.get("options", {})
+        base_url = options.get("baseURL", "")
+        api_key_raw = options.get("apiKey", "")
         if not base_url or not api_key_raw:
             continue
 
-        if api_key_raw.startswith('{file:'):
+        if api_key_raw.startswith("{file:"):
             api_key = _read_secret(api_key_raw)
         else:
             api_key = api_key_raw
 
-        if not base_url.endswith('/v1'):
-            base_url = base_url.rstrip('/') + '/v1'
+        if not base_url.endswith("/v1"):
+            base_url = base_url.rstrip("/") + "/v1"
 
-        models = prov_data.get('models', {})
+        models = prov_data.get("models", {})
         for preferred in PREFERRED_LLM_ORDER:
             if preferred in models:
                 logger.info(f"使用 OpenCode provider: {prov_name}, model: {preferred}")
                 return {
-                    'api_key': api_key,
-                    'base_url': base_url,
-                    'model': preferred,
-                    'provider_model_id': preferred,
-                    'provider_name': prov_name,
+                    "api_key": api_key,
+                    "base_url": base_url,
+                    "model": preferred,
+                    "provider_model_id": preferred,
+                    "provider_name": prov_name,
                 }
 
     raise RuntimeError(
