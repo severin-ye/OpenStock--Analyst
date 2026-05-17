@@ -1,11 +1,13 @@
-"""配置模块 — 从 opencode.jsonc 读取 LLM 配置
+"""配置模块 — 从环境变量或 opencode.jsonc 读取 LLM 配置
 
 支持:
-  - 百炼 Token Plan 统一 API (当前主用)
-  - DeepSeek 直连 API (legacy fallback)
+  - 环境变量优先: LLM_API_KEY, LLM_BASE_URL, LLM_MODEL
+  - opencode.jsonc fallback (自动解析 JSONC 注释)
+  - 百炼 Token Plan 统一 API / DeepSeek 直连
 """
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -14,11 +16,17 @@ OPENCODE_CONFIG = Path.home() / '.config' / 'opencode' / 'opencode.jsonc'
 
 def _read_secret(path: str) -> str:
     filepath = Path(path.replace('{file:', '').rstrip('}')).expanduser()
-    return filepath.read_text().strip()
+    try:
+        return filepath.read_text().strip()
+    except FileNotFoundError:
+        raise RuntimeError(f"密钥文件不存在: {filepath}")
 
 
 def load_config() -> dict:
-    text = OPENCODE_CONFIG.read_text(encoding='utf-8')
+    try:
+        text = OPENCODE_CONFIG.read_text(encoding='utf-8')
+    except FileNotFoundError:
+        return {}
     lines = []
     for line in text.splitlines():
         idx = line.find('//')
@@ -36,7 +44,23 @@ def load_config() -> dict:
 PREFERRED_LLM_ORDER = ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v3.2', 'qwen3.6-plus']
 
 
-def get_deepseek_config() -> dict:
+def get_llm_config() -> dict:
+    """获取 LLM 配置 — 环境变量优先，opencode.jsonc 次之"""
+    api_key = os.environ.get('LLM_API_KEY')
+    base_url = os.environ.get('LLM_BASE_URL')
+    model = os.environ.get('LLM_MODEL')
+
+    if api_key and base_url:
+        if not base_url.endswith('/v1'):
+            base_url = base_url.rstrip('/') + '/v1'
+        return {
+            'api_key': api_key,
+            'base_url': base_url,
+            'model': model or 'deepseek-v4-pro',
+            'provider_model_id': model or 'deepseek-v4-pro',
+            'provider_name': 'env',
+        }
+
     config = load_config()
     providers = config.get('provider', {})
 
@@ -66,4 +90,8 @@ def get_deepseek_config() -> dict:
                     'provider_name': prov_name,
                 }
 
-    raise RuntimeError("未找到可用 LLM 模型的 provider 配置")
+    raise RuntimeError(
+        "未找到可用 LLM 模型的 provider 配置。\n"
+        "请设置环境变量 LLM_API_KEY + LLM_BASE_URL，\n"
+        "或配置 ~/.config/opencode/opencode.jsonc"
+    )

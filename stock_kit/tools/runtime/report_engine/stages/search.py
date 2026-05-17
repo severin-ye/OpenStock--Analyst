@@ -1,7 +1,7 @@
 """Stage 1+2: 一站式生成 (搜索 + 分析合并) — 四层加权排名"""
 
 from langchain_openai import ChatOpenAI
-from tools.runtime.report_engine.config import get_deepseek_config
+from tools.runtime.report_engine.config import get_llm_config
 from tools.runtime.report_engine.schema import StockReport, ModuleStatus
 import json
 
@@ -137,7 +137,7 @@ def run_search(report: StockReport, logger=None) -> StockReport:
     import time
     t0 = time.time()
 
-    cfg = get_deepseek_config()
+    cfg = get_llm_config()
     llm = ChatOpenAI(
         model=cfg["model"],
         base_url=cfg["base_url"],

@@ -748,10 +748,10 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
                            logger: logging.Logger) -> StockReport:
     """调用 LLM, 注入真实数据 — 无 SCHEMA_HINT 污染"""
     from langchain_openai import ChatOpenAI
-    from tools.runtime.report_engine.config import get_deepseek_config
+    from tools.runtime.report_engine.config import get_llm_config
 
     t0 = time.time()
-    cfg = get_deepseek_config()
+    cfg = get_llm_config()
     llm = ChatOpenAI(
         model=cfg["model"],
         base_url=cfg["base_url"],
