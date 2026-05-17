@@ -45,6 +45,26 @@ PYTHONPATH="stock_kit" python3 -m tools.pipeline 英伟达 --dry-run
 PYTHONPATH="stock_kit" python3 -m tools.pipeline 英伟达
 ```
 
+#### 高级：使用 OpenCode LLM IPC 模式（无需 API 密钥）
+
+如果你正在使用 OpenCode Agent，可以让 Pipeline 通过 **IPC**（进程间通信）调用 OpenCode 的 LLM，而不是直接连接 API：
+
+```bash
+PYTHONPATH="stock_kit" python3 -m tools.pipeline 英伟达 --use-opencode-llm
+```
+
+**原理：**
+- Pipeline 将 prompt 写入 `.sisyphus/llm_requests/{id}.json`
+- 向 stdout 打印标记 `__OPENCODE_LLM_REQUEST__:{id}`
+- OpenCode Agent 捕获标记，调用 LLM 生成文本
+- 将结果写回 `.sisyphus/llm_responses/{id}.json`
+- Pipeline 读取响应并继续执行
+
+**适用场景：**
+- 不想在项目中配置 API 密钥
+- 希望所有 LLM 调用统一走 OpenCode 的配额和审计
+- 在受限制的环境中无法直接访问外部 API
+
 ### 5. 本地预览报告
 
 ```bash

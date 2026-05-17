@@ -750,20 +750,32 @@ OUTPUT_SCHEMA = """
 
 
 def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
-                           logger: logging.Logger) -> StockReport:
+                           logger: logging.Logger, use_opencode_llm: bool = False) -> StockReport:
     """调用 LLM, 注入真实数据 — 无 SCHEMA_HINT 污染"""
     from langchain_openai import ChatOpenAI
 
     from tools.runtime.report_engine.config import get_llm_config
 
     t0 = time.time()
-    cfg = get_llm_config()
-    llm = ChatOpenAI(
-        model=cfg["model"],
-        base_url=cfg["base_url"],
-        api_key=cfg["api_key"],
-        temperature=0.1,
-    )
+
+    # 检查是否使用 OpenCode LLM IPC 模式
+    opencode_client = None
+    if use_opencode_llm:
+        from tools.opencode_llm_client import create_llm_client
+        opencode_client = create_llm_client(use_opencode=True)
+        if opencode_client:
+            logger.info("  使用 OpenCode LLM IPC 模式（通过文件 + stdout 标记）")
+        else:
+            logger.warning("  --use-opencode-llm 已启用但环境不支持，fallback 到直接 API")
+
+    if not opencode_client:
+        cfg = get_llm_config()
+        llm = ChatOpenAI(
+            model=cfg["model"],
+            base_url=cfg["base_url"],
+            api_key=cfg["api_key"],
+            temperature=0.1,
+        )
 
     is_crypto = report.asset_category == AssetCategory.CRYPTO
     is_pos = report.ticker in {'ETH', 'SOL', 'BNB'}
@@ -848,17 +860,24 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
 
 只返回 JSON，不要 markdown 代码块包裹。
 """
-    logger.info(f"  LLM 请求: model={cfg['model']}, prompt={len(prompt):,} chars")
+    if opencode_client:
+        logger.info(f"  OpenCode LLM 请求: prompt={len(prompt):,} chars")
+    else:
+        logger.info(f"  LLM 请求: model={cfg['model']}, prompt={len(prompt):,} chars")
     logger.info(f"  注入真实数据: {len(real_data_prompt):,} chars")
 
     try:
-        response = llm.invoke(prompt, timeout=300)
-        elapsed = time.time() - t0
-        token_usage = getattr(response, 'response_metadata', {})
-        logger.info(f"  LLM 响应: {elapsed:.1f}s, tokens={token_usage}")
-
-        content = response.content.strip()
-        logger.info(f"  原始响应长度: {len(content):,} chars")
+        if opencode_client:
+            content = opencode_client.invoke(prompt, model="deepseek-v4-pro", temperature=0.1)
+            elapsed = time.time() - t0
+            logger.info(f"  OpenCode LLM 响应: {elapsed:.1f}s, length={len(content):,} chars")
+        else:
+            response = llm.invoke(prompt, timeout=300)
+            elapsed = time.time() - t0
+            token_usage = getattr(response, 'response_metadata', {})
+            logger.info(f"  LLM 响应: {elapsed:.1f}s, tokens={token_usage}")
+            content = response.content.strip()
+            logger.info(f"  原始响应长度: {len(content):,} chars")
 
         if content.startswith("```"):
             parts = content.split("```")
@@ -879,7 +898,7 @@ def run_llm_with_real_data(report: StockReport, real_data_prompt: str,
         return report
 
 
-def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
+def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: bool = False) -> Optional[str]:
     """运行完整分析流程
 
     Args:
@@ -1010,7 +1029,7 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
     # Stage 3: LLM with real data
     logger.info("[Stage 3: LLM] 注入真实数据生成报告")
     real_data_prompt = build_real_data_prompt(company_name, report.ticker, prices, rankings)
-    report = run_llm_with_real_data(report, real_data_prompt, logger)
+    report = run_llm_with_real_data(report, real_data_prompt, logger, use_opencode_llm=use_opencode_llm)
 
     # LLM 失败检测: 如果 report 仍为空壳（无 charts、无 verdict），跳过 render
     charts = getattr(report, 'charts', None)
@@ -1057,10 +1076,14 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('用法: python -m tools.pipeline <公司名> [--dry-run]')
+        print('用法: python -m tools.pipeline <公司名> [--dry-run] [--use-opencode-llm]')
         print('      python -m tools.pipeline index     # 再生index.html')
         print('      python -m tools.pipeline watch     # 监听分析输出并自动重建index.html')
         print('      python -m tools.pipeline validate <报告路径>')
+        print('')
+        print('选项:')
+        print('  --dry-run             不调用 LLM，仅验证数据流')
+        print('  --use-opencode-llm    通过 IPC 调用 OpenCode Agent 的 LLM（而非直接 API）')
         sys.exit(1)
     if sys.argv[1] == 'index':
         from tools.index_generator import regenerate
@@ -1086,4 +1109,5 @@ if __name__ == '__main__':
         sys.exit(0 if passed else 1)
     company = sys.argv[1]
     dry = '--dry-run' in sys.argv
-    run_analysis(company, dry_run=dry)
+    use_opencode = '--use-opencode-llm' in sys.argv
+    run_analysis(company, dry_run=dry, use_opencode_llm=use_opencode)
