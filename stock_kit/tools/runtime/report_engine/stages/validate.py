@@ -200,6 +200,17 @@ def validate_data_sanity(html_path: str) -> list[str]:
     if roic_match and roic_match.group(1) == '0%':
         issues.append('ROIC 为 0%, 疑似未填充')
 
+    # 关键指标存在性检查: 确保四层排名所需的核心数据已渲染
+    required_indicators = [
+        ('EBIT/EV', r'EBIT[/\s]*EV|EBIT/EV'),
+        ('ROIC', r'ROIC'),
+        ('F-Score', r'F-Score|Piotroski'),
+        ('PEG', r'PEG'),
+    ]
+    for label, pattern in required_indicators:
+        if not re.search(pattern, content, re.IGNORECASE):
+            issues.append(f'HTML 缺少关键指标: {label}')
+
     return issues
 
 

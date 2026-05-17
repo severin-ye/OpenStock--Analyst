@@ -30,6 +30,7 @@ from tools.runtime.report_engine.stages.render import render_to_file
 from tools.fetcher import fetch_all_8, fetch_yfinance, fetch_crypto_public, PriceSnapshot, TICKER_MAP, YF_TICKER_MAP
 from tools.market_data import source_chain_summary
 from tools.ranker import compute_greenblatt, compute_crypto_ranking, compute_pos_crypto_ranking, RankingResult, apply_cross_asset_scores
+from tools.company_registry import ticker_to_name_zh
 
 BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent.parent)))
 LOG_DIR = BASE_DIR / '.sisyphus' / 'pipeline_logs'
@@ -40,6 +41,10 @@ def build_logger(company_name: str) -> logging.Logger:
     log_filename = LOG_DIR / f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{company_name}.log"
     logger = logging.getLogger(f'pipeline.{company_name}')
     logger.setLevel(logging.DEBUG)
+
+    # 清理旧 handler，避免多次调用时 handler 累积导致日志重复输出
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
 
     fh = logging.FileHandler(log_filename, encoding='utf-8')
     fh.setLevel(logging.DEBUG)
@@ -57,20 +62,8 @@ def build_logger(company_name: str) -> logging.Logger:
     return logger
 
 
-TICKER_NAME_MAP = {
-    'NVDA': '英伟达', 'AAPL': '苹果', 'INTC': '英特尔', 'TSLA': '特斯拉',
-    'AMD': '超微半导体', 'MU': '美光', '1810.HK': '小米', 'BTC': '比特币',
-    'LLY': '礼来', 'AVGO': '博通', '000660.KS': 'SK海力士',
-    '005930.KS': '三星电子', '207940.KS': '三星生物制药', '005380.KS': '现代汽车',
-    '0700.HK': '腾讯', '9988.HK': '阿里巴巴', '3690.HK': '美团', '1211.HK': '比亚迪',
-    '7203.T': '丰田', '6758.T': '索尼', '9984.T': '软银集团',
-    'ETH': '以太坊', 'SOL': 'Solana', 'BNB': 'BNB',
-    '688256.SS': '寒武纪',
-}
-
-
 def has_report_for_ticker(ticker: str) -> bool:
-    company_name = TICKER_NAME_MAP.get(ticker, ticker)
+    company_name = ticker_to_name_zh().get(ticker, ticker)
     report_dir = BASE_DIR / '分析输出' / company_name
     return report_dir.is_dir() and any(report_dir.glob('*.html'))
 
@@ -147,7 +140,7 @@ def build_real_data_prompt(company_name: str, ticker: str, prices: dict[str, Pri
     if not info:
         return ""
 
-    name_map = TICKER_NAME_MAP
+    name_map = ticker_to_name_zh()
 
     lines = [f"""
 ## ⚠️ 反幻觉规则 — 必须遵守
@@ -609,7 +602,7 @@ def apply_authoritative_report_data(report: StockReport, price_info: PriceSnapsh
     for t, p in prices.items():
         val = parse_number(p.forward_pe)
         if val is not None and val > 0:
-            peer_labels.append(TICKER_NAME_MAP.get(t, t))
+            peer_labels.append(ticker_to_name_zh().get(t, t))
             peer_data.append(round(val, 2))
     if peer_labels and peer_data:
         replace_chart(report, ChartDef(
@@ -1005,6 +998,12 @@ def run_analysis(company_name: str, dry_run: bool = False) -> Optional[str]:
     logger.info("[Stage 3: LLM] 注入真实数据生成报告")
     real_data_prompt = build_real_data_prompt(company_name, report.ticker, prices, rankings)
     report = run_llm_with_real_data(report, real_data_prompt, logger)
+
+    # LLM 失败检测: 如果 report 仍为空壳（无 charts、无 verdict），跳过 render
+    if not report.charts and not report.company_overview:
+        logger.error("  LLM 返回空报告，跳过 render。请检查 API 配置或网络连接。")
+        return None
+
     report = apply_authoritative_report_data(report, my_data, rankings.get(ticker), prices, logger)
     report = apply_real_price_history(report, my_data, logger)
 

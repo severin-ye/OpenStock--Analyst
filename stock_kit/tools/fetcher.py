@@ -10,6 +10,7 @@
 公司映射从 company_registry 统一读取 (Single Source of Truth)。
 """
 
+import concurrent.futures
 import json
 import os
 import re
@@ -107,6 +108,18 @@ for alias, canonical in _ALIASES.items():
 TICKER_TO_NAME: dict[str, str] = ticker_to_name_zh()
 
 
+def _fetch_ticker_info(symbol: str, timeout: int = 30) -> dict | None:
+    """获取单个 ticker 的 info，带超时保护"""
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(lambda: yf.Ticker(symbol).info)
+            return future.result(timeout=timeout)
+    except concurrent.futures.TimeoutError:
+        return None
+    except Exception:
+        return None
+
+
 def fetch_yfinance(symbols: list[str] | None = None, logger=None) -> dict[str, PriceSnapshot]:
     """纯 Python 实时采集 yfinance (无 AI 依赖)
 
@@ -124,7 +137,11 @@ def fetch_yfinance(symbols: list[str] | None = None, logger=None) -> dict[str, P
 
     for sym in syms:
         try:
-            info = yf.Ticker(sym).info
+            info = _fetch_ticker_info(sym)
+            if info is None:
+                if log:
+                    log.warning(f"  yfinance 采集 {sym} 超时，跳过")
+                continue
             internal_key = YF_TICKER_MAP.get(sym, sym)
             cur = info.get('currency', 'USD')
             cur_symbol = {'USD': '$', 'HKD': 'HK$', 'JPY': '¥', 'KRW': '₩', 'CNY': '¥'}.get(cur, '$')

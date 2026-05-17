@@ -85,7 +85,7 @@ def _equity_layer_scores(info: PriceSnapshot) -> dict[str, float]:
             (0.0, 1.0), (5.0, 3.0), (10.0, 5.0), (20.0, 7.5), (30.0, 9.0), (50.0, 10.0),
         ]),
         "L3": _score_linear(info.f_score, 9),
-        "L4": _score_from_anchors(info.peg_num, [
+        "L4": NEUTRAL_SCORE_10 if (info.peg_num is not None and info.peg_num < 0) else _score_from_anchors(info.peg_num, [
             (0.0, 10.0), (0.5, 9.0), (1.0, 8.0), (2.0, 5.0), (3.0, 3.0), (4.0, 1.0),
         ]),
     }
