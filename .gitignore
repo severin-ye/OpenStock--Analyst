@@ -1,6 +1,10 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
 
 # Node
 node_modules/
@@ -17,4 +21,36 @@ Thumbs.db
 *.tmp
 *.log
 /tmp/
+
+# Virtual environment
 .venv/
+
+# Secrets & environment
+.env
+*.key
+secrets/
+
+# Runtime cache & generated data
+stock_kit/data/prices.json
+stock_kit/data/companies.json
+
+# Session data
+.sisyphus/
+
+# Generated output (auto-created by pipeline)
+index.html
+分析输出/**/*.html
+分析输出/**/*.md
+
+# Pytest cache
+.pytest_cache/
+
+# MyPy cache
+.mypy_cache/
+
+# Ruff cache
+.ruff_cache/
+
+# Coverage
+.coverage
+htmlcov/
