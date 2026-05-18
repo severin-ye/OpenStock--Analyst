@@ -55,6 +55,14 @@ def load_config() -> dict:
 
 PREFERRED_LLM_ORDER = ["deepseek-v4-pro", "deepseek-v4-flash", "deepseek-v3.2", "qwen3.6-plus"]
 
+# 支持通过环境变量覆盖模型选择
+# 用法: export LLM_MODEL=kimi-k2 或 export LLM_MODEL=deepseek-v4-pro
+ENV_OVERRIDES = {
+    "model": os.environ.get("LLM_MODEL"),
+    "base_url": os.environ.get("LLM_BASE_URL"),
+    "api_key": os.environ.get("LLM_API_KEY"),
+}
+
 
 def get_llm_config() -> dict:
     """获取 LLM 配置 — 环境变量优先，opencode.jsonc 次之
@@ -121,6 +129,19 @@ def get_llm_config() -> dict:
             base_url = base_url.rstrip("/") + "/v1"
 
         models = prov_data.get("models", {})
+        
+        # 检查是否有环境变量覆盖模型选择
+        env_model = os.environ.get("LLM_MODEL")
+        if env_model and env_model in models:
+            logger.info(f"使用环境变量指定的模型: {env_model} (provider: {prov_name})")
+            return {
+                "api_key": api_key,
+                "base_url": base_url,
+                "model": env_model,
+                "provider_model_id": env_model,
+                "provider_name": prov_name,
+            }
+        
         for preferred in PREFERRED_LLM_ORDER:
             if preferred in models:
                 logger.info(f"使用 OpenCode provider: {prov_name}, model: {preferred}")

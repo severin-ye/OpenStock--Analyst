@@ -13,6 +13,7 @@
 import concurrent.futures
 import json
 import re
+import time
 import urllib.request
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -140,6 +141,8 @@ def fetch_yfinance(symbols: list[str] | None = None, logger=None) -> dict[str, P
 
     for sym in syms:
         try:
+            # 限流保护: 每个 ticker 请求间隔 1.5 秒，避免并发轰炸 yfinance
+            time.sleep(1.5)
             info = _fetch_ticker_info(sym)
             if info is None:
                 if log:
@@ -406,6 +409,8 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
 
     results: dict[str, PriceSnapshot] = {}
     try:
+        # 限流保护: CoinGecko 请求前等待 2 秒
+        time.sleep(2.0)
         url = (
             "https://api.coingecko.com/api/v3/simple/price"
             f"?ids={coin_ids}&vs_currencies=usd&include_market_cap=true"
@@ -468,6 +473,8 @@ def fetch_crypto_public(symbols: list[str] | None = None, logger=None) -> dict[s
     # ── ETH staking: CoinGecko circulating supply + known deposit contract ratio ──
     if "ETH" in results:
         try:
+            # 限流保护: ETH staking 请求前等待 2 秒
+            time.sleep(2.0)
             coin_data = _fetch_json(
                 "https://api.coingecko.com/api/v3/coins/ethereum?localization=false&tickers=false"
                 "&community_data=false&developer_data=false&sparkline=false"

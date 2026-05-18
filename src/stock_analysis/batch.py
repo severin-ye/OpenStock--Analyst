@@ -3,6 +3,17 @@
 使用 multiprocessing 实现真正的进程隔离，每个公司独立的:
 - scaffold → fetch → rank → LLM → render → validate
 
+并发回退策略:
+  1. 初始: 3家公司并行 (预留1 slot给主对话)
+  2. 如果遇到 429/insufficient_quota: 回退到 2家并行
+  3. 如果还遇到: 回退到 1家串行
+  4. 如果还遇到: 报错停止
+
+限流保护:
+  - 数据源请求间隔: yfinance 1.5s, CoinGecko 2s
+  - LLM API 请求间隔: 1s
+  - 避免并发进程同时轰炸同一数据源
+
 用法:
     from stock_analysis.batch import run_batch_analysis
     results = run_batch_analysis(["英伟达", "苹果", "特斯拉"])
@@ -92,11 +103,40 @@ class BatchSummary:
         }
 
 
-def _run_single_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: bool = False) -> BatchResult:
+def _is_rate_limit_error(error_msg: str) -> bool:
+    """判断错误是否是 API 限流错误"""
+    if not error_msg:
+        return False
+    rate_limit_keywords = [
+        "429",
+        "insufficient_quota",
+        "RateLimitError",
+        "Too Many Requests",
+        "rate limited",
+        "quota",
+    ]
+    error_lower = error_msg.lower()
+    return any(kw.lower() in error_lower for kw in rate_limit_keywords)
+
+
+def _run_single_analysis(
+    company_name: str,
+    dry_run: bool = False,
+    use_opencode_llm: bool = False,
+    process_delay: float = 0.0,
+) -> BatchResult:
     """在独立进程中运行单个公司的完整分析
 
-    每个进程有完全独立的内存空间，上下文不共享。
+    Args:
+        company_name: 公司中文名
+        dry_run: 是否跳过 LLM
+        use_opencode_llm: 是否使用 OpenCode LLM IPC
+        process_delay: 进程启动延迟(秒)，用于错峰请求
     """
+    # 错峰启动，避免所有进程同时请求数据源
+    if process_delay > 0:
+        time.sleep(process_delay)
+
     t0 = time.time()
     result = BatchResult(company_name=company_name)
 
@@ -126,6 +166,207 @@ def _run_single_analysis(company_name: str, dry_run: bool = False, use_opencode_
         result.success = False
 
     return result
+
+
+def _run_batch_chunk(
+    chunk: list[str],
+    chunk_index: int,
+    total_chunks: int,
+    dry_run: bool,
+    use_opencode_llm: bool,
+    delay_between_processes: float = 1.5,
+) -> list[BatchResult]:
+    """执行一批公司分析（单进程串行或最多3进程并行）
+
+    Args:
+        chunk: 公司名列表
+        chunk_index: 当前块序号(从1开始)
+        total_chunks: 总块数
+        dry_run: 是否跳过 LLM
+        use_opencode_llm: 是否使用 OpenCode LLM
+        delay_between_processes: 进程间启动延迟(秒)
+
+    Returns:
+        该批次的分析结果列表
+    """
+    chunk_size = len(chunk)
+
+    print(f"\n📦 批次 {chunk_index}/{total_chunks}: {', '.join(chunk)} ({chunk_size}家)")
+    print(f"   并行度: {chunk_size} 进程")
+    print("-" * 60)
+
+    results = []
+
+    # 使用进程池，但限制并发数
+    with mp.Pool(processes=chunk_size) as pool:
+        # 异步提交任务，每个进程错峰启动
+        async_results = []
+        for i, name in enumerate(chunk):
+            # 每个进程错峰 delay_between_processes 秒
+            process_delay = i * delay_between_processes
+            ar = pool.apply_async(
+                _run_single_analysis,
+                (name, dry_run, use_opencode_llm, process_delay),
+            )
+            async_results.append((name, ar))
+
+        # 收集结果
+        for name, ar in async_results:
+            try:
+                result = ar.get(timeout=600)  # 10分钟超时
+                results.append(result)
+                status = "✅" if result.success else "❌"
+                print(f"  {status} {result.company_name} ({result.elapsed_seconds:.1f}s)")
+                if result.error:
+                    print(f"      错误: {result.error[:150]}")
+            except Exception as e:
+                print(f"  ❌ {name} (超时/异常: {e})")
+                results.append(
+                    BatchResult(
+                        company_name=name,
+                        success=False,
+                        error=f"Pool timeout: {e}",
+                    )
+                )
+
+    return results
+
+
+def _check_batch_for_rate_limit(results: list[BatchResult]) -> bool:
+    """检查批次中是否有因限流导致的失败
+
+    Returns:
+        True: 有限流错误，需要降级并发
+        False: 没有限流错误
+    """
+    for r in results:
+        if not r.success and _is_rate_limit_error(r.error):
+            return True
+    return False
+
+
+def run_batch_analysis(
+    company_names: list[str],
+    dry_run: bool = False,
+    use_opencode_llm: bool = False,
+    max_workers: Optional[int] = None,
+) -> BatchSummary:
+    """并行分析多家公司 — 带并发回退和限流保护
+
+    并发策略:
+      1. 初始每批3家并行 (预留1 slot给主对话)
+      2. 如遇429/限流 → 回退到每批2家
+      3. 如遇429/限流 → 回退到每批1家(串行)
+      4. 如遇429/限流 → 报错停止
+
+    限流保护:
+      - 每个进程启动间隔 1.5s，避免同时请求数据源
+      - 子进程内部也有数据源请求间隔保护
+
+    Args:
+        company_names: 公司中文名列表
+        dry_run: 是否跳过 LLM 调用
+        use_opencode_llm: 是否使用 OpenCode LLM
+        max_workers: 最大并行进程数（已废弃，由内部策略控制）
+
+    Returns:
+        BatchSummary: 批次分析结果汇总
+    """
+    if not company_names:
+        raise ValueError("company_names 不能为空")
+
+    batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    summary = BatchSummary(batch_id=batch_id, start_time=datetime.now())
+
+    print(f"🚀 批量分析启动: {len(company_names)} 家公司")
+    print(f"   公司: {', '.join(company_names)}")
+    print(f"   策略: 3→2→1 渐进回退 (遇到限流自动降级)")
+    print(f"   批次ID: {batch_id}")
+    print("=" * 60)
+
+    t0 = time.time()
+
+    # 并发策略: 3→2→1
+    concurrency_levels = [3, 2, 1]
+    current_concurrency_idx = 0
+
+    all_results: list[BatchResult] = []
+    remaining_companies = company_names.copy()
+
+    while remaining_companies and current_concurrency_idx < len(concurrency_levels):
+        concurrency = concurrency_levels[current_concurrency_idx]
+
+        # 按并发数分块
+        chunks = []
+        for i in range(0, len(remaining_companies), concurrency):
+            chunks.append(remaining_companies[i : i + concurrency])
+
+        print(f"\n🔧 当前并发策略: 每批 {concurrency} 家公司")
+
+        batch_has_rate_limit = False
+        new_remaining = []
+
+        for chunk_idx, chunk in enumerate(chunks, 1):
+            # 执行当前块
+            chunk_results = _run_batch_chunk(
+                chunk=chunk,
+                chunk_index=chunk_idx,
+                total_chunks=len(chunks),
+                dry_run=dry_run,
+                use_opencode_llm=use_opencode_llm,
+                delay_between_processes=1.5,  # 每个进程错峰1.5秒
+            )
+
+            all_results.extend(chunk_results)
+
+            # 检查是否有因限流失败的
+            if _check_batch_for_rate_limit(chunk_results):
+                batch_has_rate_limit = True
+                # 收集失败的公司，放入下一轮重试
+                for r in chunk_results:
+                    if not r.success and _is_rate_limit_error(r.error):
+                        new_remaining.append(r.company_name)
+            else:
+                # 这 chunk 没有限流错误，成功或失败的都保留
+                for r in chunk_results:
+                    if not r.success:
+                        # 非限流错误，记录但不重试
+                        error_msg = r.error or "未知错误"
+                        print(f"      ⚠️ {r.company_name} 非限流错误，不重试: {error_msg[:100]}")
+
+        # 检查是否需要降级并发
+        if batch_has_rate_limit and current_concurrency_idx < len(concurrency_levels) - 1:
+            current_concurrency_idx += 1
+            remaining_companies = new_remaining
+            print(f"\n⚠️ 检测到限流错误，降级并发: {concurrency_levels[current_concurrency_idx - 1]} → {concurrency_levels[current_concurrency_idx]}")
+            print(f"   需要重试的公司: {', '.join(remaining_companies)}")
+        elif batch_has_rate_limit and current_concurrency_idx == len(concurrency_levels) - 1:
+            # 已经降级到1家，还有限流，停止
+            print(f"\n❌ 串行模式下仍有限流错误，停止分析")
+            print(f"   失败的公司: {', '.join(new_remaining)}")
+            break
+        else:
+            # 没有限流错误，全部完成
+            remaining_companies = []
+
+    summary.results = all_results
+    summary.end_time = datetime.now()
+    summary.total_elapsed = time.time() - t0
+    summary.success_count = sum(1 for r in all_results if r.success)
+    summary.failure_count = len(all_results) - summary.success_count
+
+    # 生成汇总页
+    _generate_batch_summary_html(summary)
+
+    # 保存 JSON 汇总
+    _save_batch_summary_json(summary)
+
+    print("\n" + "=" * 60)
+    print(f"✅ 批量分析完成: {summary.success_count}/{len(company_names)} 成功")
+    print(f"   总耗时: {summary.total_elapsed:.1f}s")
+    print(f"   汇总页: 分析输出/批次汇总/{summary.batch_id}_汇总报告.html")
+
+    return summary
 
 
 def _extract_metrics_from_html(result: BatchResult, html_path: str) -> None:
@@ -165,105 +406,22 @@ def _extract_metrics_from_html(result: BatchResult, html_path: str) -> None:
             result.action = action_match.group(1).upper()
 
         # 提取 EBIT/EV
-        ebit_ev_match = re.search(r'EBIT/EV[:\s]*([\d\.%\-—]+)', html_content)
+        ebit_ev_match = re.search(r'EBIT/EV[:\s]*([\d\.\%\-—]+)', html_content)
         if ebit_ev_match:
             result.ebit_ev = ebit_ev_match.group(1)
 
         # 提取 ROIC
-        roic_match = re.search(r'ROIC[:\s]*([\d\.%\-—]+)', html_content)
+        roic_match = re.search(r'ROIC[:\s]*([\d\.\%\-—]+)', html_content)
         if roic_match:
             result.roic = roic_match.group(1)
 
         # 提取 PEG
-        peg_match = re.search(r'PEG[:\s]*([\d\.%\-—xX]+)', html_content)
+        peg_match = re.search(r'PEG[:\s]*([\d\.\%\-—xX]+)', html_content)
         if peg_match:
             result.peg = peg_match.group(1)
 
     except Exception:
         pass
-
-
-def run_batch_analysis(
-    company_names: list[str],
-    dry_run: bool = False,
-    use_opencode_llm: bool = False,
-    max_workers: Optional[int] = None,
-) -> BatchSummary:
-    """并行分析多家公司
-
-    Args:
-        company_names: 公司中文名列表
-        dry_run: 是否跳过 LLM 调用
-        use_opencode_llm: 是否使用 OpenCode LLM
-        max_workers: 最大并行进程数（默认 CPU 核心数）
-
-    Returns:
-        BatchSummary: 批次分析结果汇总
-    """
-    if not company_names:
-        raise ValueError("company_names 不能为空")
-
-    batch_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    summary = BatchSummary(batch_id=batch_id, start_time=datetime.now())
-
-    print(f"🚀 批量分析启动: {len(company_names)} 家公司")
-    print(f"   公司: {', '.join(company_names)}")
-    print(f"   并行度: {max_workers or mp.cpu_count()} 进程")
-    print(f"   批次ID: {batch_id}")
-    print("-" * 60)
-
-    t0 = time.time()
-
-    # 使用进程池实现真正的隔离
-    # 每个公司一个进程，上下文完全独立
-    if max_workers is None:
-        max_workers = min(len(company_names), mp.cpu_count())
-
-    results = []
-    with mp.Pool(processes=max_workers) as pool:
-        # 异步提交所有任务
-        async_results = [
-            pool.apply_async(_run_single_analysis, (name, dry_run, use_opencode_llm))
-            for name in company_names
-        ]
-
-        # 收集结果（带进度显示）
-        for i, ar in enumerate(async_results, 1):
-            try:
-                result = ar.get(timeout=600)  # 10分钟超时
-                results.append(result)
-                status = "✅" if result.success else "❌"
-                print(f"[{i}/{len(company_names)}] {status} {result.company_name} ({result.elapsed_seconds:.1f}s)")
-                if result.error:
-                    print(f"      错误: {result.error[:200]}")
-            except Exception as e:
-                print(f"[{i}/{len(company_names)}] ❌ {company_names[i-1]} (超时/异常: {e})")
-                results.append(
-                    BatchResult(
-                        company_name=company_names[i - 1],
-                        success=False,
-                        error=f"Pool timeout: {e}",
-                    )
-                )
-
-    summary.results = results
-    summary.end_time = datetime.now()
-    summary.total_elapsed = time.time() - t0
-    summary.success_count = sum(1 for r in results if r.success)
-    summary.failure_count = len(results) - summary.success_count
-
-    # 生成汇总页
-    _generate_batch_summary_html(summary)
-
-    # 保存 JSON 汇总
-    _save_batch_summary_json(summary)
-
-    print("-" * 60)
-    print(f"✅ 批量分析完成: {summary.success_count}/{len(company_names)} 成功")
-    print(f"   总耗时: {summary.total_elapsed:.1f}s")
-    print(f"   汇总页: 分析输出/批次汇总/{summary.batch_id}_汇总报告.html")
-
-    return summary
 
 
 def _generate_batch_summary_html(summary: BatchSummary) -> str:

@@ -315,9 +315,9 @@ class TestRunBatchAnalysis:
 
         run_batch_analysis(["英伟达"], dry_run=True, use_opencode_llm=True, max_workers=1)
 
-        # 验证 dry_run 和 use_opencode_llm 被传递
+        # 验证 dry_run 和 use_opencode_llm 被传递 (加上 process_delay)
         call_args = mock_pool.apply_async.call_args
-        assert call_args[0][1] == ("英伟达", True, True)  # name, dry_run, use_opencode_llm
+        assert call_args[0][1] == ("英伟达", True, True, 0.0)  # name, dry_run, use_opencode_llm, process_delay
 
 
 class TestIntegration:
