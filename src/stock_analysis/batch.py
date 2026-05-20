@@ -19,7 +19,6 @@
     results = run_batch_analysis(["英伟达", "苹果", "特斯拉"])
 """
 
-import logging
 import multiprocessing as mp
 import os
 import sys
@@ -280,7 +279,7 @@ def run_batch_analysis(
 
     print(f"🚀 批量分析启动: {len(company_names)} 家公司")
     print(f"   公司: {', '.join(company_names)}")
-    print(f"   策略: 3→2→1 渐进回退 (遇到限流自动降级)")
+    print("   策略: 3→2→1 渐进回退 (遇到限流自动降级)")
     print(f"   批次ID: {batch_id}")
     print("=" * 60)
 
@@ -342,7 +341,7 @@ def run_batch_analysis(
             print(f"   需要重试的公司: {', '.join(remaining_companies)}")
         elif batch_has_rate_limit and current_concurrency_idx == len(concurrency_levels) - 1:
             # 已经降级到1家，还有限流，停止
-            print(f"\n❌ 串行模式下仍有限流错误，停止分析")
+            print("\n❌ 串行模式下仍有限流错误，停止分析")
             print(f"   失败的公司: {', '.join(new_remaining)}")
             break
         else:
@@ -426,10 +425,6 @@ def _extract_metrics_from_html(result: BatchResult, html_path: str) -> None:
 
 def _generate_batch_summary_html(summary: BatchSummary) -> str:
     """生成批次汇总 HTML 页"""
-    from stock_analysis.registry import ticker_to_name_zh
-
-    name_map = ticker_to_name_zh()
-
     # 按综合排名排序
     sorted_results = sorted(
         summary.results,
@@ -480,7 +475,8 @@ def _generate_batch_summary_html(summary: BatchSummary) -> str:
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{--navy:#0f172a;--blue:#2563eb;--green:#059669;--red:#dc2626;--amber:#d97706;--slate:#64748b;--border:#e2e8f0;--bg:#f8fafc;--white:#fff}}
-body{{font-family:-apple-system,BlinkMacSystemFont,'Inter','PingFang SC',sans-serif;background:var(--bg);color:var(--navy);font-size:14px;line-height:1.6}}
+body{{font-family:-apple-system,BlinkMacSystemFont,'Inter','PingFang SC',sans-serif;
+  background:var(--bg);color:var(--navy);font-size:14px;line-height:1.6}}
 .wrap{{max-width:1200px;margin:0 auto;padding:40px 24px}}
 h1{{font-size:28px;font-weight:800;margin-bottom:4px}}
 .sub{{font-size:13px;color:var(--slate);margin-bottom:32px}}
@@ -489,7 +485,8 @@ h1{{font-size:28px;font-weight:800;margin-bottom:4px}}
 .stat-card .num{{font-size:36px;font-weight:800;color:var(--blue)}}
 .stat-card .label{{font-size:12px;color:var(--slate);margin-top:4px}}
 table{{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden}}
-th{{background:#f1f5f9;padding:12px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.5px}}
+th{{background:#f1f5f9;padding:12px 16px;text-align:left;font-size:11px;
+  font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:.5px}}
 td{{padding:12px 16px;border-bottom:1px solid #f1f5f9}}
 tr:hover td{{background:#fafbff}}
 tr:last-child td{{border-bottom:none}}

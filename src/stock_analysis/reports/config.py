@@ -129,7 +129,7 @@ def get_llm_config() -> dict:
             base_url = base_url.rstrip("/") + "/v1"
 
         models = prov_data.get("models", {})
-        
+
         # 检查是否有环境变量覆盖模型选择
         env_model = os.environ.get("LLM_MODEL")
         if env_model and env_model in models:
@@ -141,7 +141,7 @@ def get_llm_config() -> dict:
                 "provider_model_id": env_model,
                 "provider_name": prov_name,
             }
-        
+
         for preferred in PREFERRED_LLM_ORDER:
             if preferred in models:
                 logger.info(f"使用 OpenCode provider: {prov_name}, model: {preferred}")
