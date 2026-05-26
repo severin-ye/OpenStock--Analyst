@@ -119,11 +119,11 @@ def test_s3_has_text(company):
 def test_four_layer_ranking(company):
     path = BASE / company / f'{REPORT_DATE}_综合分析报告.html'
     html = path.read_text(encoding='utf-8')
-    # 旧报告可能不含四层排名，跳过
-    if 'L1' not in html:
-        pytest.skip(f'{company} 为旧格式报告，不含四层排名')
-    # 某些报告可能只有部分层（如加密资产缺 L4）
-    missing = [layer for layer in ['L1', 'L2', 'L3', 'L4'] if layer not in html]
+    # 检测结构化排名表 (Jinja2 渲染的 <td>L1</td> 而非正文内联 (L1))
+    has_structured_l1 = bool(re.search(r'<t[dh][^>]*>\s*L1\s*</t[dh]>', html))
+    if not has_structured_l1:
+        pytest.skip(f'{company} 为旧格式报告，不含结构化四层排名表')
+    missing = [layer for layer in ['L1', 'L2', 'L3', 'L4'] if not re.search(f'<t[dh][^>]*>\\s*{layer}\\s*</t[dh]>', html)]
     if missing:
         pytest.skip(f'{company} 排名表缺少层: {", ".join(missing)}')
 
@@ -132,9 +132,11 @@ def test_four_layer_ranking(company):
 def test_ranking_has_weights(company):
     path = BASE / company / f'{REPORT_DATE}_综合分析报告.html'
     html = path.read_text(encoding='utf-8')
-    if '40%' not in html:
-        pytest.skip(f'{company} 为旧格式报告，不含权重')
-    missing = [w for w in ['40%', '25%', '10%'] if w not in html]
+    # 检测权重仅限表格单元格内的百分比 (如 <td>40%</td> 而非正文 37.40%)
+    has_structured_weight = bool(re.search(r'<t[dh][^>]*>\s*40%\s*</t[dh]>', html))
+    if not has_structured_weight:
+        pytest.skip(f'{company} 为旧格式报告，排名表不含结构化权重标注')
+    missing = [w for w in ['40%', '25%', '10%'] if not re.search(f'<t[dh][^>]*>\\s*{w}\\s*</t[dh]>', html)]
     if missing:
         pytest.skip(f'{company} 排名表缺少权重: {", ".join(missing)}')
 
@@ -143,8 +145,10 @@ def test_ranking_has_weights(company):
 def test_ranking_has_composite(company):
     path = BASE / company / f'{REPORT_DATE}_综合分析报告.html'
     html = path.read_text(encoding='utf-8')
-    if '加权综合' not in html:
-        pytest.skip(f'{company} 为旧格式报告，不含综合排名')
+    # 检测表格单元格内的&quot;加权综合&quot;行 (非正文描述)
+    has_composite_row = bool(re.search(r'<t[dh][^>]*>.*加权综合.*</t[dh]>', html))
+    if not has_composite_row:
+        pytest.skip(f'{company} 为旧格式报告，不含结构化综合排名行')
     assert '综合排名' in html or 'composite' in html.lower(), f'{company} 缺少综合排名显示'
 
 
