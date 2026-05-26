@@ -102,7 +102,7 @@ class BatchSummary:
         }
 
 
-def _is_rate_limit_error(error_msg: str) -> bool:
+def _is_rate_limit_error(error_msg: Optional[str]) -> bool:
     """判断错误是否是 API 限流错误"""
     if not error_msg:
         return False
