@@ -57,16 +57,20 @@ Stage 6:   index     → 重建 index.html 排名总览
 ## 核心命令
 
 ```bash
-# 完整分析（fetch → rank → LLM → render → validate）
+# 完整分析（fetch → rank → LLM → render → validate，默认 API 模式）
 stock-analysis <公司中文名>
 
-# 等价的 python3 -m 调用
-PYTHONPATH="src" python3 -m stock_analysis.cli <公司中文名>
+# 使用 OpenCode Agent IPC 模式调用 LLM（仅限单公司、交互式终端）
+stock-analysis <公司中文名> --use-opencode-llm
+
+# 或通过环境变量持久化选择:
+export LLM_MODE=opencode   # 永久使用 OpenCode IPC
+export LLM_MODE=api        # 永久使用直接 API（默认）
 
 # Dry-run（fetch + rank，不调用 LLM，验证数据管道）
 stock-analysis <公司中文名> --dry-run
 
-# 顺序批量分析 (3+ 家公司)
+# 顺序批量分析 (3+ 家公司，自动强制 API 模式)
 stock-analysis batch <公司1> <公司2> <公司3> ...
 
 # 重新生成 index.html 排名总览
@@ -77,7 +81,19 @@ stock-analysis watch
 
 # 验证 HTML 报告
 stock-analysis validate <报告路径>
+
+# 等价的 python3 -m 调用
+PYTHONPATH="src" python3 -m stock_analysis.cli <公司中文名>
 ```
+
+### LLM 双模式说明
+
+| 模式 | 触发方式 | 适用场景 | 限制 |
+|:---|:---|:---|:---|
+| **API 模式** (默认) | 不加参数，或 `LLM_MODE=api` | 所有场景：单公司、批量、CI | 需要配置 API key |
+| **OpenCode IPC** | `--use-opencode-llm` 或 `LLM_MODE=opencode` | 仅单公司、交互式终端 | 不支持批量（多进程 stdout 冲突），批量自动切回 API |
+
+环境变量优先级: `LLM_MODE` > `--use-opencode-llm` > 默认 API。
 
 ### 开发命令
 
@@ -222,8 +238,9 @@ PYTHONPATH="src" python3 -m stock_analysis.cli validate <报告路径>
 | "帮我提交git" / "提交一下" / "git commit" | 自动执行：查看变更 → 撰写详细提交消息 → 提交 → 推送 |
 
 **规则**:
+- **commit message 必须使用中文撰写**：subject 用中文，body 用中文，禁止英文 subject 和英文 highlights
+- 前缀遵循约定式提交：`feat:` / `fix:` / `refactor:` / `perf:` / `docs:` / `test:` / `build:` / `ci:` / `chore:` / `style:` / `revert:`（前缀本身用英文简写，冒号后内容用中文）
 - 只写详细版（不做选择题），格式统一（二级缩进 `  · `）
-- commit message 用中文，前缀遵循约定式提交（`feat:` / `fix:` 等）
 - 评分/数据变化标注 `旧值 → 新值`，括号附理由
 - 排序固定：项目级变更在前，公司按字母序在后
 - 提交后自动 `git push`，不询问

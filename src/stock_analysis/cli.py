@@ -1213,6 +1213,24 @@ def parse_company_names(argv: list[str]) -> list[str]:
     return names
 
 
+def _resolve_llm_mode(cli_flag: bool) -> bool:
+    """解析 LLM 调用模式: env var > CLI flag, env var 优先级最高
+
+    LLM_MODE 环境变量:
+      - "opencode": 使用 OpenCode Agent IPC (仅单公司、交互式环境可用)
+      - "api" 或未设置: 直接调用 LLM API (默认)
+
+    Returns:
+        True 表示使用 OpenCode IPC, False 表示使用 API
+    """
+    env_mode = os.environ.get("LLM_MODE", "").strip().lower()
+    if env_mode == "opencode":
+        return True
+    if env_mode == "api":
+        return False
+    return cli_flag
+
+
 def main():
     """CLI entry point"""
     if len(sys.argv) < 2 or sys.argv[1] in ("--help", "-h"):
@@ -1260,13 +1278,17 @@ def main():
         sys.exit(0 if passed else 1)
 
     if sys.argv[1] == "batch":
-        # 批量分析模式
+        # 批量分析模式 — 强制使用 API 模式（多进程 IPC 不可用）
         company_names = parse_company_names(sys.argv[1:])
         if not company_names:
             print("Usage: stock-analysis batch <company1> <company2> ...")
             sys.exit(1)
         dry = "--dry-run" in sys.argv
-        use_opencode = "--use-opencode-llm" in sys.argv
+        use_opencode = _resolve_llm_mode("--use-opencode-llm" in sys.argv)
+        if use_opencode:
+            print("⚠️  批量模式不支持 OpenCode IPC（多进程 stdout 冲突），强制切回 API 模式")
+            print("   提示: 设置 LLM_MODE=api 可以永久关闭此提示")
+            use_opencode = False
 
         from stock_analysis.batch import run_batch_analysis
 
@@ -1276,13 +1298,16 @@ def main():
     # 解析公司名称（支持多公司）
     company_names = parse_company_names(sys.argv)
     dry = "--dry-run" in sys.argv
-    use_opencode = "--use-opencode-llm" in sys.argv
+    use_opencode = _resolve_llm_mode("--use-opencode-llm" in sys.argv)
 
     if len(company_names) == 1:
         # 单公司：保持原有行为
         run_analysis(company_names[0], dry_run=dry, use_opencode_llm=use_opencode)
     elif len(company_names) > 1:
-        # 多公司：并行批量分析
+        # 多公司：顺序批量分析（非 batch 子命令时也走 batch）
+        if use_opencode:
+            print("⚠️  多公司分析不支持 OpenCode IPC（多进程 stdout 冲突），强制切回 API 模式")
+            use_opencode = False
         from stock_analysis.batch import run_batch_analysis
 
         run_batch_analysis(company_names, dry_run=dry, use_opencode_llm=use_opencode)

@@ -397,5 +397,5 @@ class TestIntegration:
 
         assert exc_info.value.code == 0
         mock_run_batch.assert_called_once_with(
-            ["英伟达", "苹果"], dry_run=True, use_opencode_llm=True
+            ["英伟达", "苹果"], dry_run=True, use_opencode_llm=False
         )

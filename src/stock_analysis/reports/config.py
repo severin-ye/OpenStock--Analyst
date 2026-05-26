@@ -1,9 +1,14 @@
 """配置模块 — 从环境变量或 opencode.jsonc 读取 LLM 配置
 
 支持:
-  - 环境变量优先: LLM_API_KEY, LLM_BASE_URL, LLM_MODEL
+  - 环境变量优先: LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, LLM_MODE
   - opencode.jsonc fallback (自动解析 JSONC 注释)
   - 百炼 Token Plan 统一 API / DeepSeek 直连
+
+LLM 调用模式 (LLM_MODE):
+  - "api" (默认): 直接调用 LLM API (langchain_openai)
+  - "opencode": 通过 OpenCode Agent IPC 调用 (文件 + stdout 标记)
+  可通过环境变量 LLM_MODE 或 --use-opencode-llm CLI 参数切换。
 
 架构说明:
   本项目作为 OpenCode Agent 的插件运行时，默认复用 OpenCode 的 LLM 配置
