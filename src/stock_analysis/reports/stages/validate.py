@@ -108,8 +108,8 @@ def validate_data_sanity(html_path: str) -> list[str]:
 
     content = html.read_text(encoding="utf-8")
 
-    stock_kit_dir = Path(__file__).resolve().parents[2]
-    prices_path = stock_kit_dir / "data" / "prices.json"
+    engine_dir = Path(__file__).resolve().parents[2]
+    prices_path = engine_dir / "data" / "prices.json"
     if not prices_path.exists():
         return ["prices.json 未找到，无法交叉验证数据"]
 

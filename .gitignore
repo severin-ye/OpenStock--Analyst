@@ -31,8 +31,8 @@ Thumbs.db
 secrets/
 
 # Runtime cache & generated data
-stock_kit/data/prices.json
-stock_kit/data/companies.json
+src/stock_analysis/data/prices.json
+data/companies.json
 
 # Session data
 .sisyphus/

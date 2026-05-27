@@ -14,7 +14,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # 3. 安装开发依赖
-pip install -r requirements.txt -r requirements-dev.txt
+pip install -e ".[dev]"
 ```
 
 ## 代码规范
@@ -23,14 +23,14 @@ pip install -r requirements.txt -r requirements-dev.txt
 
 ```bash
 # 代码格式化与 lint
-ruff check src/tools/
-ruff format src/tools/
+ruff check src/stock_analysis/
+ruff format src/stock_analysis/
 
 # 类型检查
-mypy src/tools/
+mypy src/stock_analysis/ --exclude tests --ignore-missing-imports
 
 # 运行测试
-PYTHONPATH="src" pytest src/tools/tests/ -v
+PYTHONPATH="src" pytest tests/ -v
 ```
 
 ### 提交前必做
@@ -49,26 +49,36 @@ PYTHONPATH="src" pytest src/tools/tests/ -v
 
 ## 添加新公司
 
-1. 编辑 `src/data/companies.json`，添加 ticker 条目
-2. 确保 `company_registry.py` 能正确派生所有映射
-3. 运行 `PYTHONPATH="src" python3 -m tools.pipeline <公司名> --dry-run` 验证
+1. 编辑 `data/companies.json`，添加 ticker 条目
+2. `registry.py` 自动派生所有映射（ticker ↔ 中文名、yfinance symbol、市场分组）
+3. 运行 `PYTHONPATH="src" python3 -m stock_analysis.cli <公司名> --dry-run` 验证
 4. 运行测试确认无回归
 
 ## 目录结构
 
 ```
 股市分析/
-├── src/              ← 核心引擎
-│   ├── tools/              ← Python 运行时
-│   │   ├── pipeline.py     ← 主编排器
-│   │   ├── fetcher.py      ← 数据采集
-│   │   ├── ranker.py       ← 排名计算
-│   │   ├── runtime/        ← 报告引擎
-│   │   └── tests/          ← 测试
-│   ├── InvestSkill/        ← 方法论层（prompts、模板）
-│   └── data/               ← 缓存数据（不入 git）
-├── 分析输出/               ← 生成报告（不入 git）
-└── docs/                   ← 文档和计划
+├── data/
+│   ├── companies.json          ← 公司注册表 (Single Source of Truth)
+│   └── prices.json.example     ← 缓存格式示例
+├── src/
+│   ├── stock_analysis/         ← 核心引擎
+│   │   ├── cli.py              ← 主入口 (stock-analysis 命令)
+│   │   ├── batch.py            ← 批量分析
+│   │   ├── data/
+│   │   │   ├── fetcher.py      ← 数据采集 (yfinance/CoinGecko/DeFiLlama)
+│   │   │   ├── sources.py      ← 数据源矩阵
+│   │   │   └── prices.json     ← 价格缓存
+│   │   ├── ranking/
+│   │   │   └── greenblatt.py   ← 四层加权排名
+│   │   ├── reports/            ← Jinja2 渲染 + 验证
+│   │   ├── registry.py         ← 公司映射
+│   │   └── llm_client.py       ← LLM 客户端
+│   └── investskill/            ← 方法论层 (prompts + 21 skills)
+├── tests/                      ← pytest
+├── webapp/                     ← Web App 前端 (FastAPI + React)
+├── 分析输出/                    ← 生成报告
+└── pyproject.toml              ← 包构建配置
 ```
 
 ## 测试策略
@@ -76,11 +86,13 @@ PYTHONPATH="src" pytest src/tools/tests/ -v
 - **单元测试**: `test_ranker.py`（纯数学，无外部依赖）
 - **集成测试**: `test_pipeline.py`（需 prices.json 缓存）
 - **验证测试**: `test_validate_crypto.py`（验证 HTML 结构）
+- **批量测试**: `test_batch.py`
+- **引擎测试**: `test_engine.py`
 
 运行全部测试：
 
 ```bash
-PYTHONPATH="src" pytest src/tools/tests/ -v
+PYTHONPATH="src" pytest tests/ -v
 ```
 
 ## 提交 Pull Request
@@ -94,7 +106,8 @@ PYTHONPATH="src" pytest src/tools/tests/ -v
 - `STOCK_ANALYSIS_HOME`: 项目根目录（可选，默认自动推导）
 - `LLM_API_KEY`: LLM API 密钥
 - `LLM_BASE_URL`: LLM API 基础 URL
-- `LLM_MODEL`: 模型名称（可选，默认 deepseek-v4-pro）
+- `LLM_MODEL`: 模型名称（可选，默认 deepseek-chat）
+- `LLM_MODE`: LLM 模式（`api` 直连 / `opencode` IPC）
 
 ## 问题反馈
 

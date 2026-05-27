@@ -10,7 +10,7 @@ def base_dir() -> Path:
     """项目根目录 fixture"""
     return Path(os.environ.get(
         'STOCK_ANALYSIS_HOME',
-        str(Path(__file__).resolve().parent.parent.parent.parent)
+        str(Path(__file__).resolve().parent.parent)
     ))
 
 
@@ -21,12 +21,12 @@ def output_dir(base_dir) -> Path:
 
 
 @pytest.fixture
-def stock_kit_dir(base_dir) -> Path:
-    """stock_kit 目录 fixture"""
-    return base_dir / 'stock_kit'
+def src_dir(base_dir) -> Path:
+    """src/stock_analysis 目录 fixture"""
+    return base_dir / 'src' / 'stock_analysis'
 
 
 @pytest.fixture
-def prices_json(stock_kit_dir) -> Path:
+def prices_json(src_dir) -> Path:
     """prices.json 路径 fixture"""
-    return stock_kit_dir / 'data' / 'prices.json'
+    return src_dir / 'data' / 'prices.json'
