@@ -1,0 +1,506 @@
+[
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "NVDA",
+    "entry_price": 180.24020385742188,
+    "rank": "#2/9",
+    "composite_score": 2.8,
+    "score_10": 7.9,
+    "f_score": 7,
+    "signal": "BULLISH",
+    "direction": "看多",
+    "prediction": {
+      "prob_up": 0.656,
+      "expected_return_6m": 0.2278,
+      "expected_return_1y": 0.3417,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": 17.27,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": null,
+      "return_error_6m": 0.05510000000000001,
+      "return_error_1y": null,
+      "prob_calibration": 0.656
+    }
+  },
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 41.099998474121094,
+    "rank": "#1/9",
+    "composite_score": 2.35,
+    "score_10": 8.4,
+    "f_score": 7,
+    "signal": "BULLISH",
+    "direction": "看多",
+    "prediction": {
+      "prob_up": 0.656,
+      "expected_return_6m": 0.2278,
+      "expected_return_1y": 0.3417,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": NaN,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": null,
+      "return_error_6m": NaN,
+      "return_error_1y": null,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "TSLA",
+    "entry_price": 426.5799865722656,
+    "rank": "#8/9",
+    "composite_score": 6.6,
+    "score_10": 3.6,
+    "f_score": 5,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.367,
+      "expected_return_6m": -0.0667,
+      "expected_return_1y": -0.1,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.333
+    },
+    "ret_6m": 3.62,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": null,
+      "return_error_6m": 0.10289999999999999,
+      "return_error_1y": null,
+      "prob_calibration": 0.367
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "NVDA",
+    "entry_price": 135.4680633544922,
+    "rank": "#1/9",
+    "composite_score": 2.4,
+    "score_10": 8.3,
+    "f_score": 7,
+    "signal": "BULLISH",
+    "direction": "看多",
+    "prediction": {
+      "prob_up": 0.656,
+      "expected_return_6m": 0.2278,
+      "expected_return_1y": 0.3417,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": 31.25,
+    "ret_1y": 56.04,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.0847,
+      "return_error_1y": 0.2187,
+      "prob_calibration": 0.656
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 51.54999923706055,
+    "rank": "#4/9",
+    "composite_score": 3.55,
+    "score_10": 7.0,
+    "f_score": 7,
+    "signal": "NEUTRAL",
+    "direction": "中性",
+    "prediction": {
+      "prob_up": 0.533,
+      "expected_return_6m": 0.1167,
+      "expected_return_1y": 0.175,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": -21.75,
+    "ret_1y": NaN,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.3342,
+      "return_error_1y": NaN,
+      "prob_calibration": 0.46699999999999997
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "TSLA",
+    "entry_price": 362.8900146484375,
+    "rank": "#8/9",
+    "composite_score": 7.0,
+    "score_10": 3.1,
+    "f_score": 5,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 15.57,
+    "ret_1y": 21.86,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.23349999999999999,
+      "return_error_1y": 0.3353,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "NVDA",
+    "entry_price": 135.28634643554688,
+    "rank": "#3/9",
+    "composite_score": 3.5,
+    "score_10": 7.1,
+    "f_score": 8,
+    "signal": "BULLISH",
+    "direction": "看多",
+    "prediction": {
+      "prob_up": 0.633,
+      "expected_return_6m": 0.2167,
+      "expected_return_1y": 0.325,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": -0.38,
+    "ret_1y": 33.23,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.2205,
+      "return_error_1y": 0.007299999999999973,
+      "prob_calibration": 0.367
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 28.299999237060547,
+    "rank": "#4/9",
+    "composite_score": 3.75,
+    "score_10": 6.8,
+    "f_score": 6,
+    "signal": "NEUTRAL",
+    "direction": "中性",
+    "prediction": {
+      "prob_up": 0.533,
+      "expected_return_6m": 0.1167,
+      "expected_return_1y": 0.175,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 82.86,
+    "ret_1y": 45.23,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.7119,
+      "return_error_1y": 0.2773,
+      "prob_calibration": 0.533
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "TSLA",
+    "entry_price": 332.8900146484375,
+    "rank": "#6/9",
+    "composite_score": 6.25,
+    "score_10": 4.0,
+    "f_score": 4,
+    "signal": "NEUTRAL",
+    "direction": "中性",
+    "prediction": {
+      "prob_up": 0.467,
+      "expected_return_6m": 0.0833,
+      "expected_return_1y": 0.125,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.333
+    },
+    "ret_6m": 7.21,
+    "ret_1y": 28.14,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.011200000000000002,
+      "return_error_1y": 0.15639999999999998,
+      "prob_calibration": 0.4670000000000001
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "NVDA",
+    "entry_price": 106.40895080566406,
+    "rank": "#3/9",
+    "composite_score": 3.5,
+    "score_10": 7.1,
+    "f_score": 8,
+    "signal": "BULLISH",
+    "direction": "看多",
+    "prediction": {
+      "prob_up": 0.633,
+      "expected_return_6m": 0.2167,
+      "expected_return_1y": 0.325,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 27.78,
+    "ret_1y": 27.31,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.06109999999999999,
+      "return_error_1y": 0.0519,
+      "prob_calibration": 0.633
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 18.440000534057617,
+    "rank": "#4/9",
+    "composite_score": 3.75,
+    "score_10": 6.8,
+    "f_score": 6,
+    "signal": "NEUTRAL",
+    "direction": "中性",
+    "prediction": {
+      "prob_up": 0.533,
+      "expected_return_6m": 0.1167,
+      "expected_return_1y": 0.175,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 54.01,
+    "ret_1y": 179.56,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.4234,
+      "return_error_1y": 1.6206,
+      "prob_calibration": 0.533
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "TSLA",
+    "entry_price": 179.24000549316406,
+    "rank": "#6/9",
+    "composite_score": 5.05,
+    "score_10": 5.3,
+    "f_score": 4,
+    "signal": "NEUTRAL",
+    "direction": "中性",
+    "prediction": {
+      "prob_up": 0.489,
+      "expected_return_6m": 0.0944,
+      "expected_return_1y": 0.1417,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": 88.9,
+    "ret_1y": 102.46,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.7946,
+      "return_error_1y": 0.8829,
+      "prob_calibration": 0.489
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "NVDA",
+    "entry_price": 48.208290100097656,
+    "rank": "#8/9",
+    "composite_score": 7.75,
+    "score_10": 1.4,
+    "f_score": 3,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 120.73,
+    "ret_1y": 183.9,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 1.2851000000000001,
+      "return_error_1y": 1.9557,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 15.140000343322754,
+    "rank": "#9/9",
+    "composite_score": 7.8,
+    "score_10": 1.4,
+    "f_score": 1,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 21.8,
+    "ret_1y": 79.66,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.2958,
+      "return_error_1y": 0.9133,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "TSLA",
+    "entry_price": 236.0800018310547,
+    "rank": "#5/9",
+    "composite_score": 5.4,
+    "score_10": 4.3,
+    "f_score": 3,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.389,
+      "expected_return_6m": -0.0556,
+      "expected_return_1y": -0.0833,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": -24.08,
+    "ret_1y": 43.27,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.18519999999999998,
+      "return_error_1y": 0.516,
+      "prob_calibration": 0.611
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "NVDA",
+    "entry_price": 38.91154479980469,
+    "rank": "#8/9",
+    "composite_score": 7.75,
+    "score_10": 1.4,
+    "f_score": 3,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 22.7,
+    "ret_1y": 173.46,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.30479999999999996,
+      "return_error_1y": 1.8513000000000002,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 10.5,
+    "rank": "#9/9",
+    "composite_score": 7.8,
+    "score_10": 1.4,
+    "f_score": 1,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 42.86,
+    "ret_1y": 74.29,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.5064,
+      "return_error_1y": 0.8596000000000001,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "TSLA",
+    "entry_price": 193.1699981689453,
+    "rank": "#5/9",
+    "composite_score": 5.4,
+    "score_10": 4.3,
+    "f_score": 3,
+    "signal": "BEARISH",
+    "direction": "看空",
+    "prediction": {
+      "prob_up": 0.389,
+      "expected_return_6m": -0.0556,
+      "expected_return_1y": -0.0833,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": 21.89,
+    "ret_1y": -7.21,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.2745,
+      "return_error_1y": 0.011200000000000002,
+      "prob_calibration": 0.389
+    }
+  }
+]
