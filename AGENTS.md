@@ -1,6 +1,6 @@
 # 股市分析 — Agent 指令
 
-**版本**: 3.0.1 | **更新**: 2026-05-27
+**版本**: 3.2.0 | **更新**: 2026-05-28
 
 本项目提供 **CLI 工具**（主入口）和 **Web App**（可视化前端）两套架构。
 
@@ -30,6 +30,11 @@
 │   │   │       ├── scaffold.py ← Stage 0: 识别公司、初始化报告壳
 │   │   │       ├── render.py   ← Stage 4: Jinja2 → HTML
 │   │   │       └── validate.py ← Stage 5-6: schema + HTML + 数据真实性验证
+│   │   ├── analysis/           ← 🆕 InvestSkill 分析模块集成
+│   │   │   ├── validator.py    ← 五维验证框架 (0-100 置信度)
+│   │   │   ├── technical.py    ← 技术分析 (MTF, RSI, MACD)
+│   │   │   ├── insider.py      ← 内部人交易分析 (SEC Form 4)
+│   │   │   └── institutional.py← 机构持仓分析 (SEC 13F)
 │   │   ├── registry.py         ← 从 companies.json 派生所有映射
 │   │   ├── llm_client.py       ← DeepSeek/OpenAI 客户端
 │   │   └── generator.py        ← index.html 自动生成器
@@ -230,6 +235,148 @@ pip install fastapi uvicorn[standard] websockets
 - 投资信号块 + 综合分 + 综合排名
 - HTML 报告: 8 节 (S1-S8) + verdict
 
+## 🆕 InvestSkill 分析模块集成
+
+基于 [InvestSkill](https://github.com/yennanliu/InvestSkill) 的专业分析框架，新增以下模块：
+
+### 1. Result Validator (`analysis/validator.py`)
+
+五维验证框架，评估分析结果的可信度：
+
+| 维度 | 分数 | 说明 |
+|------|:----:|------|
+| 数据质量 | 0-20 | 数据源、完整性、新鲜度 |
+| 方法论合理性 | 0-20 | 估值方法、假设、交叉验证 |
+| 信号一致性 | 0-20 | 基本面、技术面、宏观一致性 |
+| 风险覆盖度 | 0-20 | 风险识别、熊市情景、催化剂 |
+| 推理透明度 | 0-20 | 逻辑性、逆向思维、局限性 |
+
+**置信度等级**：VERY HIGH (85+) / HIGH (70+) / MEDIUM (55+) / LOW (40+) / VERY LOW (<40)
+
+### 2. Technical Analyzer (`analysis/technical.py`)
+
+多时间框架技术分析：
+
+- **趋势识别**：主趋势、支撑/阻力位
+- **技术指标**：MA20/50/200、RSI、MACD、ATR
+- **MTF 分析**：3 个时间框架对齐评分 (0-3)
+- **信号生成**：BULLISH / NEUTRAL / BEARISH
+
+### 3. Insider Analyzer (`analysis/insider.py`)
+
+内部人交易分析（SEC Form 4）：
+
+- **交易汇总**：买卖数量、金额
+- **情绪分析**：净情绪计算 (-1.0 到 +1.0)
+- **显著交易**：>$1M 或 CEO/CFO 交易
+- **信号分类**：STRONGLY BULLISH 到 STRONGLY BEARISH
+
+### 4. Institutional Analyzer (`analysis/institutional.py`)
+
+机构持仓分析（SEC 13F）：
+
+- **持仓概览**：机构持仓比例、持有人数
+- **趋势分析**：增持/稳定/减持
+- **聪明钱信号**：积累/持有/分发
+- **集中度**：Top 10 持仓占比
+
+### 5. Earnings Analyzer (`analysis/earnings.py`)
+
+财报电话会议分析：
+
+- **管理层情绪**：自信/中性/谨慎/防御
+- **指引变化**：上调/维持/下调/撤回
+- **关键主题**：战略/运营/市场/资本
+- **红旗识别**：盈利下滑、营收下滑、亏损
+
+### 6. Sector Analyzer (`analysis/sector.py`)
+
+行业轮动分析：
+
+- **行业信息**：行业、细分领域
+- **经济周期**：早期/中期/晚期/衰退
+- **行业指标**：P/E、YTD 回报、动量
+- **行业分数**：1-10 分评估
+
+### 7. Economics Analyzer (`analysis/economics.py`)
+
+宏观经济分析：
+
+- **经济周期**：扩张/顶峰/收缩/谷底
+- **货币政策**：鹰派/中性/鸽派
+- **收益率曲线**：正常/平坦/倒挂
+- **市场情绪**：VIX 指数
+
+### 8. Competitor Analyzer (`analysis/competitor.py`)
+
+竞争分析（Porter 五力）：
+
+- **护城河**：宽/窄/无/风险中
+- **护城河趋势**：加宽/稳定/收窄
+- **五力分析**：行业竞争、新进入者、供应商、买方、替代品
+- **ROIC vs WACC**：资本回报率与资本成本比较
+
+### 使用示例
+
+```python
+from stock_analysis.analysis import (
+    ResultValidator,
+    TechnicalAnalyzer,
+    InsiderAnalyzer,
+    InstitutionalAnalyzer,
+    EarningsAnalyzer,
+    SectorAnalyzer,
+    EconomicsAnalyzer,
+    CompetitorAnalyzer,
+)
+
+# 技术分析
+tech = TechnicalAnalyzer()
+signal = tech.analyze("NVDA", period="1y")
+print(f"技术信号: {signal.signal}, MTF: {signal.mtf_score}/3")
+
+# 内部人交易
+insider = InsiderAnalyzer()
+signal = insider.analyze("NVDA")
+print(f"内部人信号: {signal.signal}, 情绪: {signal.net_sentiment:.2f}")
+
+# 机构持仓
+inst = InstitutionalAnalyzer()
+signal = inst.analyze("NVDA")
+print(f"机构信号: {signal.signal}, 持仓: {signal.institutional_ownership_pct:.1%}")
+
+# 财报分析
+earnings = EarningsAnalyzer()
+signal = earnings.analyze("NVDA")
+print(f"财报信号: {signal.signal}, 管理层情绪: {signal.management_tone.value}")
+
+# 行业分析
+sector = SectorAnalyzer()
+signal = sector.analyze("NVDA")
+print(f"行业信号: {signal.signal}, 行业分数: {signal.sector_score}/10")
+
+# 宏观经济
+economics = EconomicsAnalyzer()
+signal = economics.analyze()
+print(f"宏观信号: {signal.signal}, 经济周期: {signal.phase.value}")
+
+# 竞争分析
+competitor = CompetitorAnalyzer()
+signal = competitor.analyze("NVDA")
+print(f"竞争信号: {signal.signal}, 护城河: {signal.moat_width.value}")
+
+# 验证分析结果
+validator = ResultValidator()
+result = validator.validate_analysis(
+    ticker="NVDA",
+    signal="BULLISH",
+    confidence="HIGH",
+    f_score=7,
+    composite_rank="#2/9",
+)
+print(f"验证分数: {result.total_score}/100 ({result.tier.value})")
+```
+
 ### score_10 辅助指标说明
 
 `score_10` 是将综合排名转换为 1-10 分制的**辅助指标**，用于：
@@ -283,3 +430,5 @@ PYTHONPATH="src" python3 -m stock_analysis.cli validate <报告路径>
 - v1.0: Greenblatt 原始（EBIT/EV + ROIC）→ 两层
 - v2.0: Greenblatt 扩展（+ F-Score 验证）→ 三层
 - v3.0: 四层加权（L1 40% + L2 25% + L3 25% + L4 10%）→ 当前
+- v3.1: 集成 InvestSkill 分析模块（Validator + Technical + Insider + Institutional）
+- v3.2: 集成 InvestSkill 分析模块（Earnings + Sector + Economics + Competitor）
