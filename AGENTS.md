@@ -57,6 +57,31 @@ Stage 6:   index     → 重建 index.html 排名总览
 
 ### 核心命令
 
+#### 安装（首次使用）
+
+```bash
+# 进入项目目录
+cd /home/severin/Codelib/股市分析
+
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 安装项目（包含 stock-analysis 命令）
+pip install -e .
+```
+
+#### 使用方式
+
+```bash
+# 方式 1: 使用 stock-analysis 命令（推荐，需先安装）
+stock-analysis <公司中文名>
+
+# 方式 2: 使用 python3 -m（无需安装，需设置 PYTHONPATH）
+PYTHONPATH="src" python3 -m stock_analysis.cli <公司中文名>
+```
+
+#### 常用命令
+
 ```bash
 # 完整分析
 stock-analysis <公司中文名>
@@ -72,17 +97,24 @@ stock-analysis index
 
 # 验证 HTML 报告
 stock-analysis validate <报告路径>
-
-# 等价的 python3 -m 调用
-PYTHONPATH="src" python3 -m stock_analysis.cli <公司中文名>
 ```
 
 ### 开发命令
 
 ```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
+# 安装开发依赖
 pip install -e ".[dev]"
+
+# 运行测试
 PYTHONPATH="src" pytest tests/ -v
+
+# 代码检查
 ruff check src/stock_analysis/
+
+# 类型检查
 mypy src/stock_analysis/ --exclude tests --ignore-missing-imports
 ```
 
@@ -197,6 +229,15 @@ pip install fastapi uvicorn[standard] websockets
 - Piotroski F-Score 明细卡 (9 项逐项打分)
 - 投资信号块 + 综合分 + 综合排名
 - HTML 报告: 8 节 (S1-S8) + verdict
+
+### score_10 辅助指标说明
+
+`score_10` 是将综合排名转换为 1-10 分制的**辅助指标**，用于：
+- 提供更直观的分数展示（便于用户理解）
+- 在 batch 模式中用于排序（当排名相同时）
+- **非主要排名依据** — 主要排名依据是 `composite_rank`（综合排名）
+
+**原则**：排名优于打分。`composite_rank` 是主要指标，`score_10` 仅作辅助参考。
 
 ## 🚨 防降级规则
 

@@ -157,10 +157,10 @@ ALL_MODULES: list[ModuleDef] = [
     ModuleDef(
         module_id="s5_greenblatt",
         section="S5",
-        label="Greenblatt 三层排名",
+        label="Greenblatt 四层加权排名",
         asset_categories=[AssetCategory.STOCK, AssetCategory.HK_STOCK],
         required=True,
-        description="L1 EBIT/EV + L2 ROIC + L3 F-Score",
+        description="L1 EBIT/EV (40%) + L2 ROIC (25%) + L3 F-Score (25%) + L4 PEG (10%)",
     ),
     ModuleDef(
         module_id="s5_crypto_ranking",

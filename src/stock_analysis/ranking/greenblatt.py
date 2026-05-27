@@ -35,7 +35,7 @@ class RankingResult:
     composite_score: float
     composite_rank: str
     summary: str
-    score_10: float = 0.0  # 1-10 十分制, 越大越好
+    score_10: float = 0.0  # 辅助指标: 1-10 十分制, 越大越好, 非主要排名依据
 
 
 def composite_to_score10(composite: float, max_possible: float) -> float:

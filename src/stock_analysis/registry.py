@@ -90,6 +90,23 @@ MARKET_GROUPS: dict[str, list[str]] = {
 }
 
 
+# 别名映射 (英文名 → 中文名)
+_ALIASES: dict[str, str] = {
+    "Solana": "索拉纳",
+    "Ethereum": "以太坊",
+    "Bitcoin": "比特币",
+}
+
+
+def name_zh_to_ticker_with_aliases() -> dict[str, str]:
+    """返回包含别名的中文名到 ticker 映射"""
+    result = name_zh_to_ticker()
+    for alias, canonical in _ALIASES.items():
+        if canonical in result:
+            result[alias] = result[canonical]
+    return result
+
+
 def get_by_name_zh(name: str) -> dict | None:
     r = registry()
     for t, e in r.items():

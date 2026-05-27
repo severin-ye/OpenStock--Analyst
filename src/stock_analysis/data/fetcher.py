@@ -23,6 +23,7 @@ from stock_analysis.registry import (
     CRYPTO_ID_MAP,
     DEFILLAMA_CHAIN_MAP,
     name_zh_to_ticker,
+    name_zh_to_ticker_with_aliases,
     ticker_to_name_zh,
     yf_stock_symbols,
     yf_ticker_map,
@@ -102,11 +103,7 @@ class PriceSnapshot:
             return None
 
 
-_ALIASES: dict[str, str] = {"Solana": "索拉纳"}
-
-TICKER_MAP: dict[str, str] = name_zh_to_ticker()
-for alias, canonical in _ALIASES.items():
-    TICKER_MAP[alias] = TICKER_MAP.get(canonical, "")
+TICKER_MAP: dict[str, str] = name_zh_to_ticker_with_aliases()
 
 TICKER_TO_NAME: dict[str, str] = ticker_to_name_zh()
 

@@ -4,24 +4,20 @@
 纯 Python，不需要 LLM。
 
 公司映射从 company_registry 统一读取 (Single Source of Truth)。
-别名 (如 "Solana"→"索拉纳") 在此模块处理，不污染 registry。
+别名 (如 "Solana"→"索拉纳") 从 registry 统一管理。
 """
 
 import os
 from datetime import datetime
 from pathlib import Path
 
-from stock_analysis.registry import name_zh_to_tuple
+from stock_analysis.registry import _ALIASES, name_zh_to_tuple
 from stock_analysis.reports.schema import (
     ALL_MODULES,
     ModuleState,
     ModuleStatus,
     StockReport,
 )
-
-_ALIASES: dict[str, str] = {
-    "Solana": "索拉纳",
-}
 
 BASE_DIR = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(Path(__file__).resolve().parents[5])))
 OUTPUT_DIR = BASE_DIR / "分析输出"
