@@ -9,7 +9,7 @@ from stock_analysis.backtest import config as cfg
 from stock_analysis.backtest.historical_fetcher import build_all_snapshots, get_price_at_date
 from stock_analysis.backtest.returns_calculator import compute_all_returns
 from stock_analysis.data.fetcher import PriceSnapshot
-from stock_analysis.ranking.greenblatt import compute_greenblatt
+from stock_analysis.ranking.greenblatt import RankingResult, compute_greenblatt
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -74,6 +74,8 @@ def run():
     logger.info("=" * 120)
 
     all_periods = []
+    all_snapshots: dict[str, dict[str, PriceSnapshot]] = {}  # {cutoff: {ticker: snapshot}}
+    all_rank_results: dict[str, dict[str, RankingResult]] = {}  # {cutoff: {ticker: rank_result}}
 
     for label, cutoff in cfg.CUTOFFS:
         logger.info(f"\n{'─' * 100}")
@@ -97,6 +99,9 @@ def run():
         if not snapshots:
             logger.warning(f"  {label}: 无财报快照，跳过")
             continue
+
+        # 保存快照用于后续 HTML 报告生成
+        all_snapshots[cutoff] = snapshots
 
         # 3. 提取各层指标用于排名
         all_ebit_ev: dict[str, float] = {}
@@ -122,6 +127,7 @@ def run():
 
         # 4. 对每个目标公司计算排名
         period_results = {}
+        rank_results_for_cutoff: dict[str, RankingResult] = {}
         for ticker in cfg.RANKING_UNIVERSE:
             if ticker not in snapshots:
                 continue
@@ -142,6 +148,9 @@ def run():
                 all_peg=all_peg,
             )
 
+            # 保存排名结果用于后续 HTML 报告生成
+            rank_results_for_cutoff[ticker] = rank_result
+
             sig, dir_str = signal_from_rank(rank_result.composite_rank, snap.f_score, total)
             period_results[ticker] = {
                 "ticker": ticker,
@@ -152,6 +161,8 @@ def run():
                 "signal": sig,
                 "direction": dir_str,
             }
+
+        all_rank_results[cutoff] = rank_results_for_cutoff
 
         # 5. 计算实际回报（仅目标公司）
         raw_returns = compute_all_returns(cfg.TARGET, cutoff)
@@ -209,6 +220,11 @@ def run():
 
     # 生成 summary.md
     generate_summary(all_periods, out_dir)
+
+    # 生成 HTML 报告
+    from stock_analysis.backtest.backtest_report import generate_backtest_html_reports
+    html_files = generate_backtest_html_reports(all_periods, all_snapshots, all_rank_results, out_dir)
+    logger.info(f"  HTML 报告: {len(html_files)} 份")
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"\n{'=' * 120}")

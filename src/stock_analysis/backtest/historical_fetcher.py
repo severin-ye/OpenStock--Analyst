@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 YF_CURRENCY = {"USD": "$", "HKD": "HK$", "JPY": "¥", "KRW": "₩", "CNY": "¥"}
 
 
-def _safe(v):
+def _safe(v) -> Optional[float]:
     if v is None:
         return None
     try:
@@ -29,7 +29,7 @@ def _safe(v):
         return None
 
 
-def _g(row, key):
+def _g(row, key) -> Optional[float]:
     """取 DataFrame 行中的 key，安全返回 float"""
     if row is None:
         return None
@@ -161,7 +161,7 @@ def build_snapshot_at_date(ticker: str, cutoff_str: str, price: float, currency:
     roic = None
     roic_pct = ""
     if ebit and equity and total_debt is not None:
-        rate = tax / pretax if pretax and pretax != 0 else 0.25
+        rate = tax / pretax if tax is not None and pretax and pretax != 0 else 0.25
         rate = max(0.0, min(float(rate), 0.5))
         ic = equity + total_debt - cash
         if ic and ic > 0:
