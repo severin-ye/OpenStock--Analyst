@@ -22,7 +22,6 @@ from typing import Optional
 from stock_analysis.registry import (
     CRYPTO_ID_MAP,
     DEFILLAMA_CHAIN_MAP,
-    name_zh_to_ticker,
     name_zh_to_ticker_with_aliases,
     ticker_to_name_zh,
     yf_stock_symbols,

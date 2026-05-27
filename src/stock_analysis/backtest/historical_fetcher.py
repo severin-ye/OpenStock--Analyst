@@ -8,7 +8,6 @@
 """
 
 import logging
-from pathlib import Path
 from typing import Optional
 
 import pandas as pd

@@ -2,7 +2,6 @@
 
 import json
 import logging
-import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -224,7 +223,7 @@ def generate_summary(records: list[dict], out_dir: Path):
     lines.append(f"**生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
     lines.append(f"**目标公司**: {', '.join(cfg.NAME_MAP.get(t, t) for t in cfg.TARGET)}")
     lines.append(f"**排名对照组**: {len(cfg.RANKING_UNIVERSE)} 家（含{cfg.NAME_MAP.get('1810.HK','小米')}混入美股）")
-    lines.append(f"**PEG 近似**: trailingPE / 收入增速\n")
+    lines.append("**PEG 近似**: trailingPE / 收入增速\n")
 
     # 统计
     total = len(records)
@@ -238,8 +237,16 @@ def generate_summary(records: list[dict], out_dir: Path):
     wrong_1y = sum(1 for r in records if "❌" in (r.get("deviation_1y") or ""))
 
     lines.append(f"**总观测数**: {total}（BUY={buy}, HOLD={hold}, AVOID={avoid}）")
-    lines.append(f"**6 月正确率**: {correct_6m}/{correct_6m + wrong_6m}（{(correct_6m / (correct_6m + wrong_6m) * 100):.0f}%）" if (correct_6m + wrong_6m) > 0 else "")
-    lines.append(f"**1 年正确率**: {correct_1y}/{correct_1y + wrong_1y}（{(correct_1y / (correct_1y + wrong_1y) * 100):.0f}%）" if (correct_1y + wrong_1y) > 0 else "")
+    if (correct_6m + wrong_6m) > 0:
+        pct_6m = correct_6m / (correct_6m + wrong_6m) * 100
+        lines.append(f"**6 月正确率**: {correct_6m}/{correct_6m + wrong_6m}（{pct_6m:.0f}%）")
+    else:
+        lines.append("")
+    if (correct_1y + wrong_1y) > 0:
+        pct_1y = correct_1y / (correct_1y + wrong_1y) * 100
+        lines.append(f"**1 年正确率**: {correct_1y}/{correct_1y + wrong_1y}（{pct_1y:.0f}%）")
+    else:
+        lines.append("")
     lines.append("")
 
     # 按公司分组
@@ -248,8 +255,8 @@ def generate_summary(records: list[dict], out_dir: Path):
         recs = [r for r in records if r["ticker"] == ticker]
         sym = "$" if ticker != "1810.HK" else "HK$"
         lines.append(f"## {name} ({ticker})\n")
-        lines.append(f"| 时点 | 买入价 | 排名 | 综合分 | F | 信号 | 6月实际 | 偏差 | 1年实际 | 偏差 |")
-        lines.append(f"|------|--------|:----:|:-----:|:-:|:----:|:-------:|:----:|:-------:|:----:|")
+        lines.append("| 时点 | 买入价 | 排名 | 综合分 | F | 信号 | 6月实际 | 偏差 | 1年实际 | 偏差 |")
+        lines.append("|------|--------|:----:|:-----:|:-:|:----:|:-------:|:----:|:-------:|:----:|")
         for r in recs:
             ep = f"{sym}{r['entry_price']}" if r['entry_price'] else "N/A"
             r6s = f"{r['ret_6m']:+.2f}%" if r['ret_6m'] is not None else "N/A"
@@ -269,7 +276,7 @@ def generate_summary(records: list[dict], out_dir: Path):
     lines.append("- ❌ 红色(错误): 实际与信号方向相反")
     lines.append("- ➖ 中性: HOLD/持平, 记录实际数值供参考")
     lines.append("- 小米混入美股排名, 统一公式")
-    lines.append(f"- INTC(英特尔) 预期看跌, 实际排名往往靠后")
+    lines.append("- INTC(英特尔) 预期看跌, 实际排名往往靠后")
     lines.append("")
 
     out_path = out_dir / "summary.md"
