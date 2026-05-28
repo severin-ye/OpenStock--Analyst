@@ -24,6 +24,7 @@ from stock_analysis.analysis import (
     SectorAnalyzer,
     EconomicsAnalyzer,
     CompetitorAnalyzer,
+    NarrativeAnalyzer,
     ResultValidator,
 )
 
@@ -155,6 +156,19 @@ def run_real_analysis(ticker: str) -> dict:
             }
     except Exception as e:
         logger.debug(f"  竞争分析失败: {e}")
+    
+    # 叙事分析（真实模块）
+    try:
+        narrative = NarrativeAnalyzer()
+        narrative_signal = narrative.analyze(ticker)
+        if narrative_signal:
+            results["narrative"] = {
+                "signal": narrative_signal.signal,
+                "confidence": narrative_signal.confidence,
+                "strength": narrative_signal.narrative_strength.value,
+            }
+    except Exception as e:
+        logger.debug(f"  叙事分析失败: {e}")
     
     return results
 
@@ -292,7 +306,8 @@ def run():
             if ebit_ev_val is None:
                 continue
 
-            # 调用真实的 greenblatt 排名函数
+            # 调用真实的 greenblatt 排名函数（v3.2 增强版）
+            rev_growth_val = _pv(snap, "revenue_growth")
             rank_result = compute_greenblatt(
                 ticker=ticker,
                 ebit_ev=ebit_ev_val,
@@ -303,6 +318,7 @@ def run():
                 all_roic=all_roic,
                 all_f_score=all_f_score,
                 all_peg=all_peg,
+                revenue_growth=rev_growth_val,
             )
             
             rank_results_for_cutoff[ticker] = rank_result

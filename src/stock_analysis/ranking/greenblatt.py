@@ -244,13 +244,21 @@ def compute_greenblatt(
     all_roic: dict[str, float],
     all_f_score: dict[str, int],
     all_peg: dict[str, float],
+    revenue_growth: float | None = None,
+    roic_growth: float | None = None,
 ) -> RankingResult:
-    """计算四层加权排名
+    """计算四层加权排名（v3.2 增强版）
+
+    增强点：
+    - L1: EBIT/EV + 营收增速调整因子
+    - L3: F-Score + 健康扩张加分
 
     Args:
         ticker: 股票代码
         ebit_ev, roic, f_score, peg: 本标的数据
-        all_*: 所有 8 家标的的数据 {ticker: value}
+        all_*: 所有标的的数据 {ticker: value}
+        revenue_growth: 营收增速（可选，用于增长调整）
+        roic_growth: ROIC 增速（可选，用于扩张判断）
     """
 
     def rank_higher_better(values: dict[str, float], ticker: str, total: int) -> str:
@@ -267,15 +275,34 @@ def compute_greenblatt(
                 return f"#{i}/{len(sorted_items)}"
         return f"#{len(sorted_items) + 1}/{len(sorted_items) + 1}"
 
-    total = len(all_ebit_ev)
-    l1_rank = rank_higher_better(all_ebit_ev, ticker, total)
-    l1_rank_num = int(l1_rank.split("/")[0].replace("#", "")) if ticker in all_ebit_ev else total
+    # ── L1 增长调整：高增长股的 EBIT/EV 给予加成 ──
+    adjusted_ebit_ev = dict(all_ebit_ev)
+    if revenue_growth is not None and revenue_growth > 0.3 and ticker in adjusted_ebit_ev:
+        # 营收增速 > 30%，给 L1 加成（相当于排名前移）
+        growth_bonus = min(0.5, revenue_growth * 0.3)  # 最多加 0.5%
+        adjusted_ebit_ev[ticker] = adjusted_ebit_ev[ticker] + growth_bonus
+
+    total = len(adjusted_ebit_ev)
+    l1_rank = rank_higher_better(adjusted_ebit_ev, ticker, total)
+    l1_rank_num = int(l1_rank.split("/")[0].replace("#", "")) if ticker in adjusted_ebit_ev else total
 
     l2_rank = rank_higher_better(all_roic, ticker, total)
     l2_rank_num = int(l2_rank.split("/")[0].replace("#", "")) if ticker in all_roic else total
 
-    l3_rank = rank_higher_better({k: float(v) for k, v in all_f_score.items()}, ticker, total)
-    l3_rank_num = int(l3_rank.split("/")[0].replace("#", "")) if ticker in all_f_score else total
+    # ── L3 健康扩张调整 ──
+    adjusted_f_score = dict(all_f_score)
+    if (
+        ticker in adjusted_f_score
+        and revenue_growth is not None
+        and roic is not None
+        and roic > 10  # ROIC > 10% 说明资本效率还行
+        and revenue_growth > 0.2  # 营收增速 > 20%
+    ):
+        # 高增长 + 高 ROIC = 健康扩张，F-Score 加 1 分
+        adjusted_f_score[ticker] = min(9, adjusted_f_score[ticker] + 1)
+
+    l3_rank = rank_higher_better({k: float(v) for k, v in adjusted_f_score.items()}, ticker, total)
+    l3_rank_num = int(l3_rank.split("/")[0].replace("#", "")) if ticker in adjusted_f_score else total
 
     l4_rank = rank_lower_better(all_peg, ticker, total)
     l4_rank_num = int(l4_rank.split("/")[0].replace("#", "")) if ticker in all_peg else total
@@ -283,10 +310,10 @@ def compute_greenblatt(
     composite_score = l1_rank_num * 0.40 + l2_rank_num * 0.25 + l3_rank_num * 0.25 + l4_rank_num * 0.10
 
     all_scores = {}
-    for t in all_ebit_ev:
-        l1r_str = rank_higher_better(all_ebit_ev, t, total)
+    for t in adjusted_ebit_ev:
+        l1r_str = rank_higher_better(adjusted_ebit_ev, t, total)
         l2r_str = rank_higher_better(all_roic, t, total)
-        l3r_str = rank_higher_better({k: float(v) for k, v in all_f_score.items()}, t, total)
+        l3r_str = rank_higher_better({k: float(v) for k, v in adjusted_f_score.items()}, t, total)
         l4r_str = rank_lower_better(all_peg, t, total)
         l1r = int(l1r_str.split("/")[0].replace("#", "")) if "#" in l1r_str else total
         l2r = int(l2r_str.split("/")[0].replace("#", "")) if "#" in l2r_str else total
@@ -327,7 +354,7 @@ def compute_greenblatt(
             value=f"{f_score}/9" if f_score is not None else "N/A",
             weight="25%",
             rank=l3_rank,
-            verdict="财务安全" if (f_score or 0) >= 6 else "财务有风险",
+            verdict="财务安全" if (f_score or 0) >= 6 else ("健康扩张" if (f_score or 0) >= 3 else "财务有风险"),
         ),
         RankingRow(
             layer="L4",

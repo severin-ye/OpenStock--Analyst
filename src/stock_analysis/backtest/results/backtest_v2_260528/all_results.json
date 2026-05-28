@@ -4,7 +4,7 @@
     "cutoff": "2025-11-27",
     "ticker": "NVDA",
     "entry_price": 180.24020385742188,
-    "rank": "#2/9",
+    "rank": "#1/9",
     "f_score": 7,
     "rank_signal": "BULLISH",
     "final_signal": "BULLISH",
@@ -36,9 +36,14 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
-    "ret_6m": 18.02,
+    "ret_6m": 17.95,
     "ret_1y": null
   },
   {
@@ -49,12 +54,12 @@
     "rank": "#1/9",
     "f_score": 7,
     "rank_signal": "BULLISH",
-    "final_signal": "NEUTRAL",
-    "final_confidence": "MEDIUM",
+    "final_signal": "BULLISH",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -73,14 +78,19 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
-    "ret_6m": NaN,
+    "ret_6m": -32.8,
     "ret_1y": null
   },
   {
@@ -88,10 +98,10 @@
     "cutoff": "2025-11-27",
     "ticker": "TSLA",
     "entry_price": 426.5799865722656,
-    "rank": "#8/9",
+    "rank": "#6/9",
     "f_score": 5,
-    "rank_signal": "BEARISH",
-    "final_signal": "NEUTRAL",
+    "rank_signal": "NEUTRAL",
+    "final_signal": "BULLISH",
     "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
@@ -120,9 +130,14 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
-    "ret_6m": 3.55,
+    "ret_6m": 3.23,
     "ret_1y": null
   },
   {
@@ -162,25 +177,30 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
     "ret_6m": 31.25,
-    "ret_1y": 57.06
+    "ret_1y": 56.94
   },
   {
     "period": "1.0yr",
     "cutoff": "2025-05-27",
     "ticker": "1810.HK",
     "entry_price": 51.54999923706055,
-    "rank": "#4/9",
+    "rank": "#1/9",
     "f_score": 7,
-    "rank_signal": "NEUTRAL",
-    "final_signal": "BEARISH",
-    "final_confidence": "MEDIUM",
+    "rank_signal": "BULLISH",
+    "final_signal": "BULLISH",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -199,15 +219,20 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": -21.75,
-    "ret_1y": NaN
+    "ret_1y": -44.91
   },
   {
     "period": "1.0yr",
@@ -217,7 +242,7 @@
     "rank": "#8/9",
     "f_score": 5,
     "rank_signal": "BEARISH",
-    "final_signal": "NEUTRAL",
+    "final_signal": "BULLISH",
     "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
@@ -246,10 +271,15 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 15.57,
-    "ret_1y": 21.72
+    "ret_1y": 21.35
   },
   {
     "period": "1.5yr",
@@ -288,6 +318,11 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
     "ret_6m": -0.38,
@@ -301,12 +336,12 @@
     "rank": "#4/9",
     "f_score": 6,
     "rank_signal": "NEUTRAL",
-    "final_signal": "BEARISH",
-    "final_confidence": "MEDIUM",
+    "final_signal": "NEUTRAL",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -325,11 +360,16 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 82.86,
@@ -340,7 +380,7 @@
     "cutoff": "2024-11-27",
     "ticker": "TSLA",
     "entry_price": 332.8900146484375,
-    "rank": "#6/9",
+    "rank": "#5/9",
     "f_score": 4,
     "rank_signal": "NEUTRAL",
     "final_signal": "BULLISH",
@@ -372,6 +412,11 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 7.21,
@@ -414,6 +459,11 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
     "ret_6m": 27.78,
@@ -427,12 +477,12 @@
     "rank": "#4/9",
     "f_score": 6,
     "rank_signal": "NEUTRAL",
-    "final_signal": "BEARISH",
-    "final_confidence": "MEDIUM",
+    "final_signal": "NEUTRAL",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -451,11 +501,16 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 54.01,
@@ -466,7 +521,7 @@
     "cutoff": "2024-05-27",
     "ticker": "TSLA",
     "entry_price": 179.24000549316406,
-    "rank": "#6/9",
+    "rank": "#5/9",
     "f_score": 4,
     "rank_signal": "NEUTRAL",
     "final_signal": "BULLISH",
@@ -498,6 +553,11 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 88.9,
@@ -540,6 +600,11 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
     "ret_6m": 120.73,
@@ -554,11 +619,11 @@
     "f_score": 1,
     "rank_signal": "BEARISH",
     "final_signal": "BEARISH",
-    "final_confidence": "MEDIUM",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -577,11 +642,16 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 21.8,
@@ -595,7 +665,7 @@
     "rank": "#5/9",
     "f_score": 3,
     "rank_signal": "BEARISH",
-    "final_signal": "NEUTRAL",
+    "final_signal": "BULLISH",
     "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
@@ -624,6 +694,11 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": -24.08,
@@ -633,7 +708,7 @@
     "period": "3.0yr",
     "cutoff": "2023-05-27",
     "ticker": "NVDA",
-    "entry_price": 38.911556243896484,
+    "entry_price": 38.91155242919922,
     "rank": "#8/9",
     "f_score": 3,
     "rank_signal": "BEARISH",
@@ -666,6 +741,11 @@
       "competitor": {
         "signal": "BULLISH",
         "confidence": "HIGH"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "strength": "STRONG"
       }
     },
     "ret_6m": 22.7,
@@ -680,11 +760,11 @@
     "f_score": 1,
     "rank_signal": "BEARISH",
     "final_signal": "BEARISH",
-    "final_confidence": "MEDIUM",
+    "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
         "signal": "BEARISH",
-        "confidence": "HIGH",
+        "confidence": "MEDIUM",
         "mtf_score": 0
       },
       "insider": {
@@ -703,11 +783,16 @@
       "sector": {
         "signal": "BULLISH",
         "confidence": "HIGH",
-        "score": 8
+        "score": 7
       },
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 42.86,
@@ -721,7 +806,7 @@
     "rank": "#5/9",
     "f_score": 3,
     "rank_signal": "BEARISH",
-    "final_signal": "NEUTRAL",
+    "final_signal": "BULLISH",
     "final_confidence": "LOW",
     "analysis_results": {
       "technical": {
@@ -750,6 +835,11 @@
       "competitor": {
         "signal": "NEUTRAL",
         "confidence": "MEDIUM"
+      },
+      "narrative": {
+        "signal": "BULLISH",
+        "confidence": "MEDIUM",
+        "strength": "MODERATE"
       }
     },
     "ret_6m": 21.89,

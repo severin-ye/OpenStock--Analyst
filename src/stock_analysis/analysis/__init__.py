@@ -19,6 +19,7 @@ from stock_analysis.analysis.earnings import EarningsAnalyzer, EarningsSignal
 from stock_analysis.analysis.sector import SectorAnalyzer, SectorSignal
 from stock_analysis.analysis.economics import EconomicsAnalyzer, EconomicSignal
 from stock_analysis.analysis.competitor import CompetitorAnalyzer, CompetitorSignal
+from stock_analysis.analysis.narrative import NarrativeAnalyzer, NarrativeSignal
 
 __all__ = [
     # 验证框架
@@ -39,4 +40,6 @@ __all__ = [
     "EconomicSignal",
     "CompetitorAnalyzer",
     "CompetitorSignal",
+    "NarrativeAnalyzer",
+    "NarrativeSignal",
 ]

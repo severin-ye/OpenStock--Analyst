@@ -34,7 +34,16 @@
 │   │   │   ├── validator.py    ← 五维验证框架 (0-100 置信度)
 │   │   │   ├── technical.py    ← 技术分析 (MTF, RSI, MACD)
 │   │   │   ├── insider.py      ← 内部人交易分析 (SEC Form 4)
-│   │   │   └── institutional.py← 机构持仓分析 (SEC 13F)
+│   │   │   ├── institutional.py← 机构持仓分析 (SEC 13F)
+│   │   │   ├── earnings.py     ← 财报电话会议分析
+│   │   │   ├── sector.py       ← 行业轮动分析
+│   │   │   ├── economics.py    ← 宏观经济分析
+│   │   │   ├── competitor.py   ← 竞争分析 (Porter 五力)
+│   │   │   └── narrative.py    ← 叙事分析 (主题/情绪) 🆕
+│   │   ├── backtest/            ← 🆕 回测验证系统
+│   │   │   ├── backtest_v2.py  ← 真实系统回测（数据隔离+调用分析模块）
+│   │   │   ├── historical_fetcher.py ← 历史数据隔离（防前瞻偏差）
+│   │   │   └── returns_calculator.py ← 持有期回报计算
 │   │   ├── registry.py         ← 从 companies.json 派生所有映射
 │   │   ├── llm_client.py       ← DeepSeek/OpenAI 客户端
 │   │   └── generator.py        ← index.html 自动生成器
@@ -100,8 +109,8 @@ stock-analysis batch <公司1> <公司2> <公司3> ...
 # 重新生成 index.html 排名总览
 stock-analysis index
 
-# 验证 HTML 报告
-stock-analysis validate <报告路径>
+# 回测验证
+PYTHONPATH="src" python3 -m stock_analysis.backtest.backtest_v2
 ```
 
 ### 开发命令
@@ -208,19 +217,24 @@ pip install fastapi uvicorn[standard] websockets
 | 🇨🇳 A股 (1) | 寒武纪 688256.SS |
 | ₿ 加密 (4) | 比特币 BTC, 以太坊 ETH, 索拉纳 SOL, BNB |
 
-## 评分体系（四层加权排名 v3.0）
+## 评分体系（四层加权排名 v3.2）
 
 | Layer | 维度 | 主指标 | 权重 | 用法 |
 |-------|------|--------|:---:|------|
-| **L1** | 💰 便不便宜 | **EBIT/EV** | **40%** | 从高到低排名 |
+| **L1** | 💰 便不便宜 | **EBIT/EV (增长调整)** | **40%** | 从高到低排名，营收增速>30%获加成 |
 | **L2** | 🏭 赚不赚钱 | **ROIC** | **25%** | 从高到低排名 |
-| **L3** | 🛡️ 会不会崩 | **Piotroski F-Score (0-9)** | **25%** | 从高到低排名 |
+| **L3** | 🛡️ 会不会崩 | **Piotroski F-Score (健康扩张调整)** | **25%** | 从高到低排名，高增长+高ROIC获得加分 |
 | **L4** | 📈 增长值不值 | **PEG** | **10%** | 从低到高排名 |
 
 ```
 综合分 = L1排名×0.40 + L2排名×0.25 + L3排名×0.25 + L4排名×0.10
 综合排名 = 综合分从小到大排序 (越小越好)
 ```
+
+### v3.2 增强
+
+- **L1 增长调整**：营收增速 > 30% 自动获得排名加成（解决高增长股被低估的问题）
+- **L3 健康扩张**：ROIC > 10% 且营收增速 > 20% 时 F-Score +1（区分健康扩张与恶化）
 
 ### 特殊情况
 
@@ -316,6 +330,15 @@ pip install fastapi uvicorn[standard] websockets
 - **五力分析**：行业竞争、新进入者、供应商、买方、替代品
 - **ROIC vs WACC**：资本回报率与资本成本比较
 
+### 9. Narrative Analyzer (`analysis/narrative.py`) 🆕
+
+叙事/主题分析：
+
+- **主题匹配**：AI、EV、云计算、半导体等 8 个主题检测
+- **叙事强度**：强烈/中等/微弱/无
+- **新闻情绪**：基于分析师推荐和目标价推断
+- **社交情绪**：基于价格动量推断
+
 ### 使用示例
 
 ```python
@@ -328,6 +351,7 @@ from stock_analysis.analysis import (
     SectorAnalyzer,
     EconomicsAnalyzer,
     CompetitorAnalyzer,
+    NarrativeAnalyzer,
 )
 
 # 技术分析
@@ -364,6 +388,11 @@ print(f"宏观信号: {signal.signal}, 经济周期: {signal.phase.value}")
 competitor = CompetitorAnalyzer()
 signal = competitor.analyze("NVDA")
 print(f"竞争信号: {signal.signal}, 护城河: {signal.moat_width.value}")
+
+# 叙事分析
+narrative = NarrativeAnalyzer()
+signal = narrative.analyze("NVDA")
+print(f"叙事信号: {signal.signal}, 强度: {signal.narrative_strength.value}")
 
 # 验证分析结果
 validator = ResultValidator()
@@ -431,4 +460,4 @@ PYTHONPATH="src" python3 -m stock_analysis.cli validate <报告路径>
 - v2.0: Greenblatt 扩展（+ F-Score 验证）→ 三层
 - v3.0: 四层加权（L1 40% + L2 25% + L3 25% + L4 10%）→ 当前
 - v3.1: 集成 InvestSkill 分析模块（Validator + Technical + Insider + Institutional）
-- v3.2: 集成 InvestSkill 分析模块（Earnings + Sector + Economics + Competitor）
+- v3.2: 集成 InvestSkill 分析模块（Earnings + Sector + Economics + Competitor + Narrative）+ 回测系统重构 + 增长调整 + F-Score 健康扩张
