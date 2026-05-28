@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -208,7 +208,6 @@ class EarningsAnalyzer:
         # 业务描述
         business_summary = info.get("longBusinessSummary", "")
         industry = info.get("industry", "")
-        sector = info.get("sector", "")
 
         # 战略主题
         if "AI" in business_summary or "artificial intelligence" in business_summary.lower():
@@ -367,7 +366,6 @@ class EarningsAnalyzer:
 
     def _get_quarter_info(self, earnings_data: dict) -> str:
         """获取季度信息"""
-        info = earnings_data.get("info", {})
 
         # 尝试获取最近财报日期
         earnings_dates = earnings_data.get("earnings_dates")

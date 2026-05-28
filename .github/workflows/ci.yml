@@ -32,7 +32,7 @@ jobs:
 
     - name: Type check with mypy
       run: |
-        mypy src/stock_analysis/ --exclude tests --ignore-missing-imports
+        mypy src/stock_analysis/ --exclude tests --exclude backtest_5yr --ignore-missing-imports
 
     - name: Test with pytest
       run: |

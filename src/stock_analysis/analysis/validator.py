@@ -321,14 +321,14 @@ class ResultValidator:
                         checks.append(f"排名 {composite_rank} 与看多信号一致")
                     else:
                         score += 3
-                        issues.append(f"排名靠前但信号非看多")
+                        issues.append("排名靠前但信号非看多")
                 elif rank_pct >= 0.67:
                     if signal == "BEARISH":
                         score += 7
                         checks.append(f"排名 {composite_rank} 与看空信号一致")
                     else:
                         score += 3
-                        issues.append(f"排名靠后但信号非看空")
+                        issues.append("排名靠后但信号非看空")
                 else:
                     score += 5
                     checks.append(f"排名 {composite_rank} 中性")

@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -150,7 +150,7 @@ class InstitutionalAnalyzer:
 
     def _parse_holders(self, inst_data: dict) -> list[InstitutionalHolder]:
         """解析持有人数据"""
-        holders = []
+        holders: list[InstitutionalHolder] = []
 
         try:
             df = inst_data.get("holders")

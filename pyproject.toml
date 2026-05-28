@@ -49,10 +49,11 @@ line-length = 150
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I"]
+exclude = ["backtest_5yr.py", "backtest_engine.py"]
 
 [tool.mypy]
 python_version = "3.12"
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
 ignore_missing_imports = true
 

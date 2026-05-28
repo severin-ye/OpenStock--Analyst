@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
@@ -142,7 +142,7 @@ class InsiderAnalyzer:
 
     def _parse_transactions(self, insider_data: dict) -> list[InsiderTransaction]:
         """解析交易数据"""
-        transactions = []
+        transactions: list[InsiderTransaction] = []
 
         try:
             df = insider_data.get("transactions")

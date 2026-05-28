@@ -307,14 +307,9 @@ class TechnicalAnalyzer:
             if current_price > indicators.ma50:
                 score += 1
 
-        # 长期趋势（MA200）
-        if indicators.ma200:
-            if current_price > indicators.ma200:
-                score += 1
-        else:
-            # 没有 MA200 时，使用其他指标
-            if indicators.rsi and indicators.rsi > 50:
-                score += 1
+        # MTF 评分（基于 RSI 补充）
+        if indicators.rsi is not None and indicators.rsi > 50:
+            score += 1
 
         # 确定对齐状态
         if score == 3:
@@ -408,7 +403,7 @@ class TechnicalAnalyzer:
             rsi_status = "超买" if indicators.rsi > 70 else ("超卖" if indicators.rsi < 30 else "中性")
             lines.append(f"- RSI: {indicators.rsi:.1f} ({rsi_status})")
         if indicators.macd is not None:
-            macd_status = "看多" if indicators.macd_hist > 0 else "看空"
+            macd_status = "看多" if indicators.macd_hist and indicators.macd_hist > 0 else "看空"
             lines.append(f"- MACD: {indicators.macd:.2f} ({macd_status})")
         lines.append("")
 
