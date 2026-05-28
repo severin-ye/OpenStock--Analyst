@@ -1,0 +1,1118 @@
+[
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "NVDA",
+    "entry_price": 180.24020385742188,
+    "rank": "#2/9",
+    "composite_score": 2.8,
+    "f_score": 7,
+    "rank_signal": "BULLISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.656,
+      "expected_return_6m": 0.2278,
+      "expected_return_1y": 0.3417,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": 18.08,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": null,
+      "return_error_6m": 0.047000000000000014,
+      "return_error_1y": null,
+      "prob_calibration": 0.656
+    }
+  },
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 41.099998474121094,
+    "rank": "#1/9",
+    "composite_score": 2.35,
+    "f_score": 7,
+    "rank_signal": "BULLISH",
+    "composite_signal": "NEUTRAL",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.556,
+      "expected_return_6m": 0.1278,
+      "expected_return_1y": 0.1917,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": NaN,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": null,
+      "return_error_6m": NaN,
+      "return_error_1y": null,
+      "prob_calibration": 0.44399999999999995
+    }
+  },
+  {
+    "period": "0.5yr",
+    "cutoff": "2025-11-27",
+    "ticker": "TSLA",
+    "entry_price": 426.5799865722656,
+    "rank": "#8/9",
+    "composite_score": 6.6,
+    "f_score": 5,
+    "rank_signal": "BEARISH",
+    "composite_signal": "NEUTRAL",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.467,
+      "expected_return_6m": 0.0833,
+      "expected_return_1y": 0.125,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.333
+    },
+    "ret_6m": 3.52,
+    "ret_1y": null,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": null,
+      "return_error_6m": 0.0481,
+      "return_error_1y": null,
+      "prob_calibration": 0.4670000000000001
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "NVDA",
+    "entry_price": 135.4680633544922,
+    "rank": "#1/9",
+    "composite_score": 2.4,
+    "f_score": 7,
+    "rank_signal": "BULLISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.656,
+      "expected_return_6m": 0.2278,
+      "expected_return_1y": 0.3417,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.778
+    },
+    "ret_6m": 31.25,
+    "ret_1y": 57.1,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.0847,
+      "return_error_1y": 0.22930000000000006,
+      "prob_calibration": 0.656
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 51.54999923706055,
+    "rank": "#4/9",
+    "composite_score": 3.55,
+    "f_score": 7,
+    "rank_signal": "NEUTRAL",
+    "composite_signal": "BEARISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.433,
+      "expected_return_6m": -0.0333,
+      "expected_return_1y": -0.05,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": -21.75,
+    "ret_1y": NaN,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.1842,
+      "return_error_1y": NaN,
+      "prob_calibration": 0.567
+    }
+  },
+  {
+    "period": "1.0yr",
+    "cutoff": "2025-05-27",
+    "ticker": "TSLA",
+    "entry_price": 362.8900146484375,
+    "rank": "#8/9",
+    "composite_score": 7.0,
+    "f_score": 5,
+    "rank_signal": "BEARISH",
+    "composite_signal": "NEUTRAL",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.444,
+      "expected_return_6m": 0.0722,
+      "expected_return_1y": 0.1083,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 15.57,
+    "ret_1y": 21.65,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.0835,
+      "return_error_1y": 0.1082,
+      "prob_calibration": 0.44399999999999995
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "NVDA",
+    "entry_price": 135.28634643554688,
+    "rank": "#3/9",
+    "composite_score": 3.5,
+    "f_score": 8,
+    "rank_signal": "BULLISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.633,
+      "expected_return_6m": 0.2167,
+      "expected_return_1y": 0.325,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": -0.38,
+    "ret_1y": 33.23,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.2205,
+      "return_error_1y": 0.007299999999999973,
+      "prob_calibration": 0.367
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 28.299999237060547,
+    "rank": "#4/9",
+    "composite_score": 3.75,
+    "f_score": 6,
+    "rank_signal": "NEUTRAL",
+    "composite_signal": "BEARISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.433,
+      "expected_return_6m": -0.0333,
+      "expected_return_1y": -0.05,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 82.86,
+    "ret_1y": 45.23,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.8619,
+      "return_error_1y": 0.5023,
+      "prob_calibration": 0.43300000000000005
+    }
+  },
+  {
+    "period": "1.5yr",
+    "cutoff": "2024-11-27",
+    "ticker": "TSLA",
+    "entry_price": 332.8900146484375,
+    "rank": "#6/9",
+    "composite_score": 6.25,
+    "f_score": 4,
+    "rank_signal": "NEUTRAL",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.567,
+      "expected_return_6m": 0.1833,
+      "expected_return_1y": 0.275,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.333
+    },
+    "ret_6m": 7.21,
+    "ret_1y": 28.14,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.1112,
+      "return_error_1y": 0.006399999999999961,
+      "prob_calibration": 0.567
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "NVDA",
+    "entry_price": 106.40894317626953,
+    "rank": "#3/9",
+    "composite_score": 3.5,
+    "f_score": 8,
+    "rank_signal": "BULLISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.633,
+      "expected_return_6m": 0.2167,
+      "expected_return_1y": 0.325,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 27.78,
+    "ret_1y": 27.31,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.06109999999999999,
+      "return_error_1y": 0.0519,
+      "prob_calibration": 0.633
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 18.440000534057617,
+    "rank": "#4/9",
+    "composite_score": 3.75,
+    "f_score": 6,
+    "rank_signal": "NEUTRAL",
+    "composite_signal": "BEARISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.433,
+      "expected_return_6m": -0.0333,
+      "expected_return_1y": -0.05,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.667
+    },
+    "ret_6m": 54.01,
+    "ret_1y": 179.56,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.5734,
+      "return_error_1y": 1.8456000000000001,
+      "prob_calibration": 0.43300000000000005
+    }
+  },
+  {
+    "period": "2.0yr",
+    "cutoff": "2024-05-27",
+    "ticker": "TSLA",
+    "entry_price": 179.24000549316406,
+    "rank": "#6/9",
+    "composite_score": 5.05,
+    "f_score": 4,
+    "rank_signal": "NEUTRAL",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.589,
+      "expected_return_6m": 0.1944,
+      "expected_return_1y": 0.2917,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": 88.9,
+    "ret_1y": 102.46,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.6946,
+      "return_error_1y": 0.7328999999999999,
+      "prob_calibration": 0.589
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "NVDA",
+    "entry_price": 48.208290100097656,
+    "rank": "#8/9",
+    "composite_score": 7.75,
+    "f_score": 3,
+    "rank_signal": "BEARISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.544,
+      "expected_return_6m": 0.1722,
+      "expected_return_1y": 0.2583,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 120.73,
+    "ret_1y": 183.9,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 1.0351000000000001,
+      "return_error_1y": 1.5807,
+      "prob_calibration": 0.544
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "1810.HK",
+    "entry_price": 15.140000343322754,
+    "rank": "#9/9",
+    "composite_score": 7.8,
+    "f_score": 1,
+    "rank_signal": "BEARISH",
+    "composite_signal": "BEARISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 21.8,
+    "ret_1y": 79.66,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.2958,
+      "return_error_1y": 0.9133,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "2.5yr",
+    "cutoff": "2023-11-27",
+    "ticker": "TSLA",
+    "entry_price": 236.0800018310547,
+    "rank": "#5/9",
+    "composite_score": 5.4,
+    "f_score": 3,
+    "rank_signal": "BEARISH",
+    "composite_signal": "NEUTRAL",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.489,
+      "expected_return_6m": 0.0944,
+      "expected_return_1y": 0.1417,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": -24.08,
+    "ret_1y": 43.27,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.3352,
+      "return_error_1y": 0.29100000000000004,
+      "prob_calibration": 0.511
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "NVDA",
+    "entry_price": 38.911556243896484,
+    "rank": "#8/9",
+    "composite_score": 7.75,
+    "f_score": 3,
+    "rank_signal": "BEARISH",
+    "composite_signal": "BULLISH",
+    "composite_confidence": "HIGH",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "LOW",
+        "mtf_score": 2,
+        "trend": "UPTREND"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "tone": "CONFIDENT"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 9
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "moat": "WIDE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.544,
+      "expected_return_6m": 0.1722,
+      "expected_return_1y": 0.2583,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 22.7,
+    "ret_1y": 173.46,
+    "accuracy": {
+      "direction_correct_6m": true,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.05479999999999999,
+      "return_error_1y": 1.4763000000000002,
+      "prob_calibration": 0.544
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "1810.HK",
+    "entry_price": 10.5,
+    "rank": "#9/9",
+    "composite_score": 7.8,
+    "f_score": 1,
+    "rank_signal": "BEARISH",
+    "composite_signal": "BEARISH",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BEARISH",
+        "confidence": "HIGH",
+        "mtf_score": 0,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "BEARISH",
+        "confidence": "MEDIUM",
+        "tone": "CAUTIOUS"
+      },
+      "sector": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "score": 8
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.344,
+      "expected_return_6m": -0.0778,
+      "expected_return_1y": -0.1167,
+      "confidence": "MEDIUM",
+      "rank_adjustment": 0.222
+    },
+    "ret_6m": 42.86,
+    "ret_1y": 74.29,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": false,
+      "return_error_6m": 0.5064,
+      "return_error_1y": 0.8596000000000001,
+      "prob_calibration": 0.344
+    }
+  },
+  {
+    "period": "3.0yr",
+    "cutoff": "2023-05-27",
+    "ticker": "TSLA",
+    "entry_price": 193.1699981689453,
+    "rank": "#5/9",
+    "composite_score": 5.4,
+    "f_score": 3,
+    "rank_signal": "BEARISH",
+    "composite_signal": "NEUTRAL",
+    "composite_confidence": "MEDIUM",
+    "analysis_results": {
+      "technical": {
+        "signal": "BULLISH",
+        "confidence": "HIGH",
+        "mtf_score": 3,
+        "trend": "SIDEWAYS"
+      },
+      "insider": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "net_sentiment": 0.0
+      },
+      "institutional": {
+        "signal": "NEUTRAL",
+        "confidence": "LOW",
+        "ownership_pct": 0.0
+      },
+      "earnings": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "tone": "NEUTRAL"
+      },
+      "sector": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "score": 4
+      },
+      "economics": null,
+      "competitor": {
+        "signal": "NEUTRAL",
+        "confidence": "MEDIUM",
+        "moat": "NONE"
+      }
+    },
+    "prediction": {
+      "prob_up": 0.489,
+      "expected_return_6m": 0.0944,
+      "expected_return_1y": 0.1417,
+      "confidence": "LOW",
+      "rank_adjustment": 0.444
+    },
+    "ret_6m": 21.89,
+    "ret_1y": -7.21,
+    "accuracy": {
+      "direction_correct_6m": false,
+      "direction_correct_1y": true,
+      "return_error_6m": 0.12450000000000001,
+      "return_error_1y": 0.2138,
+      "prob_calibration": 0.489
+    }
+  }
+]

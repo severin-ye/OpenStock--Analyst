@@ -17,12 +17,12 @@
       "confidence": "MEDIUM",
       "rank_adjustment": 0.778
     },
-    "ret_6m": 17.27,
+    "ret_6m": 18.0,
     "ret_1y": null,
     "accuracy": {
       "direction_correct_6m": true,
       "direction_correct_1y": null,
-      "return_error_6m": 0.05510000000000001,
+      "return_error_6m": 0.04780000000000001,
       "return_error_1y": null,
       "prob_calibration": 0.656
     }
@@ -73,12 +73,12 @@
       "confidence": "MEDIUM",
       "rank_adjustment": 0.333
     },
-    "ret_6m": 3.62,
+    "ret_6m": 3.45,
     "ret_1y": null,
     "accuracy": {
       "direction_correct_6m": false,
       "direction_correct_1y": null,
-      "return_error_6m": 0.10289999999999999,
+      "return_error_6m": 0.1012,
       "return_error_1y": null,
       "prob_calibration": 0.367
     }
@@ -102,12 +102,12 @@
       "rank_adjustment": 0.778
     },
     "ret_6m": 31.25,
-    "ret_1y": 56.04,
+    "ret_1y": 57.02,
     "accuracy": {
       "direction_correct_6m": true,
       "direction_correct_1y": true,
       "return_error_6m": 0.0847,
-      "return_error_1y": 0.2187,
+      "return_error_1y": 0.22850000000000004,
       "prob_calibration": 0.656
     }
   },
@@ -158,12 +158,12 @@
       "rank_adjustment": 0.222
     },
     "ret_6m": 15.57,
-    "ret_1y": 21.86,
+    "ret_1y": 21.64,
     "accuracy": {
       "direction_correct_6m": false,
       "direction_correct_1y": false,
       "return_error_6m": 0.23349999999999999,
-      "return_error_1y": 0.3353,
+      "return_error_1y": 0.3331,
       "prob_calibration": 0.344
     }
   },
@@ -171,7 +171,7 @@
     "period": "1.5yr",
     "cutoff": "2024-11-27",
     "ticker": "NVDA",
-    "entry_price": 135.28634643554688,
+    "entry_price": 135.2863311767578,
     "rank": "#3/9",
     "composite_score": 3.5,
     "score_10": 7.1,
@@ -255,7 +255,7 @@
     "period": "2.0yr",
     "cutoff": "2024-05-27",
     "ticker": "NVDA",
-    "entry_price": 106.40895080566406,
+    "entry_price": 106.40894317626953,
     "rank": "#3/9",
     "composite_score": 3.5,
     "score_10": 7.1,
@@ -339,7 +339,7 @@
     "period": "2.5yr",
     "cutoff": "2023-11-27",
     "ticker": "NVDA",
-    "entry_price": 48.208290100097656,
+    "entry_price": 48.20829391479492,
     "rank": "#8/9",
     "composite_score": 7.75,
     "score_10": 1.4,
@@ -423,7 +423,7 @@
     "period": "3.0yr",
     "cutoff": "2023-05-27",
     "ticker": "NVDA",
-    "entry_price": 38.91154479980469,
+    "entry_price": 38.911556243896484,
     "rank": "#8/9",
     "composite_score": 7.75,
     "score_10": 1.4,

@@ -2,8 +2,10 @@
 
 功能：
 1. 10个时点（每半年）回测
-2. 概率加权预测 vs 实际回报对比
-3. 生成综合分析报告
+2. 集成所有分析模块（技术分析、内部人、机构持仓、财报、行业、宏观、竞争）
+3. 多维度信号综合判断
+4. 概率加权预测 vs 实际回报对比
+5. 生成综合分析报告
 """
 
 import json
@@ -16,6 +18,16 @@ from stock_analysis.backtest.historical_fetcher import build_all_snapshots, get_
 from stock_analysis.backtest.returns_calculator import compute_all_returns
 from stock_analysis.data.fetcher import PriceSnapshot
 from stock_analysis.ranking.greenblatt import compute_greenblatt, RankingResult
+from stock_analysis.analysis import (
+    TechnicalAnalyzer,
+    InsiderAnalyzer,
+    InstitutionalAnalyzer,
+    EarningsAnalyzer,
+    SectorAnalyzer,
+    EconomicsAnalyzer,
+    CompetitorAnalyzer,
+    ResultValidator,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -54,47 +66,203 @@ def signal_from_rank(rank_str: str, f_score: int | None, total: int) -> tuple[st
         return ("BEARISH", "看空")
 
 
-def weighted_prediction(signal: str, composite_score: float, total: int) -> dict:
-    """概率加权预测
+def run_analysis_modules(ticker: str) -> dict:
+    """运行所有分析模块
     
     Args:
-        signal: 信号类型 (BULLISH/NEUTRAL/BEARISH)
-        composite_score: 综合分（越小越好）
-        total: 排名总数
+        ticker: 股票代码
     
     Returns:
-        dict: {
-            "prob_up": 上涨概率,
-            "expected_return_6m": 6个月预期回报,
-            "expected_return_1y": 1年预期回报,
-            "confidence": 置信度
-        }
+        dict: 各模块分析结果
     """
+    results = {
+        "technical": None,
+        "insider": None,
+        "institutional": None,
+        "earnings": None,
+        "sector": None,
+        "economics": None,
+        "competitor": None,
+    }
+    
+    # 技术分析
+    try:
+        tech = TechnicalAnalyzer()
+        tech_signal = tech.analyze(ticker, period="1y")
+        if tech_signal:
+            results["technical"] = {
+                "signal": tech_signal.signal,
+                "confidence": tech_signal.confidence,
+                "mtf_score": tech_signal.mtf_score,
+                "trend": tech_signal.trend.value,
+            }
+    except Exception as e:
+        logger.debug(f"  技术分析失败 {ticker}: {e}")
+    
+    # 内部人交易分析
+    try:
+        insider = InsiderAnalyzer()
+        insider_signal = insider.analyze(ticker)
+        if insider_signal:
+            results["insider"] = {
+                "signal": insider_signal.signal,
+                "confidence": insider_signal.confidence,
+                "net_sentiment": insider_signal.net_sentiment,
+            }
+    except Exception as e:
+        logger.debug(f"  内部人分析失败 {ticker}: {e}")
+    
+    # 机构持仓分析
+    try:
+        inst = InstitutionalAnalyzer()
+        inst_signal = inst.analyze(ticker)
+        if inst_signal:
+            results["institutional"] = {
+                "signal": inst_signal.signal,
+                "confidence": inst_signal.confidence,
+                "ownership_pct": inst_signal.institutional_ownership_pct,
+            }
+    except Exception as e:
+        logger.debug(f"  机构持仓分析失败 {ticker}: {e}")
+    
+    # 财报分析
+    try:
+        earnings = EarningsAnalyzer()
+        earnings_signal = earnings.analyze(ticker)
+        if earnings_signal:
+            results["earnings"] = {
+                "signal": earnings_signal.signal,
+                "confidence": earnings_signal.confidence,
+                "tone": earnings_signal.management_tone.value,
+            }
+    except Exception as e:
+        logger.debug(f"  财报分析失败 {ticker}: {e}")
+    
+    # 行业分析
+    try:
+        sector = SectorAnalyzer()
+        sector_signal = sector.analyze(ticker)
+        if sector_signal:
+            results["sector"] = {
+                "signal": sector_signal.signal,
+                "confidence": sector_signal.confidence,
+                "score": sector_signal.sector_score,
+            }
+    except Exception as e:
+        logger.debug(f"  行业分析失败 {ticker}: {e}")
+    
+    # 竞争分析
+    try:
+        competitor = CompetitorAnalyzer()
+        competitor_signal = competitor.analyze(ticker)
+        if competitor_signal:
+            results["competitor"] = {
+                "signal": competitor_signal.signal,
+                "confidence": competitor_signal.confidence,
+                "moat": competitor_signal.moat_width.value,
+            }
+    except Exception as e:
+        logger.debug(f"  竞争分析失败 {ticker}: {e}")
+    
+    return results
+
+
+def get_composite_signal(analysis_results: dict, rank_signal: str) -> tuple[str, str]:
+    """综合多维度信号
+    
+    Args:
+        analysis_results: 各模块分析结果
+        rank_signal: 排名信号
+    
+    Returns:
+        tuple: (综合信号, 置信度)
+    """
+    signals = []
+    confidences = []
+    
+    # 收集所有信号
+    if analysis_results.get("technical"):
+        signals.append(analysis_results["technical"]["signal"])
+        confidences.append(analysis_results["technical"]["confidence"])
+    
+    if analysis_results.get("insider"):
+        signals.append(analysis_results["insider"]["signal"])
+        confidences.append(analysis_results["insider"]["confidence"])
+    
+    if analysis_results.get("institutional"):
+        signals.append(analysis_results["institutional"]["signal"])
+        confidences.append(analysis_results["institutional"]["confidence"])
+    
+    if analysis_results.get("earnings"):
+        signals.append(analysis_results["earnings"]["signal"])
+        confidences.append(analysis_results["earnings"]["confidence"])
+    
+    if analysis_results.get("sector"):
+        signals.append(analysis_results["sector"]["signal"])
+        confidences.append(analysis_results["sector"]["confidence"])
+    
+    if analysis_results.get("competitor"):
+        signals.append(analysis_results["competitor"]["signal"])
+        confidences.append(analysis_results["competitor"]["confidence"])
+    
+    # 添加排名信号
+    signals.append(rank_signal)
+    
+    if not signals:
+        return "NEUTRAL", "LOW"
+    
+    # 投票决定综合信号
+    bullish_count = signals.count("BULLISH")
+    bearish_count = signals.count("BEARISH")
+    neutral_count = signals.count("NEUTRAL")
+    
+    total = len(signals)
+    
+    if bullish_count > total * 0.5:
+        composite_signal = "BULLISH"
+    elif bearish_count > total * 0.5:
+        composite_signal = "BEARISH"
+    elif bullish_count > bearish_count:
+        composite_signal = "BULLISH"
+    elif bearish_count > bullish_count:
+        composite_signal = "BEARISH"
+    else:
+        composite_signal = "NEUTRAL"
+    
+    # 计算置信度
+    high_count = confidences.count("HIGH")
+    medium_count = confidences.count("MEDIUM")
+    
+    if high_count >= len(confidences) * 0.5:
+        confidence = "HIGH"
+    elif high_count + medium_count >= len(confidences) * 0.7:
+        confidence = "MEDIUM"
+    else:
+        confidence = "LOW"
+    
+    return composite_signal, confidence
+
+
+def weighted_prediction(signal: str, composite_score: float, total: int) -> dict:
+    """概率加权预测"""
     weights = cfg.SIGNAL_WEIGHTS.get(signal, cfg.SIGNAL_WEIGHTS["NEUTRAL"])
     
-    # 基础概率和预期回报
     base_prob = weights["prob"]
     base_return = weights["expected_return"]
     
-    # 根据排名位置调整
     try:
-        rank_num = int(composite_score)  # composite_score 越小越好
-        rank_pct = rank_num / total if total > 0 else 0.5  # 排名百分比（0-1，越小越好）
+        rank_num = int(composite_score)
+        rank_pct = rank_num / total if total > 0 else 0.5
     except (ValueError, TypeError):
         rank_pct = 0.5
     
-    # 排名越靠前（rank_pct越小），概率和回报越高
-    rank_adjustment = 1.0 - rank_pct  # 0-1，越大越好
+    rank_adjustment = 1.0 - rank_pct
     
-    # 调整概率
-    prob_up = base_prob + (rank_adjustment - 0.5) * 0.2  # ±10%调整
-    
-    # 调整预期回报
-    return_adjustment = rank_adjustment * 0.1  # ±10%调整
+    prob_up = base_prob + (rank_adjustment - 0.5) * 0.2
+    return_adjustment = rank_adjustment * 0.1
     expected_return_6m = base_return + return_adjustment
-    expected_return_1y = expected_return_6m * 1.5  # 1年回报约为6个月的1.5倍
+    expected_return_1y = expected_return_6m * 1.5
     
-    # 置信度
     if abs(rank_adjustment - 0.5) > 0.3:
         confidence = "HIGH"
     elif abs(rank_adjustment - 0.5) > 0.15:
@@ -112,17 +280,7 @@ def weighted_prediction(signal: str, composite_score: float, total: int) -> dict
 
 
 def check_prediction_accuracy(prediction: dict, actual_6m: float | None, actual_1y: float | None) -> dict:
-    """检查预测准确性
-    
-    Returns:
-        dict: {
-            "direction_correct_6m": 方向是否正确（6个月）,
-            "direction_correct_1y": 方向是否正确（1年）,
-            "return_error_6m": 回报误差（6个月）,
-            "return_error_1y": 回报误差（1年）,
-            "prob_calibration": 概率校准度
-        }
-    """
+    """检查预测准确性"""
     result = {
         "direction_correct_6m": None,
         "direction_correct_1y": None,
@@ -131,25 +289,18 @@ def check_prediction_accuracy(prediction: dict, actual_6m: float | None, actual_
         "prob_calibration": None,
     }
     
-    # 方向正确性（6个月）
     if actual_6m is not None:
         predicted_up = prediction["prob_up"] > 0.5
         actual_up = actual_6m > 0
         result["direction_correct_6m"] = predicted_up == actual_up
-        
-        # 回报误差
         result["return_error_6m"] = abs(prediction["expected_return_6m"] - actual_6m / 100)
     
-    # 方向正确性（1年）
     if actual_1y is not None:
         predicted_up = prediction["prob_up"] > 0.5
         actual_up = actual_1y > 0
         result["direction_correct_1y"] = predicted_up == actual_up
-        
-        # 回报误差
         result["return_error_1y"] = abs(prediction["expected_return_1y"] - actual_1y / 100)
     
-    # 概率校准度（预测概率与实际结果的匹配程度）
     if actual_6m is not None:
         actual_prob = 1.0 if actual_6m > 0 else 0.0
         result["prob_calibration"] = 1.0 - abs(prediction["prob_up"] - actual_prob)
@@ -165,11 +316,18 @@ def run():
     logger.info(f"目标公司: {cfg.TARGET}")
     logger.info(f"排名对照组: {cfg.RANKING_UNIVERSE} ({len(cfg.RANKING_UNIVERSE)} 家)")
     logger.info(f"回测时点: {[c[0] for c in cfg.CUTOFFS]} ({len(cfg.CUTOFFS)} 个)")
+    logger.info("集成模块: 技术分析、内部人交易、机构持仓、财报分析、行业分析、竞争分析")
     logger.info("=" * 120)
 
     all_periods = []
     all_snapshots: dict[str, dict[str, PriceSnapshot]] = {}
     all_rank_results: dict[str, dict[str, RankingResult]] = {}
+
+    # 宏观经济分析（全局）
+    logger.info("\n📊 宏观经济分析...")
+    economics = EconomicsAnalyzer()
+    econ_signal = economics.analyze()
+    logger.info(f"  经济周期: {econ_signal.phase.value}, 信号: {econ_signal.signal}")
 
     for label, cutoff in cfg.CUTOFFS:
         logger.info(f"\n{'─' * 100}")
@@ -218,11 +376,10 @@ def run():
         total = len(all_ebit_ev)
         logger.info(f"  排名公司数: {total} (有 EBIT/EV)")
 
-        # 4. 对每个目标公司计算排名
+        # 4. 对每个目标公司计算排名和运行分析模块
         period_results = {}
         rank_results_for_cutoff: dict[str, RankingResult] = {}
         
-        # 检查是否有有效的财报数据
         valid_snapshots = {t: s for t, s in snapshots.items() if _pv(s, "ebit_ev") is not None}
         if not valid_snapshots:
             logger.warning(f"  {label}: 无有效财报数据，跳过")
@@ -236,9 +393,7 @@ def run():
             roic_val = _pv(snap, "roic")
             peg_val = _pv(snap, "peg_ratio")
             
-            # 跳过没有有效数据的公司
             if ebit_ev_val is None:
-                logger.warning(f"  {ticker}: 无 EBIT/EV 数据，跳过排名")
                 continue
 
             rank_result = compute_greenblatt(
@@ -255,10 +410,20 @@ def run():
             
             rank_results_for_cutoff[ticker] = rank_result
 
-            sig, dir_str = signal_from_rank(rank_result.composite_rank, snap.f_score, total)
+            # 排名信号
+            rank_sig, rank_dir = signal_from_rank(rank_result.composite_rank, snap.f_score, total)
+            
+            # 运行所有分析模块（仅目标公司）
+            analysis_results = {}
+            if ticker in cfg.TARGET:
+                logger.info(f"  📈 运行分析模块 {ticker}...")
+                analysis_results = run_analysis_modules(ticker)
+            
+            # 综合多维度信号
+            composite_signal, composite_confidence = get_composite_signal(analysis_results, rank_sig)
             
             # 概率加权预测
-            prediction = weighted_prediction(sig, rank_result.composite_score, total)
+            prediction = weighted_prediction(composite_signal, rank_result.composite_score, total)
             
             period_results[ticker] = {
                 "ticker": ticker,
@@ -266,8 +431,11 @@ def run():
                 "composite_score": round(rank_result.composite_score, 2),
                 "score_10": rank_result.score_10,
                 "f_score": snap.f_score,
-                "signal": sig,
-                "direction": dir_str,
+                "rank_signal": rank_sig,
+                "rank_direction": rank_dir,
+                "analysis_results": analysis_results,
+                "composite_signal": composite_signal,
+                "composite_confidence": composite_confidence,
                 "prediction": prediction,
             }
         
@@ -281,11 +449,10 @@ def run():
         for ticker in cfg.TARGET:
             pr = period_results.get(ticker, {})
             rr = raw_returns.get(ticker, {})
-            sig = pr.get("signal", "N/A")
+            sig = pr.get("composite_signal", "N/A")
             ret_6m = rr.get("ret_6m")
             ret_1y = rr.get("ret_1y")
             
-            # 检查预测准确性
             prediction = pr.get("prediction", {})
             accuracy = check_prediction_accuracy(prediction, ret_6m, ret_1y)
 
@@ -296,10 +463,11 @@ def run():
                 "entry_price": rr.get("entry_price"),
                 "rank": pr.get("rank", "N/A"),
                 "composite_score": pr.get("composite_score"),
-                "score_10": pr.get("score_10"),
                 "f_score": pr.get("f_score"),
-                "signal": sig,
-                "direction": pr.get("direction", ""),
+                "rank_signal": pr.get("rank_signal", "N/A"),
+                "composite_signal": sig,
+                "composite_confidence": pr.get("composite_confidence", "N/A"),
+                "analysis_results": pr.get("analysis_results", {}),
                 "prediction": prediction,
                 "ret_6m": ret_6m,
                 "ret_1y": ret_1y,
@@ -315,19 +483,26 @@ def run():
             prob_up = f"{prediction.get('prob_up', 0)*100:.1f}%" if prediction else "N/A"
             dir_correct = "✅" if accuracy.get("direction_correct_6m") else "❌" if accuracy.get("direction_correct_6m") is False else "—"
             
+            # 分析模块信号汇总
+            tech_sig = pr.get("analysis_results", {}).get("technical", {}).get("signal", "—")
+            insider_sig = pr.get("analysis_results", {}).get("insider", {}).get("signal", "—")
+            inst_sig = pr.get("analysis_results", {}).get("institutional", {}).get("signal", "—")
+            
             logger.info(
                 f"  {name:6s} {ep:>10s}  "
                 f"排名={pr.get('rank', 'N/A'):>5s}  "
-                f"信号={sig:>8s}  "
-                f"预测上涨概率={prob_up:>6s}  "
-                f"实际:6m={r6s:>8s} {dir_correct}  "
-                f"1y={r1s:>8s}"
+                f"排名信号={pr.get('rank_signal', 'N/A'):>8s}  "
+                f"综合信号={sig:>8s}  "
+                f"技术={tech_sig:>8s}  "
+                f"内部人={insider_sig:>8s}  "
+                f"机构={inst_sig:>8s}  "
+                f"实际:6m={r6s:>8s} {dir_correct}"
             )
 
         all_periods.extend(period_records)
 
     # ── 生成汇总 ──
-    out_dir = RESULTS_DIR / "backtest_5yr_260528"
+    out_dir = RESULTS_DIR / "backtest_integrated_260528"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     with open(out_dir / "all_results.json", "w", encoding="utf-8") as f:
@@ -341,8 +516,8 @@ def run():
     html_files = generate_backtest_html_reports(all_periods, all_snapshots, all_rank_results, out_dir)
     logger.info(f"  HTML 报告: {len(html_files)} 份")
     
-    # 生成概率加权分析报告
-    generate_probability_analysis(all_periods, out_dir)
+    # 生成多维度信号分析报告
+    generate_multidim_analysis(all_periods, out_dir)
 
     elapsed = (datetime.now() - start_time).total_seconds()
     logger.info(f"\n{'=' * 120}")
@@ -354,18 +529,18 @@ def run():
 def generate_summary(records: list[dict], out_dir: Path):
     """生成汇总报告"""
     lines = []
-    lines.append("# 五年回测实验报告\n")
+    lines.append("# 集成分析模块回测实验报告\n")
     lines.append(f"**生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
     lines.append(f"**目标公司**: {', '.join(cfg.NAME_MAP.get(t, t) for t in cfg.TARGET)}")
-    lines.append(f"**排名对照组**: {len(cfg.RANKING_UNIVERSE)} 家（含{cfg.NAME_MAP.get('1810.HK','小米')}混入美股）")
+    lines.append(f"**排名对照组**: {len(cfg.RANKING_UNIVERSE)} 家")
     lines.append(f"**回测时点**: {len(cfg.CUTOFFS)} 个（5年，每半年）")
-    lines.append(f"**概率加权**: 基于信号类型和排名位置\n")
+    lines.append(f"**集成模块**: 技术分析、内部人交易、机构持仓、财报分析、行业分析、竞争分析\n")
 
     # 统计
     total = len(records)
-    bullish = sum(1 for r in records if r["signal"] == "BULLISH")
-    neutral = sum(1 for r in records if r["signal"] == "NEUTRAL")
-    bearish = sum(1 for r in records if r["signal"] == "BEARISH")
+    bullish = sum(1 for r in records if r["composite_signal"] == "BULLISH")
+    neutral = sum(1 for r in records if r["composite_signal"] == "NEUTRAL")
+    bearish = sum(1 for r in records if r["composite_signal"] == "BEARISH")
 
     # 方向正确性统计
     correct_6m = sum(1 for r in records if r.get("accuracy", {}).get("direction_correct_6m") is True)
@@ -377,13 +552,9 @@ def generate_summary(records: list[dict], out_dir: Path):
     if (correct_6m + wrong_6m) > 0:
         pct_6m = correct_6m / (correct_6m + wrong_6m) * 100
         lines.append(f"**6 月方向正确率**: {correct_6m}/{correct_6m + wrong_6m}（{pct_6m:.1f}%）")
-    else:
-        lines.append("")
     if (correct_1y + wrong_1y) > 0:
         pct_1y = correct_1y / (correct_1y + wrong_1y) * 100
         lines.append(f"**1 年方向正确率**: {correct_1y}/{correct_1y + wrong_1y}（{pct_1y:.1f}%）")
-    else:
-        lines.append("")
     lines.append("")
 
     # 按公司分组
@@ -392,141 +563,100 @@ def generate_summary(records: list[dict], out_dir: Path):
         recs = [r for r in records if r["ticker"] == ticker]
         sym = "$" if ticker != "1810.HK" else "HK$"
         lines.append(f"## {name} ({ticker})\n")
-        lines.append(f"| 时点 | 买入价 | 排名 | 信号 | 预测概率 | 预期回报 | 6月实际 | 方向 | 1年实际 | 方向 |")
-        lines.append(f"|------|--------|:----:|:----:|:-------:|:-------:|:-------:|:----:|:-------:|:----:|")
+        lines.append(f"| 时点 | 买入价 | 排名 | 排名信号 | 综合信号 | 技术 | 内部人 | 机构 | 6月实际 | 方向 |")
+        lines.append(f"|------|--------|:----:|:-------:|:-------:|:----:|:------:|:----:|:-------:|:----:|")
         for r in recs:
             ep = f"{sym}{r['entry_price']:.2f}" if r['entry_price'] else "N/A"
             r6s = f"{r['ret_6m']:+.2f}%" if r['ret_6m'] is not None else "N/A"
-            r1s = f"{r['ret_1y']:+.2f}%" if r['ret_1y'] is not None else "N/A"
-            pred = r.get("prediction", {})
-            prob_up = f"{pred.get('prob_up', 0)*100:.1f}%" if pred else "N/A"
-            exp_ret = f"{pred.get('expected_return_6m', 0)*100:+.1f}%" if pred else "N/A"
+            
+            analysis = r.get("analysis_results", {})
+            tech_sig = analysis.get("technical", {}).get("signal", "—") if analysis.get("technical") else "—"
+            insider_sig = analysis.get("insider", {}).get("signal", "—") if analysis.get("insider") else "—"
+            inst_sig = analysis.get("institutional", {}).get("signal", "—") if analysis.get("institutional") else "—"
+            
             acc = r.get("accuracy", {})
             dir_6m = "✅" if acc.get("direction_correct_6m") is True else "❌" if acc.get("direction_correct_6m") is False else "—"
-            dir_1y = "✅" if acc.get("direction_correct_1y") is True else "❌" if acc.get("direction_correct_1y") is False else "—"
             
             lines.append(
                 f"| {r['period']} | {ep} | {r['rank'] or 'N/A'} | "
-                f"{r['signal']} | {prob_up} | {exp_ret} | "
-                f"{r6s} | {dir_6m} | {r1s} | {dir_1y} |"
+                f"{r.get('rank_signal', 'N/A')} | {r['composite_signal']} | "
+                f"{tech_sig} | {insider_sig} | {inst_sig} | "
+                f"{r6s} | {dir_6m} |"
             )
         lines.append("")
-
-    # 关键发现
-    lines.append("## 关键发现\n")
-    lines.append("- ✅ 方向正确: 预测方向与实际方向一致")
-    lines.append("- ❌ 方向错误: 预测方向与实际方向相反")
-    lines.append("- 概率加权: 基于信号类型和排名位置计算的上涨概率")
-    lines.append("- 预期回报: 基于概率加权的预期回报率")
-    lines.append("")
 
     out_path = out_dir / "summary.md"
     out_path.write_text("\n".join(lines), encoding="utf-8")
     logger.info(f"  汇总报告: {out_path}")
 
 
-def generate_probability_analysis(records: list[dict], out_dir: Path):
-    """生成概率加权分析报告"""
+def generate_multidim_analysis(records: list[dict], out_dir: Path):
+    """生成多维度信号分析报告"""
     lines = []
-    lines.append("# 概率加权分析报告\n")
+    lines.append("# 多维度信号分析报告\n")
     lines.append(f"**生成时间**: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
     
-    # 按信号类型统计
-    signal_stats = {}
+    # 按信号源统计正确率
+    lines.append("## 信号源正确率对比\n")
+    lines.append("| 信号源 | 6月正确率 | 样本数 |")
+    lines.append("|--------|:---------:|:------:|")
+    
+    # 排名信号
+    rank_correct = sum(1 for r in records if r.get("rank_signal") == "BULLISH" and r.get("ret_6m", 0) > 0)
+    rank_total = sum(1 for r in records if r.get("rank_signal") in ["BULLISH", "BEARISH"])
+    if rank_total > 0:
+        lines.append(f"| 排名信号 | {rank_correct}/{rank_total} ({rank_correct/rank_total*100:.1f}%) | {rank_total} |")
+    
+    # 综合信号
+    composite_correct = sum(1 for r in records if r.get("accuracy", {}).get("direction_correct_6m") is True)
+    composite_total = sum(1 for r in records if r.get("accuracy", {}).get("direction_correct_6m") is not None)
+    if composite_total > 0:
+        lines.append(f"| 综合信号 | {composite_correct}/{composite_total} ({composite_correct/composite_total*100:.1f}%) | {composite_total} |")
+    
+    # 技术信号
+    tech_correct = sum(1 for r in records 
+                       if r.get("analysis_results", {}).get("technical", {}).get("signal") == "BULLISH" 
+                       and r.get("ret_6m", 0) > 0)
+    tech_total = sum(1 for r in records 
+                     if r.get("analysis_results", {}).get("technical", {}).get("signal") in ["BULLISH", "BEARISH"])
+    if tech_total > 0:
+        lines.append(f"| 技术信号 | {tech_correct}/{tech_total} ({tech_correct/tech_total*100:.1f}%) | {tech_total} |")
+    
+    lines.append("")
+    
+    # 信号一致性分析
+    lines.append("## 信号一致性分析\n")
+    lines.append("| 时点 | 公司 | 排名 | 技术 | 内部人 | 机构 | 一致 | 实际 |")
+    lines.append("|------|------|:----:|:----:|:------:|:----:|:----:|:----:|")
+    
     for r in records:
-        signal = r["signal"]
-        if signal not in signal_stats:
-            signal_stats[signal] = {
-                "count": 0,
-                "correct_6m": 0,
-                "wrong_6m": 0,
-                "total_prob": 0,
-                "total_actual_6m": 0,
-            }
-        signal_stats[signal]["count"] += 1
-        signal_stats[signal]["total_prob"] += r.get("prediction", {}).get("prob_up", 0)
+        analysis = r.get("analysis_results", {})
+        rank_sig = r.get("rank_signal", "—")
+        tech_sig = analysis.get("technical", {}).get("signal", "—") if analysis.get("technical") else "—"
+        insider_sig = analysis.get("insider", {}).get("signal", "—") if analysis.get("insider") else "—"
+        inst_sig = analysis.get("institutional", {}).get("signal", "—") if analysis.get("institutional") else "—"
         
-        acc = r.get("accuracy", {})
-        if acc.get("direction_correct_6m") is True:
-            signal_stats[signal]["correct_6m"] += 1
-        elif acc.get("direction_correct_6m") is False:
-            signal_stats[signal]["wrong_6m"] += 1
+        # 检查一致性
+        sigs = [s for s in [rank_sig, tech_sig, insider_sig, inst_sig] if s != "—"]
+        if sigs:
+            all_same = all(s == sigs[0] for s in sigs)
+            consistent = "✅" if all_same else "❌"
+        else:
+            consistent = "—"
         
-        if r.get("ret_6m") is not None:
-            signal_stats[signal]["total_actual_6m"] += 1
-    
-    lines.append("## 信号类型统计\n")
-    lines.append("| 信号类型 | 观测数 | 预测概率 | 实际正确率 | 校准度 |")
-    lines.append("|---------|:------:|:-------:|:---------:|:-----:|")
-    
-    for signal, stats in signal_stats.items():
-        count = stats["count"]
-        if count == 0:
-            continue
-        
-        avg_prob = stats["total_prob"] / count
-        correct = stats["correct_6m"]
-        wrong = stats["wrong_6m"]
-        total = correct + wrong
-        actual_rate = correct / total if total > 0 else 0
-        calibration = 1.0 - abs(avg_prob - actual_rate)
+        actual = f"{r['ret_6m']:+.1f}%" if r.get('ret_6m') is not None else "N/A"
         
         lines.append(
-            f"| {signal} | {count} | {avg_prob*100:.1f}% | "
-            f"{actual_rate*100:.1f}% ({correct}/{total}) | {calibration*100:.1f}% |"
+            f"| {r['period']} | {cfg.NAME_MAP.get(r['ticker'], r['ticker'])} | "
+            f"{rank_sig} | {tech_sig} | {insider_sig} | {inst_sig} | "
+            f"{consistent} | {actual} |"
         )
     
     lines.append("")
     
-    # 按公司统计
-    lines.append("## 公司统计\n")
-    lines.append("| 公司 | 观测数 | 平均预测概率 | 6月正确率 | 平均回报 |")
-    lines.append("|------|:------:|:----------:|:--------:|:-------:|")
-    
-    for ticker in cfg.TARGET:
-        name = cfg.NAME_MAP.get(ticker, ticker)
-        recs = [r for r in records if r["ticker"] == ticker]
-        count = len(recs)
-        
-        if count == 0:
-            continue
-        
-        avg_prob = sum(r.get("prediction", {}).get("prob_up", 0) for r in recs) / count
-        
-        correct = sum(1 for r in recs if r.get("accuracy", {}).get("direction_correct_6m") is True)
-        wrong = sum(1 for r in recs if r.get("accuracy", {}).get("direction_correct_6m") is False)
-        total = correct + wrong
-        correct_rate = correct / total if total > 0 else 0
-        
-        actual_returns = [r["ret_6m"] for r in recs if r.get("ret_6m") is not None]
-        avg_return = sum(actual_returns) / len(actual_returns) if actual_returns else 0
-        
-        lines.append(
-            f"| {name} | {count} | {avg_prob*100:.1f}% | "
-            f"{correct_rate*100:.1f}% ({correct}/{total}) | {avg_return:+.2f}% |"
-        )
-    
-    lines.append("")
-    
-    # 预测 vs 实际散点图数据
-    lines.append("## 预测 vs 实际对比\n")
-    lines.append("```json")
-    scatter_data = []
-    for r in records:
-        if r.get("ret_6m") is not None and r.get("prediction"):
-            scatter_data.append({
-                "ticker": r["ticker"],
-                "period": r["period"],
-                "predicted_prob": r["prediction"]["prob_up"],
-                "actual_return": r["ret_6m"],
-                "direction_correct": r.get("accuracy", {}).get("direction_correct_6m"),
-            })
-    lines.append(json.dumps(scatter_data, indent=2, ensure_ascii=False))
-    lines.append("```\n")
-    
-    out_path = out_dir / "probability_analysis.md"
+    out_path = out_dir / "multidim_analysis.md"
     out_path.write_text("\n".join(lines), encoding="utf-8")
-    logger.info(f"  概率分析报告: {out_path}")
+    logger.info(f"  多维度分析报告: {out_path}")
 
 
 if __name__ == "__main__":

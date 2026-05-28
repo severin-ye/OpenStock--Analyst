@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NVDA — 综合投资分析报告</title>
+<title>TSLA — 综合投资分析报告</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -28,7 +28,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue','Ping
 .nav-link .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .bull .dot{background:var(--green)} .bear .dot{background:var(--red)} .neut .dot{background:var(--amber)}
 .cover{background:linear-gradient(135deg,#0f172a 0%,#1a3a52 55%,#0d6e3f 100%);border-radius:var(--r);padding:40px 40px 36px;margin-bottom:24px;position:relative;overflow:hidden;color:#fff}
-.cover::before{content:'NVDA';position:absolute;right:-16px;top:-8px;font-size:140px;font-weight:800;letter-spacing:-8px;opacity:.05;pointer-events:none}
+.cover::before{content:'TSLA';position:absolute;right:-16px;top:-8px;font-size:140px;font-weight:800;letter-spacing:-8px;opacity:.05;pointer-events:none}
 .cover-label{display:inline-block;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:4px;padding:2px 10px;font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#6ee7b7;margin-bottom:14px}
 .cover h1{font-size:28px;font-weight:700;line-height:1.2;margin-bottom:4px}
 .cover .exchange{font-size:13px;color:rgba(148,163,184,.8);margin-bottom:28px}
@@ -94,19 +94,19 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
 
 <aside class="sidebar">
-  <div class="sidebar-logo"><div class="ticker">NVDA</div><div class="name">英伟达</div></div>
+  <div class="sidebar-logo"><div class="ticker">TSLA</div><div class="name">特斯拉</div></div>
   
-  <div class="sidebar-score"><div class="score-pill">🏆 <span class="num">#1/9</span></div></div>
+  <div class="sidebar-score"><div class="score-pill">🏆 <span class="num">#8/9</span></div></div>
   
   <nav>
     <div class="nav-gl">分析章节</div>
     
-    <a class="nav-link bull" href="#s1">
+    <a class="nav-link bear" href="#s1">
       <span class="dot"></span>S1. 涨跌比例总览
     </a>
     
     <a class="nav-link neut" href="#s2">
-      <span class="dot"></span>S2. 🏢 英伟达 回测概览
+      <span class="dot"></span>S2. 🏢 特斯拉 回测概览
     </a>
     
     <a class="nav-link bull" href="#s3">
@@ -117,7 +117,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <span class="dot"></span>S4. ⚔️ 排名对比
     </a>
     
-    <a class="nav-link bull" href="#s5">
+    <a class="nav-link bear" href="#s5">
       <span class="dot"></span>S5. 💰 估值分析
     </a>
     
@@ -129,7 +129,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <span class="dot"></span>S7. 风险矩阵
     </a>
     
-    <a class="nav-link bull" href="#s8">
+    <a class="nav-link bear" href="#s8">
       <span class="dot"></span>S8. 投资信号
     </a>
     
@@ -143,37 +143,37 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
 <div class="cover">
   <div class="cover-label">InvestSkill v2.0 · 综合投资分析报告</div>
-  <h1>NVDA — 回测验证报告 (1.0yr)</h1>
-  <div class="exchange">分析日期 2026-05-28 | 当前价格: $135.47 | 市值: $3.21T | 纳斯达克/纽约</div>
+  <h1>TSLA — 回测验证报告 (0.5yr)</h1>
+  <div class="exchange">分析日期 2026-05-28 | 当前价格: $426.58 | 市值: $1.37T | 纳斯达克/纽约</div>
   <div class="kpi-strip">
     
     <div class="k"><label>买入价</label>
-      <span class="">$135.47</span>
+      <span class="">$426.58</span>
       
     </div>
     
     <div class="k"><label>综合排名</label>
-      <span class="">#1/9</span>
+      <span class="">#8/9</span>
       
     </div>
     
     <div class="k"><label>综合分</label>
-      <span class="">2.40</span>
+      <span class="">6.60</span>
       
     </div>
     
     <div class="k"><label>F-Score</label>
-      <span class="">7/9</span>
+      <span class="">5/9</span>
       
     </div>
     
     <div class="k"><label>6月回报</label>
-      <span class="up">+31.25%</span>
+      <span class="up">+3.55%</span>
       
     </div>
     
     <div class="k"><label>1年回报</label>
-      <span class="up">+57.02%</span>
+      <span class="dn">N/A</span>
       
     </div>
     
@@ -190,24 +190,24 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         
         <tr>
           <td>系统信号</td>
-          <td class="nu">看多</td>
-          <td>$135.47</td>
+          <td class="nu">看空</td>
+          <td>$426.58</td>
           <td>四层加权排名</td>
-          <td>排名 #1/9</td>
+          <td>排名 #8/9</td>
         </tr>
         
         <tr>
           <td>6个月实际</td>
-          <td class="up">+31.25%</td>
-          <td>✅正确</td>
+          <td class="up">+3.55%</td>
+          <td>➖持平</td>
           <td>持有期回报</td>
           <td>回测验证</td>
         </tr>
         
         <tr>
           <td>1年实际</td>
-          <td class="up">+57.02%</td>
-          <td>✅正确</td>
+          <td class="nu">N/A</td>
+          <td>—</td>
           <td>持有期回报</td>
           <td>回测验证</td>
         </tr>
@@ -215,15 +215,15 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       </tbody>
     </table>
   </div>
-  <p style="margin-top:12px">系统信号: 看多 (BULLISH) | 实际6月: +31.25% | 偏差: ✅正确</p>
+  <p style="margin-top:12px">系统信号: 看空 (BEARISH) | 实际6月: +3.55% | 偏差: ➖持平</p>
 </div>
 
 
 <div class="card" id="s2">
-  <div class="card-header"><div class="card-num">2</div><div class="card-title">🏢 英伟达 回测概览</div><div class="card-sub">截止日: 2025-05-27 | 回测时点: 1.0yr</div></div>
+  <div class="card-header"><div class="card-num">2</div><div class="card-title">🏢 特斯拉 回测概览</div><div class="card-sub">截止日: 2025-11-27 | 回测时点: 0.5yr</div></div>
   
         <p>本报告为回测实验生成，验证四层加权排名系统在历史时点的预测准确性。</p>
-        <p><strong>回测方法</strong>: 在 2025-05-27 构建历史财报快照，计算排名和信号，然后对比实际持有期回报。</p>
+        <p><strong>回测方法</strong>: 在 2025-11-27 构建历史财报快照，计算排名和信号，然后对比实际持有期回报。</p>
         <p><strong>数据隔离</strong>: 仅使用截止日之前已公开的财报（90天滞后期），避免前瞻偏差。</p>
         
   
@@ -231,13 +231,13 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <thead><tr><th>指标</th><th>数值</th><th>说明</th></tr></thead>
     <tbody>
       
-      <tr><td>EBIT/EV</td><td><strong>2.62%</strong></td><td>L1指标</td></tr>
+      <tr><td>EBIT/EV</td><td><strong>0.68%</strong></td><td>L1指标</td></tr>
       
-      <tr><td>ROIC</td><td><strong>90.55%</strong></td><td>L2指标</td></tr>
+      <tr><td>ROIC</td><td><strong>10.44%</strong></td><td>L2指标</td></tr>
       
-      <tr><td>F-Score</td><td><strong>7/9</strong></td><td>L3指标</td></tr>
+      <tr><td>F-Score</td><td><strong>5/9</strong></td><td>L3指标</td></tr>
       
-      <tr><td>PEG</td><td><strong>0.39</strong></td><td>L4指标</td></tr>
+      <tr><td>PEG</td><td><strong>203.05</strong></td><td>L4指标</td></tr>
       
     </tbody>
   </table></div>
@@ -249,18 +249,18 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="card-header"><div class="card-num">3</div><div class="card-title">📈 过去一年走势</div><div class="card-sub">2025.04 — 2026.05</div></div>
   
     <h3>📊 回测偏差分析</h3>
-    <p>6月偏差: ✅正确 | 1年偏差: ✅正确</p>
-    <p>信号方向: <strong>看多</strong> (BULLISH) | 操作建议: <strong>BUY</strong></p>
+    <p>6月偏差: ➖持平 | 1年偏差: —</p>
+    <p>信号方向: <strong>看空</strong> (BEARISH) | 操作建议: <strong>SELL</strong></p>
     
   
 </div>
 
 
 <div class="card" id="s4">
-  <div class="card-header"><div class="card-num">4</div><div class="card-title">⚔️ 排名对比</div><div class="card-sub">截止日 2025-05-27 的排名情况</div></div>
+  <div class="card-header"><div class="card-num">4</div><div class="card-title">⚔️ 排名对比</div><div class="card-sub">截止日 2025-11-27 的排名情况</div></div>
   
-        <p>在 9 家公司中，英伟达 排名 <strong>#1/9</strong></p>
-        <p>综合分: 2.40 (越小越好)</p>
+        <p>在 9 家公司中，特斯拉 排名 <strong>#8/9</strong></p>
+        <p>综合分: 6.60 (越小越好)</p>
         
 </div>
 
@@ -270,7 +270,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
   
   
-  <h3>🛡️ Piotroski F-Score: 7/9</h3>
+  <h3>🛡️ Piotroski F-Score: 5/9</h3>
   
   <div class="t-wrap"><table>
     <thead><tr><th>组</th><th>指标</th><th>得分</th><th>说明</th></tr></thead>
@@ -301,14 +301,14 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         <td style="text-align:center;font-weight:700">1</td><td>去杠杆</td>
       </tr>
       
-      <tr class="hi">
+      <tr class="">
         <td>杠杆</td><td>流动比率改善</td>
-        <td style="text-align:center;font-weight:700">1</td><td>流动性</td>
+        <td style="text-align:center;font-weight:700">0</td><td>流动性</td>
       </tr>
       
-      <tr class="hi">
+      <tr class="">
         <td>效率</td><td>股本未稀释</td>
-        <td style="text-align:center;font-weight:700">1</td><td>股本效率</td>
+        <td style="text-align:center;font-weight:700">0</td><td>股本效率</td>
       </tr>
       
       <tr class="">
@@ -326,7 +326,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   
 
   
-  <h3>📊 四层加权排名 · #1/9</h3>
+  <h3>📊 四层加权排名 · #8/9</h3>
   <div class="t-wrap"><table>
     <thead><tr><th>Layer</th><th>维度</th><th>主指标</th><th>数值</th><th>权重</th><th>排名</th><th>判断</th></tr></thead>
     <tbody>
@@ -335,40 +335,40 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
         <td>L1</td>
         <td>💰 便不便宜</td>
         <td>EBIT/EV</td>
-        <td>2.62%</td>
+        <td>0.68%</td>
         <td style="text-align:center">40%</td>
-        <td style="text-align:center;font-weight:700">#2/9</td>
-        <td>深度价值核心</td>
+        <td style="text-align:center;font-weight:700">#7/9</td>
+        <td>偏贵</td>
       </tr>
       
       <tr>
         <td>L2</td>
         <td>🏭 赚不赚钱</td>
         <td>ROIC</td>
-        <td>90.5%</td>
+        <td>10.4%</td>
         <td style="text-align:center">25%</td>
-        <td style="text-align:center;font-weight:700">#1/9</td>
-        <td>资本效率优秀</td>
+        <td style="text-align:center;font-weight:700">#5/9</td>
+        <td>资本效率一般</td>
       </tr>
       
       <tr>
         <td>L3</td>
         <td>🛡️ 会不会崩</td>
         <td>F-Score</td>
-        <td>7/9</td>
+        <td>5/9</td>
         <td style="text-align:center">25%</td>
-        <td style="text-align:center;font-weight:700">#5/9</td>
-        <td>财务安全</td>
+        <td style="text-align:center;font-weight:700">#7/9</td>
+        <td>财务有风险</td>
       </tr>
       
       <tr>
         <td>L4</td>
         <td>📈 增长值不值</td>
         <td>PEG</td>
-        <td>0.39x</td>
+        <td>203.05x</td>
         <td style="text-align:center">10%</td>
-        <td style="text-align:center;font-weight:700">#1/8</td>
-        <td>增长划算</td>
+        <td style="text-align:center;font-weight:700">#8/8</td>
+        <td>增长已定价</td>
       </tr>
       
     </tbody>
@@ -376,14 +376,14 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   
 
   
-  <div class="note">☝️ 加权综合 = 2×40% + 1×25% + 5×25% + 1×10% = 2.40</div>
+  <div class="note">☝️ 加权综合 = 7×40% + 5×25% + 7×25% + 8×10% = 6.60</div>
   
 
   
     <h3>📊 四层加权排名分析</h3>
-    <p>综合分: <strong>2.40</strong> (越小越好)</p>
-    <p>综合排名: <strong>#1/9</strong></p>
-    <p>加权综合 = 2×40% + 1×25% + 5×25% + 1×10% = 2.40</p>
+    <p>综合分: <strong>6.60</strong> (越小越好)</p>
+    <p>综合排名: <strong>#8/9</strong></p>
+    <p>加权综合 = 7×40% + 5×25% + 7×25% + 8×10% = 6.60</p>
     
 
   <div class="model-box">
@@ -402,9 +402,9 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
     <div class="bars">
   
       <div class="bar-row">
-        <div class="bl">系统看多</div>
+        <div class="bl">系统看空</div>
         <div class="btr"><div class="bfill" style="width:60%;background:var(--green)"></div></div>
-        <div class="bv">$135.47</div>
+        <div class="bv">$426.58</div>
       </div>
   
   
@@ -412,7 +412,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <div class="bar-row">
         <div class="bl">6月目标</div>
         <div class="btr"><div class="bfill" style="width:40%;background:var(--green)"></div></div>
-        <div class="bv">$163</div>
+        <div class="bv">$341</div>
       </div>
   
     </div>
@@ -428,7 +428,7 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 
 <div class="card" id="s6">
   <div class="card-header"><div class="card-num">6</div><div class="card-title">🔮 未来一年展望</div><div class="card-sub">2026.05 — 2027.05 · 情景概率</div></div>
-  <p>基于系统信号 <strong>看多</strong> 和实际回报的偏差分析。</p>
+  <p>基于系统信号 <strong>看空</strong> 和实际回报的偏差分析。</p>
 
   
   <div class="model-box">
@@ -438,21 +438,21 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
       <tbody>
         
         <tr>
-          <td>乐观</td><td>40%</td><td>$176</td>
-          <td class="up">+30%</td>
-          <td>系统看多正确，大幅上涨</td>
-        </tr>
-        
-        <tr>
-          <td>中性</td><td>35%</td><td>$149</td>
+          <td>乐观</td><td>25%</td><td>$469</td>
           <td class="up">+10%</td>
-          <td>温和上涨</td>
+          <td>系统看空错误</td>
         </tr>
         
         <tr>
-          <td>悲观</td><td>25%</td><td>$122</td>
-          <td class="dn">-10%</td>
-          <td>系统看多错误</td>
+          <td>中性</td><td>35%</td><td>$405</td>
+          <td class="dn">-5%</td>
+          <td>小幅下跌</td>
+        </tr>
+        
+        <tr>
+          <td>悲观</td><td>40%</td><td>$299</td>
+          <td class="dn">-30%</td>
+          <td>系统看空正确，大幅下跌</td>
         </tr>
         
       </tbody>
@@ -497,14 +497,14 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
   <div class="signal">
     <div class="signal-head">投资信号</div>
     <div class="signal-rows">
-      <div class="sr"><label>信号</label><span class="up">看多</span></div>
-      <div class="sr"><label>信心度</label><span>高</span></div>
+      <div class="sr"><label>信号</label><span class="dn">看空</span></div>
+      <div class="sr"><label>信心度</label><span>中</span></div>
       <div class="sr"><label>投资期限</label><span>中</span></div>
-      <div class="sr"><label>评分</label><span>7 / 9</span></div>
+      <div class="sr"><label>评分</label><span>5 / 9</span></div>
     </div>
     <div class="signal-rows">
-      <div class="sr"><label>建议操作</label><span>买入</span></div>
-      <div class="sr"><label>确信度</label><span>强</span></div>
+      <div class="sr"><label>建议操作</label><span>卖出</span></div>
+      <div class="sr"><label>确信度</label><span>中等</span></div>
     </div>
     <div class="signal-foot">教育性分析，不构成投资建议</div>
   </div>
@@ -515,21 +515,21 @@ footer{text-align:center;padding:16px 0 32px;font-size:11px;color:var(--muted)}
 <div id="verdict" style="scroll-margin-top:24px">
   
   <div class="verdict">
-    <h2>英伟达 回测验证裁决</h2>
+    <h2>特斯拉 回测验证裁决</h2>
     <div class="verdict-grid">
       <div>
         <h3 style="color:#6ee7b7;font-size:12px;margin-bottom:10px">✅ 看多理由</h3>
-        <ul><li>系统信号看多 (BULLISH)</li><li>6月实际回报 +31.2% 验证看多</li><li>1年实际回报 +57.0% 持续验证</li><li>6月偏差验证正确</li><li>1年偏差验证正确</li></ul>
+        <ul></ul>
       </div>
       <div>
         <h3 style="color:#fca5a5;font-size:12px;margin-bottom:10px">⚠️ 看空理由</h3>
-        <ul></ul>
+        <ul><li>系统信号: BEARISH</li></ul>
       </div>
     </div>
     <div class="verdict-score">
-      <div class="big">7/9</div>
+      <div class="big">5/9</div>
       <div class="lbl">Piotroski F-Score · 财务健康度</div>
-      <div class="rec">强力推荐</div>
+      <div class="rec">回避</div>
     </div>
   </div>
   
@@ -554,7 +554,7 @@ new Chart(document.getElementById('rankingRadar'),{
       
       {
         label:'排名得分',
-        data:[8.8, 10.0, 5.0, 10.0],
+        data:[2.5, 5.0, 2.5, 0.0],
         borderColor:'#2563eb',
         backgroundColor:'rgba(37,99,235,0.15)',
         pointBackgroundColor:'#2563eb',
@@ -586,7 +586,7 @@ new Chart(document.getElementById('returnCompare'),{
       
       {
         label:'实际回报',
-        data:[31.25, 57.02],
+        data:[3.55, 0.0],
         backgroundColor:'#059669',
         borderRadius:4,
         barPercentage:0.7
