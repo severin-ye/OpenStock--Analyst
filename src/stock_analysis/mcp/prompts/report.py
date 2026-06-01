@@ -4,7 +4,6 @@ MCP 报告提示模块
 提供报告生成相关的提示模板。
 """
 
-from mcp.server.fastmcp import FastMCP
 
 # 获取服务器实例
 from ..server import mcp
@@ -16,7 +15,7 @@ def report_generation_prompt(
     report_type: str = "full",
 ) -> str:
     """生成报告创建提示。
-    
+
     Args:
         ticker: 股票代码
         report_type: 报告类型 (full/summary/quick)
@@ -41,7 +40,7 @@ def report_generation_prompt(
 - `validate_analysis` 验证分析结果
 
 使用 `generate_report` 工具生成最终报告。"""
-    
+
     elif report_type == "summary":
         return f"""请为 {ticker} 生成一份简要分析报告：
 
@@ -52,7 +51,7 @@ def report_generation_prompt(
 4. **投资建议**：明确的操作建议
 
 请使用 `calculate_ranking` 和 `technical_analysis` 获取关键数据。"""
-    
+
     else:  # quick
         return f"""请为 {ticker} 生成一份快速分析报告：
 
@@ -69,7 +68,7 @@ def batch_report_prompt(
     tickers: list[str],
 ) -> str:
     """生成批量报告提示。
-    
+
     Args:
         tickers: 股票代码列表
     """
@@ -97,7 +96,7 @@ def report_update_prompt(
     existing_report: str,
 ) -> str:
     """生成报告更新提示。
-    
+
     Args:
         ticker: 股票代码
         existing_report: 现有报告内容

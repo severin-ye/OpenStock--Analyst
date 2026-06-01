@@ -4,8 +4,9 @@ MCP 分析工具模块
 提供各种股票分析工具，包括技术分析、内部人交易分析等。
 """
 
-from mcp.server.fastmcp import FastMCP, Context
 import json
+
+from mcp.server.fastmcp import Context
 
 # 获取服务器实例
 from ..server import mcp
@@ -18,19 +19,19 @@ async def technical_analysis(
     ctx: Context = None,
 ) -> str:
     """执行技术分析。
-    
+
     Args:
         ticker: 股票代码 (如 "NVDA", "1810.HK")
         period: 分析周期 (如 "1y", "6mo", "3mo")
     """
     if ctx:
         await ctx.info(f"正在对 {ticker} 进行技术分析...")
-    
+
     try:
         from stock_analysis.analysis import TechnicalAnalyzer
         analyzer = TechnicalAnalyzer()
         signal = analyzer.analyze(ticker, period=period)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "technical",
@@ -44,10 +45,10 @@ async def technical_analysis(
                 "macd": signal.macd,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "技术分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"技术分析失败: {str(e)}"
@@ -62,18 +63,18 @@ async def insider_analysis(
     ctx: Context = None,
 ) -> str:
     """执行内部人交易分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的内部人交易...")
-    
+
     try:
         from stock_analysis.analysis import InsiderAnalyzer
         analyzer = InsiderAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "insider",
@@ -86,10 +87,10 @@ async def insider_analysis(
                 "significant_trades": signal.significant_trades,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "内部人交易分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"内部人交易分析失败: {str(e)}"
@@ -104,18 +105,18 @@ async def institutional_analysis(
     ctx: Context = None,
 ) -> str:
     """执行机构持仓分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的机构持仓...")
-    
+
     try:
         from stock_analysis.analysis import InstitutionalAnalyzer
         analyzer = InstitutionalAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "institutional",
@@ -128,10 +129,10 @@ async def institutional_analysis(
                 "smart_money_signal": signal.smart_money_signal,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "机构持仓分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"机构持仓分析失败: {str(e)}"
@@ -146,18 +147,18 @@ async def earnings_analysis(
     ctx: Context = None,
 ) -> str:
     """执行财报分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的财报...")
-    
+
     try:
         from stock_analysis.analysis import EarningsAnalyzer
         analyzer = EarningsAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "earnings",
@@ -169,10 +170,10 @@ async def earnings_analysis(
                 "red_flags": signal.red_flags,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "财报分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"财报分析失败: {str(e)}"
@@ -187,18 +188,18 @@ async def sector_analysis(
     ctx: Context = None,
 ) -> str:
     """执行行业分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的行业情况...")
-    
+
     try:
         from stock_analysis.analysis import SectorAnalyzer
         analyzer = SectorAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "sector",
@@ -212,10 +213,10 @@ async def sector_analysis(
                 "ytd_return": signal.ytd_return,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "行业分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"行业分析失败: {str(e)}"
@@ -231,12 +232,12 @@ async def economics_analysis(
     """执行宏观经济分析。"""
     if ctx:
         await ctx.info("正在分析宏观经济情况...")
-    
+
     try:
         from stock_analysis.analysis import EconomicsAnalyzer
         analyzer = EconomicsAnalyzer()
         signal = analyzer.analyze()
-        
+
         result = {
             "analysis_type": "economics",
             "signal": signal.signal,
@@ -248,10 +249,10 @@ async def economics_analysis(
                 "gdp_growth": signal.gdp_growth,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "宏观经济分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"宏观经济分析失败: {str(e)}"
@@ -266,18 +267,18 @@ async def competitor_analysis(
     ctx: Context = None,
 ) -> str:
     """执行竞争分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的竞争情况...")
-    
+
     try:
         from stock_analysis.analysis import CompetitorAnalyzer
         analyzer = CompetitorAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "competitor",
@@ -293,10 +294,10 @@ async def competitor_analysis(
                 "roic_vs_wacc": signal.roic_vs_wacc,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "竞争分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"竞争分析失败: {str(e)}"
@@ -311,18 +312,18 @@ async def narrative_analysis(
     ctx: Context = None,
 ) -> str:
     """执行叙事分析。
-    
+
     Args:
         ticker: 股票代码
     """
     if ctx:
         await ctx.info(f"正在分析 {ticker} 的叙事情况...")
-    
+
     try:
         from stock_analysis.analysis import NarrativeAnalyzer
         analyzer = NarrativeAnalyzer()
         signal = analyzer.analyze(ticker)
-        
+
         result = {
             "ticker": ticker,
             "analysis_type": "narrative",
@@ -334,10 +335,10 @@ async def narrative_analysis(
                 "social_sentiment": signal.social_sentiment,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "叙事分析完成")
-        
+
         return json.dumps(result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"叙事分析失败: {str(e)}"
@@ -356,7 +357,7 @@ async def validate_analysis(
     ctx: Context = None,
 ) -> str:
     """验证分析结果。
-    
+
     Args:
         ticker: 股票代码
         signal: 信号 (BULLISH/NEUTRAL/BEARISH)
@@ -366,7 +367,7 @@ async def validate_analysis(
     """
     if ctx:
         await ctx.info(f"正在验证 {ticker} 的分析结果...")
-    
+
     try:
         from stock_analysis.analysis import ResultValidator
         validator = ResultValidator()
@@ -377,7 +378,7 @@ async def validate_analysis(
             f_score=f_score,
             composite_rank=composite_rank,
         )
-        
+
         validation_result = {
             "ticker": ticker,
             "validation_type": "analysis_validation",
@@ -391,10 +392,10 @@ async def validate_analysis(
                 "reasoning_transparency": result.reasoning_transparency,
             }
         }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "分析验证完成")
-        
+
         return json.dumps(validation_result, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"分析验证失败: {str(e)}"
@@ -410,26 +411,26 @@ async def full_analysis(
     ctx: Context = None,
 ) -> str:
     """执行完整的股票分析。
-    
+
     Args:
         ticker: 股票代码
         analysis_type: 分析类型 (full/quick/basic)
     """
     if ctx:
         await ctx.info(f"正在对 {ticker} 进行完整分析...")
-    
+
     try:
         from stock_analysis.analysis import (
-            TechnicalAnalyzer,
+            CompetitorAnalyzer,
+            EarningsAnalyzer,
+            EconomicsAnalyzer,
             InsiderAnalyzer,
             InstitutionalAnalyzer,
-            EarningsAnalyzer,
-            SectorAnalyzer,
-            EconomicsAnalyzer,
-            CompetitorAnalyzer,
             NarrativeAnalyzer,
+            SectorAnalyzer,
+            TechnicalAnalyzer,
         )
-        
+
         analyzers = {
             "technical": TechnicalAnalyzer(),
             "insider": InsiderAnalyzer(),
@@ -440,26 +441,26 @@ async def full_analysis(
             "competitor": CompetitorAnalyzer(),
             "narrative": NarrativeAnalyzer(),
         }
-        
+
         results = {
             "ticker": ticker,
             "analysis_type": analysis_type,
             "analyses": {}
         }
-        
+
         # 执行所有分析
         total = len(analyzers)
-        
+
         for i, (name, analyzer) in enumerate(analyzers.items()):
             if ctx:
                 await ctx.report_progress(i + 1, total, f"正在执行 {name} 分析...")
-            
+
             try:
                 if name == "economics":
                     signal = analyzer.analyze()
                 else:
                     signal = analyzer.analyze(ticker)
-                
+
                 results["analyses"][name] = {
                     "signal": signal.signal,
                     "details": str(signal),
@@ -468,10 +469,10 @@ async def full_analysis(
                 results["analyses"][name] = {
                     "error": str(e),
                 }
-        
+
         if ctx:
             await ctx.report_progress(100, 100, "完整分析完成")
-        
+
         return json.dumps(results, indent=2, ensure_ascii=False)
     except Exception as e:
         error_msg = f"完整分析失败: {str(e)}"

@@ -4,8 +4,6 @@ MCP 分析提示模块
 提供股票分析相关的提示模板。
 """
 
-from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp.prompts.base import UserMessage, AssistantMessage
 
 # 获取服务器实例
 from ..server import mcp
@@ -17,7 +15,7 @@ def stock_analysis_prompt(
     analysis_depth: str = "full",
 ) -> str:
     """生成股票分析提示。
-    
+
     Args:
         ticker: 股票代码
         analysis_depth: 分析深度 (full/quick/basic)
@@ -45,7 +43,7 @@ def stock_analysis_prompt(
 - `narrative_analysis` 分析叙事
 
 最后，请给出综合投资建议和风险提示。"""
-    
+
     elif analysis_depth == "quick":
         return f"""请对 {ticker} 进行快速分析，重点关注：
 
@@ -54,7 +52,7 @@ def stock_analysis_prompt(
 3. **风险因素**：主要风险点
 
 请使用 `technical_analysis` 和 `calculate_ranking` 工具获取数据。"""
-    
+
     else:  # basic
         return f"""请查看 {ticker} 的基本信息和当前排名。
 
@@ -68,7 +66,7 @@ def comparison_prompt(
     ticker2: str,
 ) -> str:
     """生成公司对比提示。
-    
+
     Args:
         ticker1: 第一个股票代码
         ticker2: 第二个股票代码
@@ -94,7 +92,7 @@ def sector_analysis_prompt(
     sector: str,
 ) -> str:
     """生成行业分析提示。
-    
+
     Args:
         sector: 行业名称
     """
@@ -117,7 +115,7 @@ def risk_assessment_prompt(
     ticker: str,
 ) -> str:
     """生成风险评估提示。
-    
+
     Args:
         ticker: 股票代码
     """
