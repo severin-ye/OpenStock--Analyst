@@ -27,6 +27,7 @@ dependencies = [
     "httpx>=0.28",
     "orjson>=3.11",
     "tiktoken>=0.12",
+    "mcp[cli]>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -38,6 +39,7 @@ dev = [
 
 [project.scripts]
 stock-analysis = "stock_analysis.cli:main"
+stock-analysis-mcp = "stock_analysis.mcp.server:main"
 
 [project.urls]
 Homepage = "https://github.com/severin/stock-analysis"

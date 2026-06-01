@@ -12,3 +12,6 @@ requests>=2.33.0
 httpx>=0.28.0
 orjson>=3.11.0
 tiktoken>=0.12.0
+
+# MCP 服务器依赖
+mcp[cli]>=1.0.0

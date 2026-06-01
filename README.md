@@ -244,6 +244,105 @@ src/stock_analysis/
 └── generator.py        # index.html auto-generator
 ```
 
+### MCP Server (Model Context Protocol)
+
+```
+src/stock_analysis/mcp/
+├── __init__.py         # MCP 服务器模块
+├── __main__.py         # 入口点
+├── server.py           # MCP 服务器主入口
+├── tools/              # 工具实现
+│   ├── analysis.py     # 分析工具 (技术分析、内部人交易等)
+│   ├── ranking.py      # 排名计算工具
+│   ├── data.py         # 数据获取工具
+│   └── report.py       # 报告生成工具
+├── resources/          # 资源实现
+│   ├── companies.py    # 公司数据资源
+│   ├── prices.py       # 价格数据资源
+│   └── reports.py      # 报告资源
+└── prompts/            # 提示模板
+    ├── analysis.py     # 分析提示模板
+    └── report.py       # 报告生成提示模板
+```
+
+```bash
+# 启动 MCP 服务器 (stdio 传输)
+PYTHONPATH="src" python3 -m stock_analysis.mcp
+
+# 启动 MCP 服务器 (HTTP 传输)
+PYTHONPATH="src" python3 -m stock_analysis.mcp --transport streamable-http --port 8000
+
+# 使用 stock-analysis-mcp 命令
+stock-analysis-mcp
+```
+
+#### MCP 工具 (Tools)
+
+| 工具 | 功能 | 参数 |
+|------|------|------|
+| `technical_analysis` | 技术分析 | `ticker`, `period` |
+| `insider_analysis` | 内部人交易分析 | `ticker` |
+| `institutional_analysis` | 机构持仓分析 | `ticker` |
+| `earnings_analysis` | 财报分析 | `ticker` |
+| `sector_analysis` | 行业分析 | `ticker` |
+| `economics_analysis` | 宏观经济分析 | 无参数 |
+| `competitor_analysis` | 竞争分析 | `ticker` |
+| `narrative_analysis` | 叙事分析 | `ticker` |
+| `validate_analysis` | 验证分析结果 | `ticker`, `signal`, `confidence`, `f_score`, `composite_rank` |
+| `full_analysis` | 完整分析 | `ticker`, `analysis_type` |
+| `calculate_ranking` | 计算排名 | `ticker` |
+| `get_rankings` | 获取排名列表 | `market`, `limit` |
+| `compare_rankings` | 比较排名 | `tickers` |
+| `refresh_data` | 刷新数据 | `ticker` (可选) |
+| `get_price_data` | 获取价格数据 | `ticker`, `period` |
+| `get_financial_data` | 获取财务数据 | `ticker` |
+| `get_market_data` | 获取市场数据 | `market` |
+| `generate_report` | 生成报告 | `ticker`, `report_type`, `output_dir` |
+| `list_reports` | 列出报告 | `ticker` (可选) |
+
+#### MCP 资源 (Resources)
+
+| 资源 URI | 功能 |
+|----------|------|
+| `companies://list` | 获取所有公司列表 |
+| `companies://{ticker}` | 获取特定公司信息 |
+| `companies://market/{market}` | 获取特定市场的公司 |
+| `companies://search/{query}` | 搜索公司 |
+| `prices://{ticker}` | 获取价格数据 |
+| `prices://all` | 获取所有价格数据 |
+| `prices://market/{market}` | 获取市场价格数据 |
+| `reports://list` | 获取所有报告列表 |
+| `reports://{ticker}` | 获取特定公司报告 |
+| `reports://{ticker}/{filename}` | 获取报告内容 |
+
+#### MCP 提示 (Prompts)
+
+| 提示 | 功能 | 参数 |
+|------|------|------|
+| `stock_analysis_prompt` | 股票分析提示 | `ticker`, `analysis_depth` |
+| `comparison_prompt` | 公司对比提示 | `ticker1`, `ticker2` |
+| `sector_analysis_prompt` | 行业分析提示 | `sector` |
+| `risk_assessment_prompt` | 风险评估提示 | `ticker` |
+| `report_generation_prompt` | 报告生成提示 | `ticker`, `report_type` |
+| `batch_report_prompt` | 批量报告提示 | `tickers` |
+| `report_update_prompt` | 报告更新提示 | `ticker`, `existing_report` |
+
+#### Claude Desktop 配置
+
+```json
+{
+  "mcpServers": {
+    "stock-analysis": {
+      "command": "python",
+      "args": ["-m", "stock_analysis.mcp"],
+      "env": {
+        "PYTHONPATH": "src"
+      }
+    }
+  }
+}
+```
+
 ### Web App (React + FastAPI)
 
 ```
