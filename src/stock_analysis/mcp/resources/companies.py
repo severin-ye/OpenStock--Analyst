@@ -15,8 +15,8 @@ from ..server import mcp
 def get_companies_list() -> str:
     """获取所有公司列表。"""
     try:
-        from stock_analysis.registry import get_all_companies
-        companies = get_all_companies()
+        from stock_analysis.registry import registry
+        companies = list(registry().values())
         return json.dumps(companies, indent=2, ensure_ascii=False)
     except Exception as e:
         return json.dumps({"error": f"获取公司列表失败: {str(e)}"}, ensure_ascii=False)
@@ -30,8 +30,13 @@ def get_company_info(ticker: str) -> str:
         ticker: 股票代码
     """
     try:
-        from stock_analysis.registry import get_company_by_name
-        company = get_company_by_name(ticker)
+        from stock_analysis.registry import get_by_name_zh, registry
+        # 先尝试中文名查找
+        company = get_by_name_zh(ticker)
+        if not company:
+            # 尝试ticker查找
+            reg = registry()
+            company = reg.get(ticker)
         
         if not company:
             return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
@@ -49,8 +54,8 @@ def get_companies_by_market(market: str) -> str:
         market: 市场代码 (如 "US", "HK", "JP", "KR", "CN", "Crypto")
     """
     try:
-        from stock_analysis.registry import get_all_companies
-        companies = get_all_companies()
+        from stock_analysis.registry import registry
+        companies = list(registry().values())
         
         # 按市场筛选
         market_companies = [c for c in companies if c.get("market", "").upper() == market.upper()]
@@ -74,8 +79,8 @@ def search_companies(query: str) -> str:
         query: 搜索关键词
     """
     try:
-        from stock_analysis.registry import get_all_companies
-        companies = get_all_companies()
+        from stock_analysis.registry import registry
+        companies = list(registry().values())
         
         # 搜索公司
         query_upper = query.upper()

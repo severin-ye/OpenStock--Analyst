@@ -5,7 +5,7 @@ MCP 分析提示模块
 """
 
 from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp.prompts import UserMessage, AssistantMessage
+from mcp.server.fastmcp.prompts.base import UserMessage, AssistantMessage
 
 # 获取服务器实例
 from ..server import mcp

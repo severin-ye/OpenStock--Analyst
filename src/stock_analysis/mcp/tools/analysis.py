@@ -5,7 +5,6 @@ MCP 分析工具模块
 """
 
 from mcp.server.fastmcp import FastMCP, Context
-from typing import Optional
 import json
 
 # 获取服务器实例
@@ -28,8 +27,8 @@ async def technical_analysis(
         await ctx.info(f"正在对 {ticker} 进行技术分析...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["technical"]
+        from stock_analysis.analysis import TechnicalAnalyzer
+        analyzer = TechnicalAnalyzer()
         signal = analyzer.analyze(ticker, period=period)
         
         result = {
@@ -71,8 +70,8 @@ async def insider_analysis(
         await ctx.info(f"正在分析 {ticker} 的内部人交易...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["insider"]
+        from stock_analysis.analysis import InsiderAnalyzer
+        analyzer = InsiderAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -113,8 +112,8 @@ async def institutional_analysis(
         await ctx.info(f"正在分析 {ticker} 的机构持仓...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["institutional"]
+        from stock_analysis.analysis import InstitutionalAnalyzer
+        analyzer = InstitutionalAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -155,8 +154,8 @@ async def earnings_analysis(
         await ctx.info(f"正在分析 {ticker} 的财报...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["earnings"]
+        from stock_analysis.analysis import EarningsAnalyzer
+        analyzer = EarningsAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -196,8 +195,8 @@ async def sector_analysis(
         await ctx.info(f"正在分析 {ticker} 的行业情况...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["sector"]
+        from stock_analysis.analysis import SectorAnalyzer
+        analyzer = SectorAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -234,8 +233,8 @@ async def economics_analysis(
         await ctx.info("正在分析宏观经济情况...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["economics"]
+        from stock_analysis.analysis import EconomicsAnalyzer
+        analyzer = EconomicsAnalyzer()
         signal = analyzer.analyze()
         
         result = {
@@ -275,8 +274,8 @@ async def competitor_analysis(
         await ctx.info(f"正在分析 {ticker} 的竞争情况...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["competitor"]
+        from stock_analysis.analysis import CompetitorAnalyzer
+        analyzer = CompetitorAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -320,8 +319,8 @@ async def narrative_analysis(
         await ctx.info(f"正在分析 {ticker} 的叙事情况...")
     
     try:
-        from ..server import AppContext
-        analyzer = AppContext.analyzers["narrative"]
+        from stock_analysis.analysis import NarrativeAnalyzer
+        analyzer = NarrativeAnalyzer()
         signal = analyzer.analyze(ticker)
         
         result = {
@@ -369,8 +368,8 @@ async def validate_analysis(
         await ctx.info(f"正在验证 {ticker} 的分析结果...")
     
     try:
-        from ..server import AppContext
-        validator = AppContext.validator
+        from stock_analysis.analysis import ResultValidator
+        validator = ResultValidator()
         result = validator.validate_analysis(
             ticker=ticker,
             signal=signal,
@@ -420,7 +419,27 @@ async def full_analysis(
         await ctx.info(f"正在对 {ticker} 进行完整分析...")
     
     try:
-        from ..server import AppContext
+        from stock_analysis.analysis import (
+            TechnicalAnalyzer,
+            InsiderAnalyzer,
+            InstitutionalAnalyzer,
+            EarningsAnalyzer,
+            SectorAnalyzer,
+            EconomicsAnalyzer,
+            CompetitorAnalyzer,
+            NarrativeAnalyzer,
+        )
+        
+        analyzers = {
+            "technical": TechnicalAnalyzer(),
+            "insider": InsiderAnalyzer(),
+            "institutional": InstitutionalAnalyzer(),
+            "earnings": EarningsAnalyzer(),
+            "sector": SectorAnalyzer(),
+            "economics": EconomicsAnalyzer(),
+            "competitor": CompetitorAnalyzer(),
+            "narrative": NarrativeAnalyzer(),
+        }
         
         results = {
             "ticker": ticker,
@@ -429,7 +448,6 @@ async def full_analysis(
         }
         
         # 执行所有分析
-        analyzers = AppContext.analyzers
         total = len(analyzers)
         
         for i, (name, analyzer) in enumerate(analyzers.items()):

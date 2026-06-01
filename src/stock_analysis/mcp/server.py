@@ -6,9 +6,6 @@ Stock Analysis MCP Server
 """
 
 from mcp.server.fastmcp import FastMCP
-from contextlib import asynccontextmanager
-from collections.abc import AsyncIterator
-from typing import Any
 import json
 import os
 import sys
@@ -18,62 +15,11 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from stock_analysis.registry import get_company_by_name, get_all_companies
-from stock_analysis.data.fetcher import DataFetcher
-from stock_analysis.ranking.greenblatt import GreenblattRanker
-from stock_analysis.analysis import (
-    TechnicalAnalyzer,
-    InsiderAnalyzer,
-    InstitutionalAnalyzer,
-    EarningsAnalyzer,
-    SectorAnalyzer,
-    EconomicsAnalyzer,
-    CompetitorAnalyzer,
-    NarrativeAnalyzer,
-    ResultValidator,
-)
-
-
-class AppContext:
-    """应用上下文，存储共享资源。"""
-    
-    def __init__(self):
-        self.fetcher = DataFetcher()
-        self.ranker = GreenblattRanker()
-        self.analyzers = {
-            "technical": TechnicalAnalyzer(),
-            "insider": InsiderAnalyzer(),
-            "institutional": InstitutionalAnalyzer(),
-            "earnings": EarningsAnalyzer(),
-            "sector": SectorAnalyzer(),
-            "economics": EconomicsAnalyzer(),
-            "competitor": CompetitorAnalyzer(),
-            "narrative": NarrativeAnalyzer(),
-        }
-        self.validator = ResultValidator()
-    
-    async def initialize(self):
-        """初始化资源。"""
-        print("Stock Analysis MCP Server initialized")
-
-
-@asynccontextmanager
-async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:
-    """应用生命周期管理。"""
-    context = AppContext()
-    await context.initialize()
-    
-    try:
-        yield context
-    finally:
-        print("Stock Analysis MCP Server cleaned up")
-
 
 # 创建 MCP 服务器
 mcp = FastMCP(
     name="stock-analysis",
     instructions="股票分析 MCP 服务器，提供股票分析、排名计算和报告生成功能。",
-    lifespan=app_lifespan,
 )
 
 

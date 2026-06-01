@@ -5,7 +5,6 @@ MCP 排名工具模块
 """
 
 from mcp.server.fastmcp import FastMCP, Context
-from typing import Optional
 import json
 
 # 获取服务器实例
@@ -26,36 +25,49 @@ async def calculate_ranking(
         await ctx.info(f"正在计算 {ticker} 的排名...")
     
     try:
-        from ..server import AppContext
-        ranker = AppContext.ranker
+        from stock_analysis.registry import get_by_name_zh, registry
+        from stock_analysis.ranking.greenblatt import compute_greenblatt
+        from stock_analysis.data.fetcher import fetch_yfinance, PriceSnapshot
         
-        # 获取公司数据
-        from stock_analysis.registry import get_company_by_name
-        company = get_company_by_name(ticker)
+        # 先尝试中文名查找
+        company = get_by_name_zh(ticker)
+        if not company:
+            # 尝试ticker查找
+            reg = registry()
+            company = reg.get(ticker)
         
         if not company:
             return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
         
+        # 获取公司ticker
+        company_ticker = company.get("ticker", ticker)
+        
+        # 获取价格数据
+        snapshot = fetch_yfinance(company_ticker)
+        
+        if not snapshot:
+            return json.dumps({"error": f"无法获取 {ticker} 的价格数据"}, ensure_ascii=False)
+        
         # 计算排名
-        ranking_result = ranker.rank_single(company)
+        ranking_result = compute_greenblatt(snapshot)
         
         result = {
-            "ticker": ticker,
-            "company_name": company.get("name", ticker),
+            "ticker": company_ticker,
+            "company_name": company.get("name_zh", ticker),
             "market": company.get("market", "Unknown"),
             "ranking": {
-                "composite_rank": ranking_result.get("composite_rank"),
-                "score_10": ranking_result.get("score_10"),
-                "l1_rank": ranking_result.get("l1_rank"),
-                "l2_rank": ranking_result.get("l2_rank"),
-                "l3_rank": ranking_result.get("l3_rank"),
-                "l4_rank": ranking_result.get("l4_rank"),
+                "composite_rank": ranking_result.composite_rank if ranking_result else None,
+                "score_10": ranking_result.score_10 if ranking_result else None,
+                "l1_rank": ranking_result.l1_rank if ranking_result else None,
+                "l2_rank": ranking_result.l2_rank if ranking_result else None,
+                "l3_rank": ranking_result.l3_rank if ranking_result else None,
+                "l4_rank": ranking_result.l4_rank if ranking_result else None,
             },
             "metrics": {
-                "ebit_ev": ranking_result.get("ebit_ev"),
-                "roic": ranking_result.get("roic"),
-                "f_score": ranking_result.get("f_score"),
-                "peg": ranking_result.get("peg"),
+                "ebit_ev": snapshot.ebit_ev,
+                "roic": snapshot.roic,
+                "f_score": snapshot.f_score,
+                "peg": snapshot.peg_ratio,
             }
         }
         
@@ -72,7 +84,7 @@ async def calculate_ranking(
 
 @mcp.tool()
 async def get_rankings(
-    market: Optional[str] = None,
+    market: str = None,
     limit: int = 10,
     ctx: Context = None,
 ) -> str:
@@ -86,42 +98,54 @@ async def get_rankings(
         await ctx.info(f"正在获取排名数据...")
     
     try:
-        from ..server import AppContext
-        ranker = AppContext.ranker
+        from stock_analysis.registry import registry, MARKET_GROUPS
+        from stock_analysis.ranking.greenblatt import compute_greenblatt
+        from stock_analysis.data.fetcher import fetch_yfinance
         
         # 获取所有公司
-        from stock_analysis.registry import get_all_companies
-        companies = get_all_companies()
+        reg = registry()
+        companies = list(reg.values())
         
         # 按市场筛选
         if market:
-            companies = [c for c in companies if c.get("market", "").upper() == market.upper()]
+            market_upper = market.upper()
+            if market_upper in MARKET_GROUPS:
+                tickers = MARKET_GROUPS[market_upper]
+                companies = [c for c in companies if c.get("ticker") in tickers]
+            else:
+                companies = [c for c in companies if c.get("market", "").upper() == market_upper]
         
         # 计算排名
-        rankings = ranker.rank_batch(companies)
+        rankings = []
+        for company in companies[:limit]:  # 限制处理数量
+            try:
+                ticker = company.get("ticker")
+                snapshot = fetch_yfinance(ticker)
+                if snapshot:
+                    ranking_result = compute_greenblatt(snapshot)
+                    if ranking_result:
+                        rankings.append({
+                            "ticker": ticker,
+                            "company_name": company.get("name_zh", ticker),
+                            "market": company.get("market", "Unknown"),
+                            "composite_rank": ranking_result.composite_rank,
+                            "score_10": ranking_result.score_10,
+                            "ebit_ev": snapshot.ebit_ev,
+                            "roic": snapshot.roic,
+                            "f_score": snapshot.f_score,
+                            "peg": snapshot.peg_ratio,
+                        })
+            except Exception:
+                continue
         
-        # 限制数量
-        rankings = rankings[:limit]
+        # 按综合排名排序
+        rankings.sort(key=lambda x: x.get("composite_rank", float("inf")))
         
         result = {
             "market": market or "All",
             "total_count": len(rankings),
-            "rankings": []
+            "rankings": rankings[:limit]
         }
-        
-        for i, ranking in enumerate(rankings):
-            result["rankings"].append({
-                "rank": i + 1,
-                "ticker": ranking.get("ticker"),
-                "company_name": ranking.get("company_name"),
-                "market": ranking.get("market"),
-                "composite_rank": ranking.get("composite_rank"),
-                "score_10": ranking.get("score_10"),
-                "ebit_ev": ranking.get("ebit_ev"),
-                "roic": ranking.get("roic"),
-                "f_score": ranking.get("f_score"),
-                "peg": ranking.get("peg"),
-            })
         
         if ctx:
             await ctx.report_progress(100, 100, "排名数据获取完成")
@@ -148,8 +172,9 @@ async def compare_rankings(
         await ctx.info(f"正在比较 {len(tickers)} 家公司的排名...")
     
     try:
-        from ..server import AppContext
-        ranker = AppContext.ranker
+        from stock_analysis.registry import get_by_name_zh, registry
+        from stock_analysis.ranking.greenblatt import compute_greenblatt
+        from stock_analysis.data.fetcher import fetch_yfinance
         
         results = {
             "comparison_count": len(tickers),
@@ -158,9 +183,12 @@ async def compare_rankings(
         
         for ticker in tickers:
             try:
-                # 获取公司数据
-                from stock_analysis.registry import get_company_by_name
-                company = get_company_by_name(ticker)
+                # 先尝试中文名查找
+                company = get_by_name_zh(ticker)
+                if not company:
+                    # 尝试ticker查找
+                    reg = registry()
+                    company = reg.get(ticker)
                 
                 if not company:
                     results["companies"].append({
@@ -169,19 +197,32 @@ async def compare_rankings(
                     })
                     continue
                 
+                # 获取公司ticker
+                company_ticker = company.get("ticker", ticker)
+                
+                # 获取价格数据
+                snapshot = fetch_yfinance(company_ticker)
+                
+                if not snapshot:
+                    results["companies"].append({
+                        "ticker": ticker,
+                        "error": f"无法获取价格数据"
+                    })
+                    continue
+                
                 # 计算排名
-                ranking_result = ranker.rank_single(company)
+                ranking_result = compute_greenblatt(snapshot)
                 
                 results["companies"].append({
-                    "ticker": ticker,
-                    "company_name": company.get("name", ticker),
+                    "ticker": company_ticker,
+                    "company_name": company.get("name_zh", ticker),
                     "market": company.get("market", "Unknown"),
-                    "composite_rank": ranking_result.get("composite_rank"),
-                    "score_10": ranking_result.get("score_10"),
-                    "ebit_ev": ranking_result.get("ebit_ev"),
-                    "roic": ranking_result.get("roic"),
-                    "f_score": ranking_result.get("f_score"),
-                    "peg": ranking_result.get("peg"),
+                    "composite_rank": ranking_result.composite_rank if ranking_result else None,
+                    "score_10": ranking_result.score_10 if ranking_result else None,
+                    "ebit_ev": snapshot.ebit_ev,
+                    "roic": snapshot.roic,
+                    "f_score": snapshot.f_score,
+                    "peg": snapshot.peg_ratio,
                 })
             except Exception as e:
                 results["companies"].append({

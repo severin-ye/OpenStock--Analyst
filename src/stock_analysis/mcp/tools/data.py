@@ -5,7 +5,6 @@ MCP 数据工具模块
 """
 
 from mcp.server.fastmcp import FastMCP, Context
-from typing import Optional
 import json
 
 # 获取服务器实例
@@ -14,7 +13,7 @@ from ..server import mcp
 
 @mcp.tool()
 async def refresh_data(
-    ticker: Optional[str] = None,
+    ticker: str = None,
     ctx: Context = None,
 ) -> str:
     """刷新价格数据。
@@ -29,53 +28,40 @@ async def refresh_data(
             await ctx.info("正在刷新所有价格数据...")
     
     try:
-        from ..server import AppContext
-        fetcher = AppContext.fetcher
+        from stock_analysis.data.fetcher import fetch_yfinance, fetch_all_8
+        from stock_analysis.registry import get_by_name_zh, registry
         
         if ticker:
             # 刷新单个公司
-            from stock_analysis.registry import get_company_by_name
-            company = get_company_by_name(ticker)
+            # 先尝试中文名查找
+            company = get_by_name_zh(ticker)
+            if not company:
+                # 尝试ticker查找
+                reg = registry()
+                company = reg.get(ticker)
             
             if not company:
                 return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
             
-            result = fetcher.refresh_company(company)
+            company_ticker = company.get("ticker", ticker)
+            snapshot = fetch_yfinance(company_ticker)
             
             refresh_result = {
-                "ticker": ticker,
-                "company_name": company.get("name", ticker),
-                "refresh_status": "success" if result else "failed",
-                "details": result,
+                "ticker": company_ticker,
+                "company_name": company.get("name_zh", ticker),
+                "refresh_status": "success" if snapshot else "failed",
+                "details": {
+                    "price": snapshot.price if snapshot else None,
+                    "market_cap": snapshot.market_cap if snapshot else None,
+                } if snapshot else None,
             }
         else:
             # 刷新所有公司
-            from stock_analysis.registry import get_all_companies
-            companies = get_all_companies()
-            
-            results = {}
-            total = len(companies)
-            
-            for i, company in enumerate(companies):
-                if ctx:
-                    await ctx.report_progress(i + 1, total, f"正在刷新 {company.get('ticker', '')}...")
-                
-                try:
-                    result = fetcher.refresh_company(company)
-                    results[company.get("ticker", "")] = {
-                        "status": "success" if result else "failed",
-                        "details": result,
-                    }
-                except Exception as e:
-                    results[company.get("ticker", "")] = {
-                        "status": "error",
-                        "error": str(e),
-                    }
-            
+            fetch_all_8()
             refresh_result = {
                 "refresh_type": "all",
-                "total_count": total,
-                "results": results,
+                "status": "success",
+                "message": "已触发全量数据刷新",
             }
         
         if ctx:
@@ -105,25 +91,39 @@ async def get_price_data(
         await ctx.info(f"正在获取 {ticker} 的价格数据...")
     
     try:
-        from ..server import AppContext
-        fetcher = AppContext.fetcher
+        from stock_analysis.data.fetcher import fetch_yfinance
+        from stock_analysis.registry import get_by_name_zh, registry
         
-        # 获取公司信息
-        from stock_analysis.registry import get_company_by_name
-        company = get_company_by_name(ticker)
+        # 先尝试中文名查找
+        company = get_by_name_zh(ticker)
+        if not company:
+            # 尝试ticker查找
+            reg = registry()
+            company = reg.get(ticker)
         
         if not company:
             return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
         
+        company_ticker = company.get("ticker", ticker)
+        
         # 获取价格数据
-        price_data = fetcher.get_price_data(company, period=period)
+        snapshot = fetch_yfinance(company_ticker)
+        
+        if not snapshot:
+            return json.dumps({"error": f"无法获取 {ticker} 的价格数据"}, ensure_ascii=False)
         
         result = {
-            "ticker": ticker,
-            "company_name": company.get("name", ticker),
-            "period": period,
-            "data_points": len(price_data) if price_data else 0,
-            "price_data": price_data,
+            "ticker": company_ticker,
+            "company_name": company.get("name_zh", ticker),
+            "price": snapshot.price,
+            "currency": snapshot.currency,
+            "market_cap": snapshot.market_cap,
+            "ytd_change_pct": snapshot.ytd_change_pct,
+            "pe_ratio": snapshot.pe_ratio,
+            "forward_pe": snapshot.forward_pe,
+            "peg_ratio": snapshot.peg_ratio,
+            "week52_low": snapshot.week52_low,
+            "week52_high": snapshot.week52_high,
         }
         
         if ctx:
@@ -151,23 +151,41 @@ async def get_financial_data(
         await ctx.info(f"正在获取 {ticker} 的财务数据...")
     
     try:
-        from ..server import AppContext
-        fetcher = AppContext.fetcher
+        from stock_analysis.data.fetcher import fetch_yfinance
+        from stock_analysis.registry import get_by_name_zh, registry
         
-        # 获取公司信息
-        from stock_analysis.registry import get_company_by_name
-        company = get_company_by_name(ticker)
+        # 先尝试中文名查找
+        company = get_by_name_zh(ticker)
+        if not company:
+            # 尝试ticker查找
+            reg = registry()
+            company = reg.get(ticker)
         
         if not company:
             return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
         
+        company_ticker = company.get("ticker", ticker)
+        
         # 获取财务数据
-        financial_data = fetcher.get_financial_data(company)
+        snapshot = fetch_yfinance(company_ticker)
+        
+        if not snapshot:
+            return json.dumps({"error": f"无法获取 {ticker} 的财务数据"}, ensure_ascii=False)
         
         result = {
-            "ticker": ticker,
-            "company_name": company.get("name", ticker),
-            "financial_data": financial_data,
+            "ticker": company_ticker,
+            "company_name": company.get("name_zh", ticker),
+            "financial_data": {
+                "revenue": snapshot.revenue,
+                "ebit": snapshot.ebit,
+                "net_income": snapshot.net_income,
+                "ebit_ev": snapshot.ebit_ev,
+                "roic": snapshot.roic,
+                "f_score": snapshot.f_score,
+                "fcf_yield": snapshot.fcf_yield,
+                "revenue_growth": snapshot.revenue_growth,
+                "beta": snapshot.beta,
+            }
         }
         
         if ctx:
@@ -195,18 +213,30 @@ async def get_market_data(
         await ctx.info(f"正在获取 {market} 市场的数据...")
     
     try:
-        from stock_analysis.registry import get_all_companies
+        from stock_analysis.registry import registry, MARKET_GROUPS
         
         # 获取所有公司
-        companies = get_all_companies()
+        reg = registry()
+        companies = list(reg.values())
         
         # 按市场筛选
-        market_companies = [c for c in companies if c.get("market", "").upper() == market.upper()]
+        market_upper = market.upper()
+        if market_upper in MARKET_GROUPS:
+            tickers = MARKET_GROUPS[market_upper]
+            market_companies = [c for c in companies if c.get("ticker") in tickers]
+        else:
+            market_companies = [c for c in companies if c.get("market", "").upper() == market_upper]
         
         result = {
             "market": market,
             "company_count": len(market_companies),
-            "companies": market_companies,
+            "companies": [{
+                "ticker": c.get("ticker"),
+                "name_zh": c.get("name_zh"),
+                "name_en": c.get("name_en"),
+                "exchange": c.get("exchange"),
+                "sector": c.get("sector"),
+            } for c in market_companies],
         }
         
         if ctx:
