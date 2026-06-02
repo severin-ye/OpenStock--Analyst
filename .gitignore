@@ -54,3 +54,9 @@ index.html
 # Coverage
 .coverage
 htmlcov/
+
+# OpenCode local state
+.opencode/*.local.md
+
+# Output directory (auto-generated)
+output/
