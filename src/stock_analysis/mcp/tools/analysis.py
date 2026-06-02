@@ -5,6 +5,7 @@ MCP 分析工具模块
 """
 
 import json
+from typing import Optional
 
 from mcp.server.fastmcp import Context
 
@@ -16,7 +17,7 @@ from ..server import mcp
 async def technical_analysis(
     ticker: str,
     period: str = "1y",
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行技术分析。
 
@@ -60,7 +61,7 @@ async def technical_analysis(
 @mcp.tool()
 async def insider_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行内部人交易分析。
 
@@ -102,7 +103,7 @@ async def insider_analysis(
 @mcp.tool()
 async def institutional_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行机构持仓分析。
 
@@ -144,7 +145,7 @@ async def institutional_analysis(
 @mcp.tool()
 async def earnings_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行财报分析。
 
@@ -185,7 +186,7 @@ async def earnings_analysis(
 @mcp.tool()
 async def sector_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行行业分析。
 
@@ -227,7 +228,7 @@ async def sector_analysis(
 
 @mcp.tool()
 async def economics_analysis(
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行宏观经济分析。"""
     if ctx:
@@ -264,7 +265,7 @@ async def economics_analysis(
 @mcp.tool()
 async def competitor_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行竞争分析。
 
@@ -309,7 +310,7 @@ async def competitor_analysis(
 @mcp.tool()
 async def narrative_analysis(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行叙事分析。
 
@@ -354,7 +355,7 @@ async def validate_analysis(
     confidence: str,
     f_score: int,
     composite_rank: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """验证分析结果。
 
@@ -408,7 +409,7 @@ async def validate_analysis(
 async def full_analysis(
     ticker: str,
     analysis_type: str = "full",
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """执行完整的股票分析。
 

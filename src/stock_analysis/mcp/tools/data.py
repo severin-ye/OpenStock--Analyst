@@ -5,6 +5,7 @@ MCP 数据工具模块
 """
 
 import json
+from typing import Optional
 
 from mcp.server.fastmcp import Context
 
@@ -14,8 +15,8 @@ from ..server import mcp
 
 @mcp.tool()
 async def refresh_data(
-    ticker: str = None,
-    ctx: Context = None,
+    ticker: Optional[str] = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """刷新价格数据。
 
@@ -45,7 +46,8 @@ async def refresh_data(
                 return json.dumps({"error": f"未找到公司: {ticker}"}, ensure_ascii=False)
 
             company_ticker = company.get("ticker", ticker)
-            snapshot = fetch_yfinance(company_ticker)
+            snapshots = fetch_yfinance([company_ticker])
+            snapshot = snapshots.get(company_ticker)
 
             refresh_result = {
                 "ticker": company_ticker,
@@ -80,7 +82,7 @@ async def refresh_data(
 async def get_price_data(
     ticker: str,
     period: str = "1y",
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """获取价格数据。
 
@@ -108,7 +110,8 @@ async def get_price_data(
         company_ticker = company.get("ticker", ticker)
 
         # 获取价格数据
-        snapshot = fetch_yfinance(company_ticker)
+        snapshots = fetch_yfinance([company_ticker])
+        snapshot = snapshots.get(company_ticker)
 
         if not snapshot:
             return json.dumps({"error": f"无法获取 {ticker} 的价格数据"}, ensure_ascii=False)
@@ -141,7 +144,7 @@ async def get_price_data(
 @mcp.tool()
 async def get_financial_data(
     ticker: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """获取财务数据。
 
@@ -168,7 +171,8 @@ async def get_financial_data(
         company_ticker = company.get("ticker", ticker)
 
         # 获取财务数据
-        snapshot = fetch_yfinance(company_ticker)
+        snapshots = fetch_yfinance([company_ticker])
+        snapshot = snapshots.get(company_ticker)
 
         if not snapshot:
             return json.dumps({"error": f"无法获取 {ticker} 的财务数据"}, ensure_ascii=False)
@@ -203,7 +207,7 @@ async def get_financial_data(
 @mcp.tool()
 async def get_market_data(
     market: str,
-    ctx: Context = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """获取市场数据。
 

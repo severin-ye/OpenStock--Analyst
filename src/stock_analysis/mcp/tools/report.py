@@ -6,6 +6,7 @@ MCP 报告工具模块
 
 import json
 import os
+from typing import Optional
 
 from mcp.server.fastmcp import Context
 
@@ -17,8 +18,8 @@ from ..server import mcp
 async def generate_report(
     ticker: str,
     report_type: str = "html",
-    output_dir: str = None,
-    ctx: Context = None,
+    output_dir: Optional[str] = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """生成股票分析报告。
 
@@ -31,7 +32,7 @@ async def generate_report(
         await ctx.info(f"正在生成 {ticker} 的分析报告...")
 
     try:
-        from stock_analysis.cli import run_single_analysis
+        from stock_analysis.cli import run_analysis
         from stock_analysis.registry import get_by_name_zh, registry
 
         # 先尝试中文名查找
@@ -49,7 +50,7 @@ async def generate_report(
 
         # 使用CLI的分析功能
         try:
-            run_single_analysis(company_name, dry_run=False)
+            run_analysis(company_name, dry_run=False)
 
             # 确定输出路径
             if not output_dir:
@@ -92,8 +93,8 @@ async def generate_report(
 
 @mcp.tool()
 async def list_reports(
-    ticker: str = None,
-    ctx: Context = None,
+    ticker: Optional[str] = None,
+    ctx: Optional[Context] = None,
 ) -> str:
     """列出分析报告。
 
