@@ -60,8 +60,6 @@ class TestMCPTools:
             economics_analysis,
             competitor_analysis,
             narrative_analysis,
-            validate_analysis,
-            full_analysis,
         )
         
         assert callable(technical_analysis)
@@ -72,44 +70,40 @@ class TestMCPTools:
         assert callable(economics_analysis)
         assert callable(competitor_analysis)
         assert callable(narrative_analysis)
-        assert callable(validate_analysis)
-        assert callable(full_analysis)
-    
-    def test_ranking_tools_exist(self):
-        """测试排名工具存在。"""
-        from stock_analysis.mcp.tools.ranking import (
-            calculate_ranking,
-            get_rankings,
-            compare_rankings,
-        )
-        
-        assert callable(calculate_ranking)
-        assert callable(get_rankings)
-        assert callable(compare_rankings)
     
     def test_data_tools_exist(self):
         """测试数据工具存在。"""
         from stock_analysis.mcp.tools.data import (
-            refresh_data,
-            get_price_data,
-            get_financial_data,
-            get_market_data,
+            get_price_summary,
+            get_financial_summary,
+            get_valuation_summary,
+            calculate_ranking,
+            compare_stocks,
+            full_analysis,
         )
         
-        assert callable(refresh_data)
-        assert callable(get_price_data)
-        assert callable(get_financial_data)
-        assert callable(get_market_data)
+        assert callable(get_price_summary)
+        assert callable(get_financial_summary)
+        assert callable(get_valuation_summary)
+        assert callable(calculate_ranking)
+        assert callable(compare_stocks)
+        assert callable(full_analysis)
+    
+    def test_ranking_tools_exist(self):
+        """测试排名工具存在。"""
+        from stock_analysis.mcp.tools.ranking import get_rankings
+        
+        assert callable(get_rankings)
     
     def test_report_tools_exist(self):
         """测试报告工具存在。"""
         from stock_analysis.mcp.tools.report import (
             generate_report,
-            list_reports,
+            validate_analysis,
         )
         
         assert callable(generate_report)
-        assert callable(list_reports)
+        assert callable(validate_analysis)
 
 
 class TestMCPResources:
@@ -190,7 +184,7 @@ class TestMCPToolsAsync:
     
     async def test_calculate_ranking(self):
         """测试排名计算工具。"""
-        from stock_analysis.mcp.tools.ranking import calculate_ranking
+        from stock_analysis.mcp.tools.data import calculate_ranking
         
         # 测试计算排名
         result = await calculate_ranking("NVDA")

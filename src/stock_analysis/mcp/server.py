@@ -19,7 +19,14 @@ if project_root not in sys.path:
 # 创建 MCP 服务器
 mcp = FastMCP(
     name="stock-analysis",
-    instructions="股票分析 MCP 服务器，提供股票分析、排名计算和报告生成功能。",
+    instructions="""股票分析 MCP 服务器，提供股票分析、排名计算和报告生成功能。
+
+工具分三档：
+1. 摘要型：get_price_summary, get_financial_summary, get_valuation_summary
+2. 任务型：calculate_ranking, compare_stocks, generate_report, validate_analysis
+3. 完整pipeline：full_analysis
+
+专业分析：technical_analysis, insider_analysis, institutional_analysis, earnings_analysis, sector_analysis, economics_analysis, competitor_analysis, narrative_analysis""",
 )
 
 

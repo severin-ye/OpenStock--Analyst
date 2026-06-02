@@ -252,10 +252,10 @@ src/stock_analysis/mcp/
 ├── __main__.py         # 入口点
 ├── server.py           # MCP 服务器主入口
 ├── tools/              # 工具实现
-│   ├── analysis.py     # 分析工具 (技术分析、内部人交易等)
+│   ├── analysis.py     # 专业分析工具 (技术分析、内部人交易等)
+│   ├── data.py         # 数据获取和完整分析工具
 │   ├── ranking.py      # 排名计算工具
-│   ├── data.py         # 数据获取工具
-│   └── report.py       # 报告生成工具
+│   └── report.py       # 报告生成和验证工具
 ├── resources/          # 资源实现
 │   ├── companies.py    # 公司数据资源
 │   ├── prices.py       # 价格数据资源
@@ -263,6 +263,9 @@ src/stock_analysis/mcp/
 └── prompts/            # 提示模板
     ├── analysis.py     # 分析提示模板
     └── report.py       # 报告生成提示模板
+
+skills/stock-analyst/
+└── SKILL.md            # Skill 调度说明书
 ```
 
 ```bash
@@ -278,6 +281,34 @@ stock-analysis-mcp
 
 #### MCP 工具 (Tools)
 
+工具按三档设计：
+
+**摘要型工具（轻量查询）**
+
+| 工具 | 功能 | 参数 |
+|------|------|------|
+| `get_price_summary` | 获取价格摘要 | `ticker` |
+| `get_financial_summary` | 获取财务摘要 | `ticker` |
+| `get_valuation_summary` | 获取估值指标 | `ticker` |
+
+**任务型工具（特定分析）**
+
+| 工具 | 功能 | 参数 |
+|------|------|------|
+| `calculate_ranking` | 计算排名指标 | `ticker` |
+| `compare_stocks` | 比较多只股票 | `tickers` |
+| `generate_report` | 生成报告 | `ticker` |
+| `validate_analysis` | 验证分析结果 | `ticker`, `signal`, `confidence`, `f_score`, `composite_rank` |
+| `get_rankings` | 获取公司列表 | `market`, `limit` |
+
+**完整分析（深度分析）**
+
+| 工具 | 功能 | 参数 |
+|------|------|------|
+| `full_analysis` | 完整分析 | `ticker`, `dry_run` |
+
+**专业分析工具**
+
 | 工具 | 功能 | 参数 |
 |------|------|------|
 | `technical_analysis` | 技术分析 | `ticker`, `period` |
@@ -288,17 +319,6 @@ stock-analysis-mcp
 | `economics_analysis` | 宏观经济分析 | 无参数 |
 | `competitor_analysis` | 竞争分析 | `ticker` |
 | `narrative_analysis` | 叙事分析 | `ticker` |
-| `validate_analysis` | 验证分析结果 | `ticker`, `signal`, `confidence`, `f_score`, `composite_rank` |
-| `full_analysis` | 完整分析 | `ticker`, `analysis_type` |
-| `calculate_ranking` | 计算排名 | `ticker` |
-| `get_rankings` | 获取排名列表 | `market`, `limit` |
-| `compare_rankings` | 比较排名 | `tickers` |
-| `refresh_data` | 刷新数据 | `ticker` (可选) |
-| `get_price_data` | 获取价格数据 | `ticker`, `period` |
-| `get_financial_data` | 获取财务数据 | `ticker` |
-| `get_market_data` | 获取市场数据 | `market` |
-| `generate_report` | 生成报告 | `ticker`, `report_type`, `output_dir` |
-| `list_reports` | 列出报告 | `ticker` (可选) |
 
 #### MCP 资源 (Resources)
 
