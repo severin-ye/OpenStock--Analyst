@@ -20,7 +20,7 @@ from stock_analysis.reports.schema import (
 )
 
 BASE_DIR = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(Path(__file__).resolve().parents[5])))
-OUTPUT_DIR = BASE_DIR / "分析输出"
+OUTPUT_DIR = BASE_DIR / "output"
 
 
 def scaffold(company_name: str) -> StockReport:

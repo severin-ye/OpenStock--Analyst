@@ -11,7 +11,7 @@ import pytest
 
 from stock_analysis.reports.schema import StockReport
 
-BASE = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent))) / '分析输出'
+BASE = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve().parent.parent))) / 'output'
 REPORT_DIRS = ['英伟达', '苹果', '特斯拉', '英特尔', '超微半导体', '美光', '小米', '比特币']
 REPORT_DATE = '260511'
 

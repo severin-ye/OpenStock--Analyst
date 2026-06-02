@@ -395,7 +395,7 @@ async def full_analysis(
                 "status": "success",
                 "dry_run": dry_run,
                 "message": "分析完成" if not dry_run else "数据获取和排名计算完成（dry_run模式）",
-                "output_dir": f"分析输出/{company_name}",
+                "output_dir": f"output/{company_name}",
             }
         else:
             response = {

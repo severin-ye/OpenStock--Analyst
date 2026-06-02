@@ -15,11 +15,11 @@ from ..server import mcp
 def get_reports_list() -> str:
     """获取所有报告列表。"""
     try:
-        # 分析输出目录
-        output_dir = os.path.join(os.getcwd(), "分析输出")
+        # 输出目录
+        output_dir = os.path.join(os.getcwd(), "output")
 
         if not os.path.exists(output_dir):
-            return json.dumps({"reports": [], "message": "分析输出目录不存在"}, ensure_ascii=False)
+            return json.dumps({"reports": [], "message": "输出目录不存在"}, ensure_ascii=False)
 
         reports = []
 
@@ -65,11 +65,11 @@ def get_reports_by_ticker(ticker: str) -> str:
         ticker: 股票代码
     """
     try:
-        # 分析输出目录
-        output_dir = os.path.join(os.getcwd(), "分析输出")
+        # 输出目录
+        output_dir = os.path.join(os.getcwd(), "output")
 
         if not os.path.exists(output_dir):
-            return json.dumps({"reports": [], "message": "分析输出目录不存在"}, ensure_ascii=False)
+            return json.dumps({"reports": [], "message": "输出目录不存在"}, ensure_ascii=False)
 
         reports = []
 
@@ -121,11 +121,11 @@ def get_report_content(ticker: str, filename: str) -> str:
         filename: 报告文件名
     """
     try:
-        # 分析输出目录
-        output_dir = os.path.join(os.getcwd(), "分析输出")
+        # 输出目录
+        output_dir = os.path.join(os.getcwd(), "output")
 
         if not os.path.exists(output_dir):
-            return json.dumps({"error": "分析输出目录不存在"}, ensure_ascii=False)
+            return json.dumps({"error": "输出目录不存在"}, ensure_ascii=False)
 
         # 查找公司目录
         company_dir = None

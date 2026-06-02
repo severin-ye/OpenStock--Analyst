@@ -77,7 +77,7 @@ PYTHONPATH="src" pytest tests/ -v
 │   └── investskill/            ← 方法论层 (prompts + 21 skills)
 ├── tests/                      ← pytest
 ├── webapp/                     ← Web App 前端 (FastAPI + React)
-├── 分析输出/                    ← 生成报告
+├── output/                     ← 生成报告
 └── pyproject.toml              ← 包构建配置
 ```
 

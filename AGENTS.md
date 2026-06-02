@@ -49,7 +49,7 @@
 │   │   └── generator.py        ← index.html 自动生成器
 │   └── investskill/            ← 方法论层 (上游开源, prompts + 21 skills)
 ├── tests/                      ← pytest
-├── 分析输出/                    ← 报告输出目录
+├── output/                     ← 报告输出目录
 ├── index.html                  ← 排名总览 (自动生成)
 └── webapp/                     ← Web App 前端 (见下方)
 ```
@@ -280,7 +280,7 @@ pip install fastapi uvicorn[standard] websockets
 ### 与核心引擎关系
 
 - 后端复用 `src/stock_analysis/` 的 fetcher、ranking、cli 模块
-- 报告存储读取 `分析输出/` 目录
+- 报告存储读取 `output/` 目录
 - 前端通过 `/api/*` 代理到后端
 - `PYTHONPATH` 必须包含 `../../src`（从 webapp/backend/ 目录）
 

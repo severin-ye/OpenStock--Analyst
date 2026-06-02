@@ -363,7 +363,7 @@ def run_batch_analysis(
     print("\n" + "=" * 60)
     print(f"✅ 批量分析完成: {summary.success_count}/{len(company_names)} 成功")
     print(f"   总耗时: {summary.total_elapsed:.1f}s")
-    print(f"   汇总页: 分析输出/批次汇总/{summary.batch_id}_汇总报告.html")
+    print(f"   汇总页: output/批次汇总/{summary.batch_id}_汇总报告.html")
 
     return summary
 
@@ -534,7 +534,7 @@ footer{{text-align:center;padding:32px 0;font-size:11px;color:var(--slate);margi
 </body>
 </html>"""
 
-    output_dir = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(_project_root))) / "分析输出" / "批次汇总"
+    output_dir = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(_project_root))) / "output" / "批次汇总"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{summary.batch_id}_汇总报告.html"
     output_path.write_text(html, encoding="utf-8")
@@ -546,7 +546,7 @@ def _save_batch_summary_json(summary: BatchSummary) -> str:
     """保存 JSON 格式汇总"""
     import json
 
-    output_dir = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(_project_root))) / "分析输出" / "批次汇总"
+    output_dir = Path(os.environ.get("STOCK_ANALYSIS_HOME", str(_project_root))) / "output" / "批次汇总"
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{summary.batch_id}_汇总数据.json"
     output_path.write_text(json.dumps(summary.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")

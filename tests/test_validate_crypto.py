@@ -7,7 +7,7 @@ BASE_DIR = Path(os.environ.get('STOCK_ANALYSIS_HOME', str(Path(__file__).resolve
 
 
 def test_eth_report_validation_accepts_pos_crypto_fields():
-    html_path = BASE_DIR / '分析输出' / '以太坊' / '260513_综合分析报告.html'
+    html_path = BASE_DIR / 'output' / '以太坊' / '260513_综合分析报告.html'
 
     issues = validate_html_file(str(html_path))
     structural_issues = [i for i in issues if not i.startswith("[Data]")]

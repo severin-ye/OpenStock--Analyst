@@ -78,14 +78,14 @@ def test_run_analysis_regenerates_index_after_report_write(monkeypatch, tmp_path
 
     html_path = pipeline.run_analysis('英伟达')
 
-    expected_path = tmp_path / '分析输出' / '英伟达' / '260515_综合分析报告.html'
+    expected_path = tmp_path / 'output' / '英伟达' / '260515_综合分析报告.html'
     assert html_path == str(expected_path)
     assert rendered_paths == [str(expected_path)]
     assert regenerate_calls == ['called']
 
 
 def test_snapshot_report_outputs_only_tracks_html_files(tmp_path):
-    output_dir = tmp_path / '分析输出'
+    output_dir = tmp_path / 'output'
     company_dir = output_dir / '英伟达'
     company_dir.mkdir(parents=True)
     html_path = company_dir / '260515_综合分析报告.html'
@@ -105,7 +105,7 @@ def test_watch_report_outputs_regenerates_index_when_html_changes():
     regenerate_calls = []
 
     pipeline.watch_report_outputs(
-        output_dir=pipeline.BASE_DIR / '分析输出',
+        output_dir=pipeline.BASE_DIR / 'output',
         poll_interval=0,
         debounce_seconds=0,
         max_polls=1,

@@ -39,8 +39,8 @@ data/companies.json
 
 # Generated output (auto-created by pipeline)
 index.html
-分析输出/**/*.html
-分析输出/**/*.md
+output/**/*.html
+output/**/*.md
 
 # Pytest cache
 .pytest_cache/

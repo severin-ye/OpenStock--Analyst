@@ -73,7 +73,7 @@ def build_logger(company_name: str) -> logging.Logger:
 
 def has_report_for_ticker(ticker: str) -> bool:
     company_name = ticker_to_name_zh().get(ticker, ticker)
-    report_dir = BASE_DIR / "分析输出" / company_name
+    report_dir = BASE_DIR / "output" / company_name
     return report_dir.is_dir() and any(report_dir.glob("*.html"))
 
 
@@ -100,7 +100,7 @@ def watch_report_outputs(
     sleep_fn=time.sleep,
     logger: Optional[logging.Logger] = None,
 ) -> None:
-    output_dir = output_dir or (BASE_DIR / "分析输出")
+    output_dir = output_dir or (BASE_DIR / "output")
     if regenerate_fn is None:
         from stock_analysis.generator import regenerate as regenerate_fn
 
@@ -127,7 +127,7 @@ def watch_report_outputs(
                 latest_snapshot = snapshot_fn(output_dir)
 
         if logger:
-            logger.info("[watch] 检测到分析输出 HTML 变更，重建 index.html")
+            logger.info("[watch] 检测到输出 HTML 变更，重建 index.html")
 
         try:
             regenerate_fn()
@@ -1158,7 +1158,7 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
     # Stage 4: Render
     logger.info("[Stage 4: render] 生成 HTML")
     today = datetime.now().strftime("%y%m%d")
-    output_dir = BASE_DIR / "分析输出" / company_name
+    output_dir = BASE_DIR / "output" / company_name
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / f"{today}_综合分析报告.html"
     html_path = render_to_file(report, str(output_path), logger=logger)
@@ -1176,7 +1176,7 @@ def run_analysis(company_name: str, dry_run: bool = False, use_opencode_llm: boo
         from stock_analysis.generator import regenerate
 
         regenerate()
-        logger.info("[Stage 6: index] index.html 已根据分析输出重建")
+        logger.info("[Stage 6: index] index.html 已根据输出重建")
     except Exception as e:
         logger.warning(f"[Stage 6: index] index.html 重建失败: {e}")
 

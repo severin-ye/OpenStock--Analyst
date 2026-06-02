@@ -44,7 +44,7 @@ async def generate_report(
         result = run_analysis(company_name, dry_run=False)
 
         if result:
-            output_dir = os.path.join(os.getcwd(), "分析输出", company_name)
+            output_dir = os.path.join(os.getcwd(), "output", company_name)
             report_files = []
             if os.path.exists(output_dir):
                 for f in os.listdir(output_dir):

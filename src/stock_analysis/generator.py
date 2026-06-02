@@ -28,7 +28,7 @@ TICKER_INFO: dict[str, tuple[str, str]] = ticker_to_info()
 
 
 def _find_latest_report(name_zh: str) -> str | None:
-    report_dir = BASE_DIR / "分析输出" / name_zh
+    report_dir = BASE_DIR / "output" / name_zh
     if not report_dir.is_dir():
         return None
     html_files = sorted(report_dir.glob("*_综合分析报告.html"))
@@ -39,7 +39,7 @@ def _find_latest_report(name_zh: str) -> str | None:
 
 def has_report_for_ticker(ticker: str) -> bool:
     name = NAME_MAP.get(ticker, ticker)
-    report_dir = BASE_DIR / "分析输出" / name
+    report_dir = BASE_DIR / "output" / name
     return report_dir.is_dir() and any(report_dir.glob("*.html"))
 
 
@@ -157,7 +157,7 @@ def _card_html(
     metrics: list[tuple[str, str, str]],
     is_crypto: bool = False,
 ) -> str:
-    report_dir = BASE_DIR / "分析输出" / name
+    report_dir = BASE_DIR / "output" / name
     html_files = sorted(report_dir.glob("*.html")) if report_dir.is_dir() else []
     if not html_files:
         return ""

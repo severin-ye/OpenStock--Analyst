@@ -58,7 +58,7 @@ app.add_middleware(
 )
 
 # 静态文件 - 分析报告
-ANALYSIS_DIR = PROJECT_ROOT / "分析输出"
+ANALYSIS_DIR = PROJECT_ROOT / "output"
 if ANALYSIS_DIR.exists():
     app.mount("/reports", StaticFiles(directory=str(ANALYSIS_DIR)), name="reports")
 

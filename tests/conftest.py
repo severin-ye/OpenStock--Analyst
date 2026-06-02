@@ -16,8 +16,8 @@ def base_dir() -> Path:
 
 @pytest.fixture
 def output_dir(base_dir) -> Path:
-    """分析输出目录 fixture"""
-    return base_dir / '分析输出'
+    """输出目录 fixture"""
+    return base_dir / 'output'
 
 
 @pytest.fixture

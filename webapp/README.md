@@ -111,7 +111,7 @@ webapp/
 - **数据源**: 复用 `fetcher.py` 的 yfinance/CoinGecko 数据采集
 - **排名计算**: 复用 `greenblatt.py` 的四层加权排名算法
 - **报告生成**: 复用 `cli.py` 的完整分析流程
-- **报告存储**: 直读 `分析输出/` 目录的 HTML 报告
+- **报告存储**: 直读 `output/` 目录的 HTML 报告
 
 ## 环境变量
 
