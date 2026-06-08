@@ -60,3 +60,4 @@ htmlcov/
 
 # Output directory (auto-generated)
 output/
+*:Zone.Identifier
